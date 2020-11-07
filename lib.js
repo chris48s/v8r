@@ -11,7 +11,10 @@ async function fetch(url) {
     const resp = await got(url);
     return JSON.parse(resp.body);
   } catch (error) {
-    throw new Error(`❌ Failed fetching ${url}\n${error.response.body}`);
+    if (error.response) {
+      throw new Error(`❌ Failed fetching ${url}\n${error.response.body}`);
+    }
+    throw new Error(`❌ Failed fetching ${url}`);
   }
 }
 
@@ -57,23 +60,15 @@ function parseFile(contents, format) {
   }
 }
 
-function usage() {
-  return "Usage:\nv8r path/to/file.(json|yml|yaml)";
-}
-
 async function cli(args) {
-  if (args.length < 3) {
-    console.log(usage());
-    process.exit(0);
-  }
-  const filename = args[2];
+  const filename = args.filename;
 
   const data = parseFile(
     fs.readFileSync(filename, "utf8").toString(),
     path.extname(filename)
   );
   const schemaUrl =
-    args[3] || (await getSchemaUrlForFilename(path.basename(filename)));
+    args.schema || (await getSchemaUrlForFilename(path.basename(filename)));
   const schema = await fetch(schemaUrl);
   console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
 

@@ -13,12 +13,10 @@ describe("CLI success behaviour", function () {
       .get("/schema.json")
       .reply(200, schema);
 
-    return cli([
-      null,
-      null,
-      "./testfiles/valid.json",
-      "https://example.com/schema.json",
-    ]).then((result) => {
+    return cli({
+      filename: "./testfiles/valid.json",
+      schema: "https://example.com/schema.json",
+    }).then((result) => {
       assert.isTrue(result);
       mock.done();
     });
@@ -29,12 +27,10 @@ describe("CLI success behaviour", function () {
       .get("/schema.json")
       .reply(200, schema);
 
-    return cli([
-      null,
-      null,
-      "./testfiles/invalid.json",
-      "https://example.com/schema.json",
-    ]).then((result) => {
+    return cli({
+      filename: "./testfiles/invalid.json",
+      schema: "https://example.com/schema.json",
+    }).then((result) => {
       assert.isFalse(result);
       mock.done();
     });
@@ -55,7 +51,7 @@ describe("CLI success behaviour", function () {
       .get("/schema.json")
       .reply(200, schema);
 
-    return cli([null, null, "./testfiles/valid.json"]).then((result) => {
+    return cli({ filename: "./testfiles/valid.json" }).then((result) => {
       assert.isTrue(result);
       mock1.done();
       mock2.done();
@@ -77,7 +73,7 @@ describe("CLI success behaviour", function () {
       .get("/schema.json")
       .reply(200, schema);
 
-    return cli([null, null, "./testfiles/invalid.json"]).then((result) => {
+    return cli({ filename: "./testfiles/invalid.json" }).then((result) => {
       assert.isFalse(result);
       mock1.done();
       mock2.done();
@@ -92,7 +88,7 @@ describe("CLI error handling", function () {
       .reply(404, {});
 
     await expect(
-      cli([null, null, "./testfiles/valid.json"])
+      cli({ filename: "./testfiles/valid.json" })
     ).to.be.rejectedWith(
       Error,
       "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
@@ -116,7 +112,7 @@ describe("CLI error handling", function () {
       .reply(404, {});
 
     await expect(
-      cli([null, null, "./testfiles/valid.json"])
+      cli({ filename: "./testfiles/valid.json" })
     ).to.be.rejectedWith(
       Error,
       "❌ Failed fetching https://example.com/schema.json"
@@ -139,7 +135,7 @@ describe("CLI error handling", function () {
       });
 
     await expect(
-      cli([null, null, "./testfiles/valid.json"])
+      cli({ filename: "./testfiles/valid.json" })
     ).to.be.rejectedWith(
       Error,
       "❌ Could not find a schema to validate valid.json"
@@ -152,12 +148,10 @@ describe("CLI error handling", function () {
     const mock = nock("https://example.com").get("/schema.json").reply(404, {});
 
     await expect(
-      cli([
-        null,
-        null,
-        "./testfiles/valid.json",
-        "https://example.com/schema.json",
-      ])
+      cli({
+        filename: "./testfiles/valid.json",
+        schema: "https://example.com/schema.json",
+      })
     ).to.be.rejectedWith(
       Error,
       "❌ Failed fetching https://example.com/schema.json"
@@ -167,7 +161,7 @@ describe("CLI error handling", function () {
 
   it("should throw an exception if local file not found", async function () {
     await expect(
-      cli([null, null, "./testfiles/does-not-exist.json"])
+      cli({ filename: "./testfiles/does-not-exist.json" })
     ).to.be.rejectedWith(
       Error,
       "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
@@ -176,7 +170,7 @@ describe("CLI error handling", function () {
 
   it("should throw an exception if file type is not supported", async function () {
     await expect(
-      cli([null, null, "./testfiles/not-supported.txt"])
+      cli({ filename: "./testfiles/not-supported.txt" })
     ).to.be.rejectedWith(Error, "❌ Unsupported format .txt");
   });
 });
