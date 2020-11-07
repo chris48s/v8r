@@ -1,0 +1,40 @@
+{
+  "name": "v8r",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier": "prettier --write \"**/*.js\"",
+    "prettier:check": "prettier --check \"**/*.js\""
+  },
+  "bin": {
+    "v8r": "index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chris48s/v8r.git"
+  },
+  "homepage": "https://github.com/chris48s/v8r",
+  "author": "chris48s",
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "^6.12.6",
+    "got": "^11.8.0",
+    "js-yaml": "^3.14.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
+  },
+  "engines": {
+    "node": ">= 12"
+  },
+  "keywords": [
+    "JSON",
+    "YAML",
+    "schema",
+    "validator",
+    "validation",
+    "jsonschema",
+    "json-schema",
+    "command-line"
+  ]
+}
