@@ -1,6 +1,6 @@
 {
   "name": "v8r",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A command-line JSON and YAML validator that's on your wavelength",
   "scripts": {
     "test": "mocha tests.js",

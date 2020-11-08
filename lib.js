@@ -51,6 +51,8 @@ function validate(data, schema) {
 function parseFile(contents, format) {
   switch (format) {
     case ".json":
+    case ".geojson":
+    case ".jsonld":
       return JSON.parse(contents);
     case ".yml":
     case ".yaml":
