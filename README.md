@@ -25,7 +25,7 @@ v8r <filename>
 ```bash
 # v8r queries https://www.schemastore.org/ to detect a suitable schema based on the filename
 $ v8r package.json  # v8r can validate JSON..
-Validating package.json with schema 'package.json'...
+Validating package.json against schema from https://json.schemastore.org/package ...
 
 Errors:
 [
