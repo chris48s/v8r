@@ -3,6 +3,7 @@
 const Ajv = require("ajv");
 const fs = require("fs");
 const got = require("got");
+const minimatch = require("minimatch");
 const path = require("path");
 const yaml = require("js-yaml");
 
@@ -22,14 +23,33 @@ async function getSchemaUrlForFilename(filename) {
   const { schemas } = await fetch(
     "https://www.schemastore.org/api/json/catalog.json"
   );
+
   const matches = [];
   schemas.forEach(function (schema) {
-    if ("fileMatch" in schema && schema.fileMatch.includes(filename)) {
-      matches.push(schema);
+    if ("fileMatch" in schema) {
+      if (schema.fileMatch.includes(path.basename(filename))) {
+        matches.push(schema);
+        return;
+      }
+      for (const glob of schema.fileMatch) {
+        if (minimatch(path.normalize(filename), glob)) {
+          matches.push(schema);
+          break;
+        }
+      }
     }
   });
+
   if (matches.length == 1) {
     return matches[0].url;
+  }
+  if (matches.length > 1) {
+    console.log(
+      `Found multiple possible schemas for ${filename}. Possible matches:`
+    );
+    matches.forEach(function (match) {
+      console.log(`${match.description}: ${match.url}`);
+    });
   }
   throw new Error(`❌ Could not find a schema to validate ${filename}`);
 }
@@ -69,8 +89,7 @@ async function cli(args) {
     fs.readFileSync(filename, "utf8").toString(),
     path.extname(filename)
   );
-  const schemaUrl =
-    args.schema || (await getSchemaUrlForFilename(path.basename(filename)));
+  const schemaUrl = args.schema || (await getSchemaUrlForFilename(filename));
   const schema = await fetch(schemaUrl);
   console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
 

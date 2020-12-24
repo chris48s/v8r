@@ -21,6 +21,7 @@
     "ajv": "^6.12.6",
     "got": "^11.8.0",
     "js-yaml": "^3.14.0",
+    "minimatch": "^3.0.4",
     "yargs": "^16.1.0"
   },
   "devDependencies": {
