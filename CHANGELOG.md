@@ -1,5 +1,10 @@
 # Changelog
 
+## 📦 [0.2.0](https://www.npmjs.com/package/v8r/v/0.2.0) - 2020-12-24
+
+* Find schemas using paths and glob patterns
+* Add `--ignore-errors` flag
+
 ## 📦 [0.1.1](https://www.npmjs.com/package/v8r/v/0.1.1) - 2020-11-08
 
 * Add Documentation

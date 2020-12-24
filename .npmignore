@@ -1,3 +1,8 @@
 .github/*
+
 tests.js
 testfiles/*
+
+.nycrc
+.nyc_output/*
+coverage.lcov
