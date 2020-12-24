@@ -46,13 +46,13 @@ Validating action.yml against schema from https://json.schemastore.org/github-ac
 
 
 # if v8r can't auto-detect a schema for your file..
-$ v8r chart.yaml
-❌ Could not find a schema to validate chart.yaml
+$ v8r feature.geojson
+❌ Could not find a schema to validate feature.geojson
 
 # ..you can specify one
-$ v8r chart.yaml -s https://json.schemastore.org/helmfile
-Validating chart.yaml against schema from https://json.schemastore.org/helmfile ...
-✅ chart.yaml is valid
+$ v8r feature.geojson -s https://json.schemastore.org/geojson
+Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
+✅ feature.geojson is valid
 ```
 
 ## Exit codes
