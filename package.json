@@ -3,7 +3,8 @@
   "version": "0.1.1",
   "description": "A command-line JSON and YAML validator that's on your wavelength",
   "scripts": {
-    "test": "mocha tests.js",
+    "test": "nyc --reporter=text mocha tests.js",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "prettier": "prettier --write \"**/*.js\"",
     "prettier:check": "prettier --check \"**/*.js\""
   },
@@ -29,6 +30,7 @@
     "chai-as-promised": "^7.1.1",
     "mocha": "^8.2.1",
     "nock": "^13.0.4",
+    "nyc": "^15.1.0",
     "prettier": "^2.1.2"
   },
   "engines": {
