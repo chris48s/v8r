@@ -57,22 +57,21 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 
 ## Exit codes
 
-v8r exits with code `0` when:
+* v8r always exits with code `0` when:
+    * The input file was validated against a schema and the input file was **valid**
+    * `v8r` was called with `--help` or `--version` flags
 
-* The input file was validated against a schema and the input file was **valid**
-* `v8r` was called with `--help` or `--version` flags
+* By default v8r exits with code `1` when an error was encountered trying to validate the input file. For example:
+    * No suitable schema could be found
+    * An error was encountered during an HTTP request
+    * The input file did not exist
+    * The input file was not JSON or yaml
+    * etc
 
-v8r exits with code `1` when an error was encountered trying to validate the input file. For example:
+    This behaviour can be modified using the `--ignore-errors` flag. When invoked with `--ignore-errors` v8r will exit with code `0` even if one of these errors was encountered while attempting validation. A non-zero exit code will only be issued if validation could be completed successfully and the file was invalid.
 
-* No suitable schema could be found
-* An error was encountered during an HTTP request
-* The input file did not exist
-* The input file was not JSON or yaml
-* etc
-
-v8r exits with code `99` when:
-
-* The input file was validated against a schema and the input file was **invalid**
+* v8r always exits with code `99` when:
+    * The input file was validated against a schema and the input file was **invalid**
 
 ## FAQ
 
