@@ -3,14 +3,32 @@
 const Ajv = require("ajv");
 const fs = require("fs");
 const got = require("got");
+const Keyv = require("keyv");
+const KeyvFile = require("keyv-file").KeyvFile;
 const minimatch = require("minimatch");
+const os = require("os");
 const path = require("path");
 const yaml = require("js-yaml");
 
+const SCHEMA_STORE_CATALOG_URL =
+  "https://www.schemastore.org/api/json/catalog.json";
+const CACHE_FILE_NAME = `${os.tmpdir()}/keyv-file/v8r.json`;
+
+// Initialize cache
+const keyv = new Keyv({
+  store: new KeyvFile({
+    filename: CACHE_FILE_NAME, // the file path to store the data
+    expiredCheckDelay: 24 * 3600 * 1000, // ms, check and remove expired data in each ms (24h refresh delay)
+  }),
+});
+
 async function fetch(url) {
+  // Fetch url
   try {
-    const resp = await got(url);
-    return JSON.parse(resp.body);
+    const resp = await got(url, { cache: keyv });
+    const result = JSON.parse(resp.body);
+    result.isFromCache = resp.isFromCache;
+    return result;
   } catch (error) {
     if (error.response) {
       throw new Error(`❌ Failed fetching ${url}\n${error.response.body}`);
@@ -20,9 +38,7 @@ async function fetch(url) {
 }
 
 async function getSchemaUrlForFilename(filename) {
-  const { schemas } = await fetch(
-    "https://www.schemastore.org/api/json/catalog.json"
-  );
+  const { schemas } = await fetch(SCHEMA_STORE_CATALOG_URL);
 
   const matches = [];
   schemas.forEach(function (schema) {
@@ -102,4 +118,9 @@ async function cli(args) {
   return valid;
 }
 
-module.exports = { cli };
+module.exports = {
+  cli,
+  fetch,
+  CACHE_FILE_NAME,
+  SCHEMA_STORE_CATALOG_URL,
+};

@@ -1,8 +1,15 @@
 const chai = require("chai");
 const assert = chai.assert;
 const expect = chai.expect;
+const fs = require("fs");
 const nock = require("nock");
-const { cli } = require("./lib.js");
+const { env } = require("yargs");
+const {
+  cli,
+  fetch,
+  SCHEMA_STORE_CATALOG_URL,
+  CACHE_FILE_NAME,
+} = require("./lib.js");
 chai.use(require("chai-as-promised"));
 
 const schema = { type: "object", properties: { num: { type: "number" } } };
@@ -276,5 +283,43 @@ describe("CLI error handling", function () {
     await expect(
       cli({ filename: "./testfiles/not-supported.txt" })
     ).to.be.rejectedWith(Error, "❌ Unsupported format .txt");
+  });
+});
+
+describe("Cache Management", function () {
+  let consoleLogs = [];
+  let consoleErrs = [];
+  const mockedLog = (output) => consoleLogs.push(output);
+  const mockedErr = (output) => consoleErrs.push(output);
+  const originalLog = console.log;
+  const originalErr = console.error;
+
+  beforeEach(function () {
+    consoleLogs = [];
+    consoleErrs = [];
+    console.log = mockedLog;
+    console.error = mockedErr;
+    if (fs.existsSync(CACHE_FILE_NAME)) {
+      fs.unlinkSync(CACHE_FILE_NAME);
+    }
+    process.env.NOCK_OFF = "true";
+  });
+
+  afterEach(function () {
+    consoleLogs = [];
+    consoleErrs = [];
+    console.log = originalLog;
+    console.error = originalErr;
+    if (fs.existsSync(CACHE_FILE_NAME)) {
+      fs.unlinkSync(CACHE_FILE_NAME);
+    }
+    process.env.NOCK_OFF = "false";
+  });
+
+  it("should use HTTP cache to retrieve schemastore catalog", async function () {
+    const catalog = await fetch(SCHEMA_STORE_CATALOG_URL);
+    assert.isFalse(catalog.isFromCache, "Result should not be from cache");
+    const catalogFromCache = await fetch(SCHEMA_STORE_CATALOG_URL);
+    assert.isTrue(catalogFromCache.isFromCache, "Result should be from cache");
   });
 });
