@@ -4,6 +4,7 @@
     "**/*.js"
   ],
   "exclude": [
-    "tests.js"
+    "**/*.spec.js",
+    "src/test-helpers.js"
   ]
 }

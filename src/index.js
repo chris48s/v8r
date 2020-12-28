@@ -4,7 +4,7 @@
 
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const { Cli } = require("./lib.js");
+const { Cli } = require("./cli.js");
 const logging = require("./logging.js");
 
 const args = yargs(hideBin(process.argv))
