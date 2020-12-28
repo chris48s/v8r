@@ -40,7 +40,7 @@ async function getSchemaUrlForFilename(filename) {
     }
   });
 
-  if (matches.length == 1) {
+  if (matches.length === 1) {
     return matches[0].url;
   }
   if (matches.length > 1) {
