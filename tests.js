@@ -8,27 +8,24 @@ const { cli } = require("./lib.js");
 chai.use(require("chai-as-promised"));
 
 const schema = { type: "object", properties: { num: { type: "number" } } };
+const consoleMethods = ["log", "error", "debug"];
 
 describe("CLI success behaviour", function () {
-  let consoleLogs = [];
-  let consoleErrs = [];
-  const mockedLog = (output) => consoleLogs.push(output);
-  const mockedErr = (output) => consoleErrs.push(output);
-  const originalLog = console.log;
-  const originalErr = console.error;
+  const messages = {};
+  const originals = {};
 
   beforeEach(function () {
-    consoleLogs = [];
-    consoleErrs = [];
-    console.log = mockedLog;
-    console.error = mockedErr;
+    consoleMethods.forEach(function (fn) {
+      messages[fn] = [];
+      originals[fn] = console[fn];
+      console[fn] = (msg) => messages[fn].push(msg);
+    });
   });
 
   afterEach(function () {
-    consoleLogs = [];
-    consoleErrs = [];
-    console.log = originalLog;
-    console.error = originalErr;
+    consoleMethods.forEach(function (fn) {
+      console[fn] = originals[fn];
+    });
   });
 
   it("should return true when file is valid (with user-supplied schema)", function () {
@@ -41,7 +38,7 @@ describe("CLI success behaviour", function () {
       schema: "https://example.com/schema.json",
     }).then((result) => {
       assert.isTrue(result);
-      expect(consoleLogs).to.contain("✅ ./testfiles/valid.json is valid");
+      expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
       mock.done();
     });
   });
@@ -56,7 +53,7 @@ describe("CLI success behaviour", function () {
       schema: "https://example.com/schema.json",
     }).then((result) => {
       assert.isFalse(result);
-      expect(consoleLogs).to.contain("❌ ./testfiles/invalid.json is invalid");
+      expect(messages.log).to.contain("❌ ./testfiles/invalid.json is invalid");
       mock.done();
     });
   });
@@ -78,7 +75,7 @@ describe("CLI success behaviour", function () {
 
     return cli({ filename: "./testfiles/valid.json" }).then((result) => {
       assert.isTrue(result);
-      expect(consoleLogs).to.contain("✅ ./testfiles/valid.json is valid");
+      expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
       mock1.done();
       mock2.done();
     });
@@ -101,7 +98,7 @@ describe("CLI success behaviour", function () {
 
     return cli({ filename: "./testfiles/invalid.json" }).then((result) => {
       assert.isFalse(result);
-      expect(consoleLogs).to.contain("❌ ./testfiles/invalid.json is invalid");
+      expect(messages.log).to.contain("❌ ./testfiles/invalid.json is invalid");
       mock1.done();
       mock2.done();
     });
@@ -131,25 +128,21 @@ describe("CLI success behaviour", function () {
 });
 
 describe("CLI error handling", function () {
-  let consoleLogs = [];
-  let consoleErrs = [];
-  const mockedLog = (output) => consoleLogs.push(output);
-  const mockedErr = (output) => consoleErrs.push(output);
-  const originalLog = console.log;
-  const originalErr = console.error;
+  const messages = {};
+  const originals = {};
 
   beforeEach(function () {
-    consoleLogs = [];
-    consoleErrs = [];
-    console.log = mockedLog;
-    console.error = mockedErr;
+    consoleMethods.forEach(function (fn) {
+      messages[fn] = [];
+      originals[fn] = console[fn];
+      console[fn] = (msg) => messages[fn].push(msg);
+    });
   });
 
   afterEach(function () {
-    consoleLogs = [];
-    consoleErrs = [];
-    console.log = originalLog;
-    console.error = originalErr;
+    consoleMethods.forEach(function (fn) {
+      console[fn] = originals[fn];
+    });
   });
 
   it("should throw an exception if invalid response from schemastore", async function () {
@@ -238,13 +231,13 @@ describe("CLI error handling", function () {
       Error,
       "❌ Could not find a schema to validate ./testfiles/valid.json"
     );
-    expect(consoleLogs).to.contain(
+    expect(messages.log).to.contain(
       "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
     );
-    expect(consoleLogs).to.contain(
+    expect(messages.log).to.contain(
       "example schema 1: https://example.com/schema1.json"
     );
-    expect(consoleLogs).to.contain(
+    expect(messages.log).to.contain(
       "example schema 2: https://example.com/schema2.json"
     );
     mock1.done();
