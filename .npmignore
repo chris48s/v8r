@@ -4,6 +4,7 @@
 src/test-helpers.js
 testfiles/*
 
+.eslintrc.json
 .nycrc
 .nyc_output/*
 coverage.lcov

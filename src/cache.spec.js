@@ -15,9 +15,7 @@ describe("Cache", function () {
     afterEach(() => tearDown());
 
     it("should use cached response if valid", async function () {
-      const mock = nock("https://www.foobar.com")
-        .get("/baz")
-        .reply(200, { cached: false });
+      nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
 
       testCache.setKey("https://www.foobar.com/baz", {
         timestamp: Date.now(),
