@@ -4,7 +4,7 @@
 
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const { cli } = require("./lib.js");
+const { Cli } = require("./lib.js");
 const logging = require("./logging.js");
 
 const args = yargs(hideBin(process.argv))
@@ -32,11 +32,18 @@ const args = yargs(hideBin(process.argv))
     default: false,
     describe:
       "Exit with code 0 even if an error was encountered. Passing this flag means a non-zero exit code is only issued if validation could be completed successfully and the file was invalid",
+  })
+  .option("cache-ttl", {
+    type: "number",
+    default: 600,
+    describe:
+      "Remove cached HTTP responses older than <cache-ttl> seconds old. Passing 0 clears and disables cache completely",
   }).argv;
 
 (async () => {
   logging.init(args.verbose);
   try {
+    const cli = new Cli({});
     const valid = await cli(args);
     if (valid) {
       process.exit(0);

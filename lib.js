@@ -1,16 +1,46 @@
 "use strict";
 
 const Ajv = require("ajv");
+const flatCache = require("flat-cache");
 const fs = require("fs");
 const got = require("got");
 const minimatch = require("minimatch");
 const path = require("path");
 const yaml = require("js-yaml");
 
-async function fetch(url) {
+const SCHEMASTORE_CATALOG_URL =
+  "https://www.schemastore.org/api/json/catalog.json";
+
+function expire(cache, ttl) {
+  Object.entries(cache.all()).forEach(function ([url, cachedResponse]) {
+    if (!("timestamp" in cachedResponse) || !("body" in cachedResponse)) {
+      console.debug(`ℹ️ Cache error: deleting malformed response`);
+      cache.removeKey(url);
+    } else if (Date.now() > cachedResponse.timestamp + ttl) {
+      console.debug(`ℹ️ Cache stale: deleting cached response from ${url}`);
+      cache.removeKey(url);
+    }
+    cache.save(true);
+  });
+}
+
+async function cachedFetch(url, cache, ttl) {
+  expire(cache, ttl);
+  const cachedResponse = cache.getKey(url);
+  if (cachedResponse !== undefined) {
+    console.debug(`ℹ️ Cache hit: using cached response from ${url}`);
+    return cachedResponse.body;
+  }
+
   try {
+    console.debug(`ℹ️ Cache miss: calling ${url}`);
     const resp = await got(url);
-    return JSON.parse(resp.body);
+    const parsedBody = JSON.parse(resp.body);
+    if (ttl > 0) {
+      cache.setKey(url, { timestamp: Date.now(), body: parsedBody });
+      cache.save(true);
+    }
+    return parsedBody;
   } catch (error) {
     if (error.response) {
       throw new Error(`❌ Failed fetching ${url}\n${error.response.body}`);
@@ -19,10 +49,8 @@ async function fetch(url) {
   }
 }
 
-async function getSchemaUrlForFilename(filename) {
-  const { schemas } = await fetch(
-    "https://www.schemastore.org/api/json/catalog.json"
-  );
+async function getSchemaUrlForFilename(filename, cache, ttl) {
+  const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
 
   const matches = [];
   schemas.forEach(function (schema) {
@@ -82,24 +110,34 @@ function parseFile(contents, format) {
   }
 }
 
-async function cli(args) {
-  const filename = args.filename;
-
-  const data = parseFile(
-    fs.readFileSync(filename, "utf8").toString(),
-    path.extname(filename)
-  );
-  const schemaUrl = args.schema || (await getSchemaUrlForFilename(filename));
-  const schema = await fetch(schemaUrl);
-  console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
-
-  const valid = validate(data, schema);
-  if (valid) {
-    console.log(`✅ ${filename} is valid`);
-  } else {
-    console.log(`❌ ${filename} is invalid`);
-  }
-  return valid;
+function secondsToMilliseconds(seconds) {
+  return seconds * 1000;
 }
 
-module.exports = { cli };
+function Cli(settings) {
+  const cache = settings.cache || flatCache.load("v8r");
+
+  return async function (args) {
+    const filename = args.filename;
+    const ttl = secondsToMilliseconds(args.cacheTtl || 0);
+
+    const data = parseFile(
+      fs.readFileSync(filename, "utf8").toString(),
+      path.extname(filename)
+    );
+    const schemaUrl =
+      args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
+    const schema = await cachedFetch(schemaUrl, cache, ttl);
+    console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
+
+    const valid = validate(data, schema);
+    if (valid) {
+      console.log(`✅ ${filename} is valid`);
+    } else {
+      console.log(`❌ ${filename} is invalid`);
+    }
+    return valid;
+  };
+}
+
+module.exports = { cachedFetch, Cli };
