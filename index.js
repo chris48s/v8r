@@ -5,9 +5,7 @@
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
 const { cli } = require("./lib.js");
-
-const schemaHelp = `(optional) URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename`;
-const ignoreErrorsHelp = `(optional) Exit with code 0 even if an error was encountered. Passing this flag means a non-zero exit code is only issued if validation could be completed successfully and the file was invalid`;
+const logging = require("./logging.js");
 
 const args = yargs(hideBin(process.argv))
   .command(
@@ -17,17 +15,27 @@ const args = yargs(hideBin(process.argv))
       yargs.positional("filename", { describe: "Local file to validate" });
     }
   )
-  .option("s", {
-    alias: "schema",
+  .option("verbose", {
+    alias: "v",
+    type: "boolean",
+    description: "Run with verbose logging. Can be stacked e.g: -vv -vvv",
+  })
+  .count("verbose")
+  .option("schema", {
+    alias: "s",
     type: "string",
-    describe: schemaHelp,
+    describe:
+      "URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
   })
   .option("ignore-errors", {
     type: "boolean",
-    describe: ignoreErrorsHelp,
+    default: false,
+    describe:
+      "Exit with code 0 even if an error was encountered. Passing this flag means a non-zero exit code is only issued if validation could be completed successfully and the file was invalid",
   }).argv;
 
 (async () => {
+  logging.init(args.verbose);
   try {
     const valid = await cli(args);
     if (valid) {
@@ -40,5 +48,7 @@ const args = yargs(hideBin(process.argv))
       process.exit(0);
     }
     process.exit(1);
+  } finally {
+    logging.cleanup();
   }
 })();
