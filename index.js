@@ -10,7 +10,7 @@ const logging = require("./logging.js");
 const args = yargs(hideBin(process.argv))
   .command(
     "$0 <filename>",
-    "Validate a local json/yml/yaml file against a schema",
+    "Validate a local json/yaml file against a schema",
     (yargs) => {
       yargs.positional("filename", { describe: "Local file to validate" });
     }
