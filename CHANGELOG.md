@@ -1,5 +1,10 @@
 # Changelog
 
+## 📦 [0.3.0](https://www.npmjs.com/package/v8r/v/0.3.0) - 2020-12-29
+
+* Cache HTTP responses locally to improve performance
+* Add `--verbose` flag
+
 ## 📦 [0.2.0](https://www.npmjs.com/package/v8r/v/0.2.0) - 2020-12-24
 
 * Find schemas using paths and glob patterns
