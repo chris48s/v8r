@@ -90,6 +90,12 @@ function Cli(settings) {
     const schemaUrl =
       args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
     const schema = await cachedFetch(schemaUrl, cache, ttl);
+    if (
+      "$schema" in schema &&
+      schema.$schema.includes("json-schema.org/draft/2019-09/schema")
+    ) {
+      throw new Error(`❌ Unsupported JSON schema version ${schema.$schema}`);
+    }
     console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
 
     const resolver = function (url) {
