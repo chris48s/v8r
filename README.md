@@ -93,7 +93,7 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 
 ### ❓ Will 100% of the schemas on schemastore.org work with this tool?
 
-💡 No. There are some with [known issues](TODO:issue-link)
+💡 No. There are some with [known issues](https://github.com/chris48s/v8r/issues/18)
 
 ### ❓ Can `v8r` validate against a local schema?
 
