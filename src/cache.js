@@ -1,6 +1,8 @@
 "use strict";
 
 const got = require("got");
+const callCounter = {};
+const callLimit = 10;
 
 function expire(cache, ttl) {
   Object.entries(cache.all()).forEach(function ([url, cachedResponse]) {
@@ -15,7 +17,28 @@ function expire(cache, ttl) {
   });
 }
 
+function limitDepth(url) {
+  /*
+  It is possible to create cyclic dependencies with external references
+  in JSON schema. Ajv doesn't detect this when resolving external references,
+  so we keep a count of how many times we've called the same URL.
+  If we are calling the same URL over and over we've probably hit a circular
+  external reference and we need to break the loop.
+  */
+  if (url in callCounter) {
+    callCounter[url]++;
+  } else {
+    callCounter[url] = 1;
+  }
+  if (callCounter[url] > callLimit) {
+    throw new Error(
+      `❌ Called ${url} ${callLimit} times. Possible circular reference.`
+    );
+  }
+}
+
 async function cachedFetch(url, cache, ttl) {
+  limitDepth(url);
   expire(cache, ttl);
   const cachedResponse = cache.getKey(url);
   if (cachedResponse !== undefined) {
