@@ -44,11 +44,11 @@ async function getSchemaUrlForFilename(filename, cache, ttl) {
   throw new Error(`❌ Could not find a schema to validate ${filename}`);
 }
 
-function validate(data, schema) {
-  const ajv = new Ajv({ schemaId: "auto" });
+async function validate(data, schema, resolver) {
+  const ajv = new Ajv({ schemaId: "auto", loadSchema: resolver });
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-04.json"));
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
-  const validate = ajv.compile(schema);
+  const validate = await ajv.compileAsync(schema);
   const valid = validate(data);
   if (!valid) {
     console.log("\nErrors:");
@@ -92,7 +92,10 @@ function Cli(settings) {
     const schema = await cachedFetch(schemaUrl, cache, ttl);
     console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
 
-    const valid = validate(data, schema);
+    const resolver = function (url) {
+      return cachedFetch(url, cache, ttl);
+    };
+    const valid = await validate(data, schema, resolver);
     if (valid) {
       console.log(`✅ ${filename} is valid`);
     } else {
