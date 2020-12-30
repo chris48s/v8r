@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.4.0](https://www.npmjs.com/package/v8r/v/0.4.0) - 2020-12-30
+
+* Resolve external references in schemas
+
 ## 📦 [0.3.0](https://www.npmjs.com/package/v8r/v/0.3.0) - 2020-12-29
 
 * Cache HTTP responses locally to improve performance
