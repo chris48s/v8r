@@ -55,7 +55,7 @@ describe("Cache", function () {
     beforeEach(() => setUp(messages));
     afterEach(() => tearDown());
 
-    it("Should delete expired and malformed cache objects", async function () {
+    it("should delete expired and malformed cache objects", async function () {
       const now = Date.now();
       testCache.setKey("expired1", {
         timestamp: now - 3001,

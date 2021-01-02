@@ -4,7 +4,7 @@ const flatCache = require("flat-cache");
 
 const originals = {};
 const consoleMethods = ["log", "error", "debug"];
-const testCacheName = "v8r-test";
+const testCacheName = process.env.V8R_CACHE_NAME;
 
 function setUp(messages) {
   flatCache.clearCacheById(testCacheName);

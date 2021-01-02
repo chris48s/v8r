@@ -3,11 +3,12 @@
   "version": "0.4.0",
   "description": "A command-line JSON and YAML validator that's on your wavelength",
   "scripts": {
-    "test": "nyc --reporter=text mocha \"src/**/*.spec.js\"",
+    "test": "V8R_CACHE_NAME=v8r-test nyc --reporter=text mocha \"src/**/*.spec.js\"",
     "lint": "eslint \"src/**/*.js\"",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "prettier": "prettier --write \"**/*.js\"",
-    "prettier:check": "prettier --check \"**/*.js\""
+    "prettier:check": "prettier --check \"**/*.js\"",
+    "v8r": "src/index.js"
   },
   "bin": {
     "v8r": "src/index.js"

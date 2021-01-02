@@ -6,7 +6,10 @@ const fs = require("fs");
 const minimatch = require("minimatch");
 const path = require("path");
 const yaml = require("js-yaml");
+const yargs = require("yargs/yargs");
+const { hideBin } = require("yargs/helpers");
 const { cachedFetch } = require("./cache.js");
+const logging = require("./logging.js");
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
@@ -76,8 +79,15 @@ function secondsToMilliseconds(seconds) {
   return seconds * 1000;
 }
 
-function Cli(settings) {
-  const cache = settings.cache || flatCache.load("v8r");
+function getCache() {
+  if (process.env.V8R_CACHE_NAME) {
+    return flatCache.load(process.env.V8R_CACHE_NAME);
+  }
+  return flatCache.load("v8r");
+}
+
+function Validator() {
+  const cache = getCache();
 
   return async function (args) {
     const filename = args.filename;
@@ -111,4 +121,59 @@ function Cli(settings) {
   };
 }
 
-module.exports = { Cli };
+async function cli(args) {
+  logging.init(args.verbose);
+  try {
+    const validate = new Validator();
+    const valid = await validate(args);
+    if (valid) {
+      return 0;
+    }
+    return 99;
+  } catch (e) {
+    console.error(e.message);
+    if (args.ignoreErrors) {
+      return 0;
+    }
+    return 1;
+  } finally {
+    logging.cleanup();
+  }
+}
+
+function parseArgs(argv) {
+  return yargs(hideBin(argv))
+    .command(
+      "$0 <filename>",
+      "Validate a local json/yaml file against a schema",
+      (yargs) => {
+        yargs.positional("filename", { describe: "Local file to validate" });
+      }
+    )
+    .option("verbose", {
+      alias: "v",
+      type: "boolean",
+      description: "Run with verbose logging. Can be stacked e.g: -vv -vvv",
+    })
+    .count("verbose")
+    .option("schema", {
+      alias: "s",
+      type: "string",
+      describe:
+        "URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
+    })
+    .option("ignore-errors", {
+      type: "boolean",
+      default: false,
+      describe:
+        "Exit with code 0 even if an error was encountered. Passing this flag means a non-zero exit code is only issued if validation could be completed successfully and the file was invalid",
+    })
+    .option("cache-ttl", {
+      type: "number",
+      default: 600,
+      describe:
+        "Remove cached HTTP responses older than <cache-ttl> seconds old. Passing 0 clears and disables cache completely",
+    }).argv;
+}
+
+module.exports = { cli, parseArgs };
