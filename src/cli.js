@@ -69,7 +69,7 @@ function parseFile(contents, format) {
       return JSON.parse(contents);
     case ".yml":
     case ".yaml":
-      return yaml.safeLoad(contents);
+      return yaml.load(contents);
     default:
       throw new Error(`❌ Unsupported format ${format}`);
   }
