@@ -116,6 +116,21 @@ describe("CLI", function () {
         mock2.done();
       });
     });
+
+    it("should validate yaml files", function () {
+      const mock = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
+      return cli({
+        filename: "./testfiles/valid.yaml",
+        schema: "https://example.com/schema.json",
+      }).then((result) => {
+        assert.equal(0, result);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid");
+        mock.done();
+      });
+    });
   });
 
   describe("error handling", function () {
