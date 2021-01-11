@@ -3,6 +3,7 @@
 const Ajv = require("ajv");
 const flatCache = require("flat-cache");
 const fs = require("fs");
+const isUrl = require("is-url");
 const minimatch = require("minimatch");
 const path = require("path");
 const yaml = require("js-yaml");
@@ -97,16 +98,20 @@ function Validator() {
       fs.readFileSync(filename, "utf8").toString(),
       path.extname(filename)
     );
-    const schemaUrl =
+    const schemaLocation =
       args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
-    const schema = await cachedFetch(schemaUrl, cache, ttl);
+    const schema = isUrl(schemaLocation)
+      ? await cachedFetch(schemaLocation, cache, ttl)
+      : JSON.parse(fs.readFileSync(schemaLocation, "utf8").toString());
     if (
       "$schema" in schema &&
       schema.$schema.includes("json-schema.org/draft/2019-09/schema")
     ) {
       throw new Error(`❌ Unsupported JSON schema version ${schema.$schema}`);
     }
-    console.log(`Validating ${filename} against schema from ${schemaUrl} ...`);
+    console.log(
+      `Validating ${filename} against schema from ${schemaLocation} ...`
+    );
 
     const resolver = function (url) {
       return cachedFetch(url, cache, ttl);
@@ -160,7 +165,7 @@ function parseArgs(argv) {
       alias: "s",
       type: "string",
       describe:
-        "URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
+        "Local path or URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
     })
     .option("ignore-errors", {
       type: "boolean",

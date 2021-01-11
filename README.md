@@ -97,4 +97,4 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 
 ### ❓ Can `v8r` validate against a local schema?
 
-💡 Nope. There are other better tools for this. If you want to validate against a local schema, I recommend [ajv-cli](https://github.com/ajv-validator/ajv-cli/).
+💡 Yes. The `--schema` flag can be either a path to a local file or a URL.

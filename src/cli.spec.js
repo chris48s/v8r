@@ -15,7 +15,29 @@ describe("CLI", function () {
     beforeEach(() => setUp(messages));
     afterEach(() => tearDown());
 
-    it("should return 0 when file is valid (with user-supplied schema)", function () {
+    it("should return 0 when file is valid (user-supplied local schema)", function () {
+      return cli({
+        filename: "./testfiles/valid.json",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(0, result);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+      });
+    });
+
+    it("should return 99 when file is invalid (user-supplied local schema)", function () {
+      return cli({
+        filename: "./testfiles/invalid.json",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(99, result);
+        expect(messages.log).to.contain(
+          "❌ ./testfiles/invalid.json is invalid"
+        );
+      });
+    });
+
+    it("should return 0 when file is valid (with user-supplied remote schema)", function () {
       const mock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
@@ -30,7 +52,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 99 when file is invalid (with user-supplied schema)", function () {
+    it("should return 99 when file is invalid (with user-supplied remote schema)", function () {
       const mock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
@@ -118,17 +140,12 @@ describe("CLI", function () {
     });
 
     it("should validate yaml files", function () {
-      const mock = nock("https://example.com")
-        .get("/schema.json")
-        .reply(200, schema);
-
       return cli({
         filename: "./testfiles/valid.yaml",
-        schema: "https://example.com/schema.json",
+        schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(0, result);
         expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid");
-        mock.done();
       });
     });
   });
@@ -251,7 +268,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 1 if local file not found", async function () {
+    it("should return 1 if local target file not found", async function () {
       return cli({ filename: "./testfiles/does-not-exist.json" }).then(
         (result) => {
           assert.equal(1, result);
@@ -262,13 +279,25 @@ describe("CLI", function () {
       );
     });
 
-    it("should return 1 if file type is not supported", async function () {
+    it("should return 1 if target file type is not supported", async function () {
       return cli({ filename: "./testfiles/not-supported.txt" }).then(
         (result) => {
           assert.equal(1, result);
           expect(messages.error).to.contain("❌ Unsupported format .txt");
         }
       );
+    });
+
+    it("should return 1 if local schema file not found", async function () {
+      return cli({
+        filename: "./testfiles/valid.json",
+        schema: "./testfiles/does-not-exist.json",
+      }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain(
+          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+        );
+      });
     });
 
     it("should return 0 if ignore-errors flag is passed", async function () {
