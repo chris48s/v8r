@@ -5,6 +5,7 @@ const flatCache = require("flat-cache");
 const fs = require("fs");
 const isUrl = require("is-url");
 const minimatch = require("minimatch");
+const os = require("os");
 const path = require("path");
 const yaml = require("js-yaml");
 const yargs = require("yargs/yargs");
@@ -14,6 +15,7 @@ const logging = require("./logging.js");
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
+const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
 async function getSchemaUrlForFilename(filename, cache, ttl) {
   const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
@@ -84,7 +86,7 @@ function getCache() {
   if (process.env.V8R_CACHE_NAME) {
     return flatCache.load(process.env.V8R_CACHE_NAME);
   }
-  return flatCache.load("v8r");
+  return flatCache.load("v8r", CACHE_DIR);
 }
 
 function Validator() {
