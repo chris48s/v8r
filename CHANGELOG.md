@@ -1,5 +1,10 @@
 # Changelog
 
+## 📦 [0.5.0](https://www.npmjs.com/package/v8r/v/0.5.0) - 2021-01-13
+
+* Allow validation against a local schema
+* Move cache file to OS temp dir
+
 ## 📦 [0.4.0](https://www.npmjs.com/package/v8r/v/0.4.0) - 2020-12-30
 
 * Resolve external references in schemas
