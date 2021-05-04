@@ -28,7 +28,7 @@
     "is-url": "^1.2.4",
     "js-yaml": "^4.0.0",
     "minimatch": "^3.0.4",
-    "yargs": "^16.1.0"
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
