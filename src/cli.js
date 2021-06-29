@@ -8,6 +8,7 @@ const minimatch = require("minimatch");
 const os = require("os");
 const path = require("path");
 const yaml = require("js-yaml");
+const readline = require('readline');
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
 const { cachedFetch } = require("./cache.js");
@@ -16,6 +17,33 @@ const logging = require("./logging.js");
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
+
+async function getFirstLine(filename) {
+  var fileStream = fs.createReadStream(filename);
+  var lineReader = readline.createInterface({
+    input: fileStream,
+  }); 
+  const line = await new Promise((resolve) => {
+    lineReader.on('line', (line) => {
+      lineReader.close();
+      resolve(line);
+    });
+  });
+  fileStream.close();
+
+  return line;
+}
+
+async function getInlineSchemaUrl(filename) {
+  const ext = path.extname(filename);
+  if(ext == ".yml" || ext == ".yaml") {
+    const line = await getFirstLine(filename);
+    const match = line.match(/^# v8r: \$schema=(.+)$/);
+    if(match !== undefined) {
+      return match[1];
+    }
+  }
+}
 
 async function getSchemaUrlForFilename(filename, cache, ttl) {
   const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
@@ -101,7 +129,8 @@ function Validator() {
       path.extname(filename)
     );
     const schemaLocation =
-      args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
+      args.schema || await getInlineSchemaUrl(filename) || (await getSchemaUrlForFilename(filename, cache, ttl));
+    
     const schema = isUrl(schemaLocation)
       ? await cachedFetch(schemaLocation, cache, ttl)
       : JSON.parse(fs.readFileSync(schemaLocation, "utf8").toString());

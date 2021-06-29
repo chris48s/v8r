@@ -117,6 +117,37 @@ describe("CLI", function () {
       });
     });
 
+    it("should return 0 when file is valid (with inlined-detected schema)", function () {
+      const mock = nock("https://example.com")
+        .get("/specific-schema.json")
+        .reply(200, schema);
+
+      return cli({ filename: "./testfiles/inlined.yaml" }).then((result) => {
+        assert.equal(0, result);
+        expect(messages.log).to.contain("✅ ./testfiles/inlined.yaml is valid");
+        mock.done();
+      });
+    });
+
+    it("should return 99 when file is invalid (with inlined-detected schema)", function () {
+      const mock = nock("https://example.com")
+        .get("/wrong-schema.json")
+        .reply(200, {
+          type: "object",
+          properties: { num: { type: "object" } },
+        });
+
+      return cli({ filename: "./testfiles/invalid-inlined.yaml" }).then(
+        (result) => {
+          assert.equal(99, result);
+          expect(messages.log).to.contain(
+            "❌ ./testfiles/invalid-inlined.yaml is invalid"
+          );
+          mock.done();
+        }
+      );
+    });
+
     it("should find a schema using glob patterns", function () {
       const mock1 = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
