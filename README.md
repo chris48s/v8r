@@ -54,6 +54,11 @@ $ v8r feature.geojson
 $ v8r feature.geojson -s https://json.schemastore.org/geojson
 Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
 ✅ feature.geojson is valid
+
+# ..or specify a custom catalog
+$ v8r feature.geojson -c my-catalog.json
+Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
+✅ feature.geojson is valid
 ```
 
 ## Exit codes

@@ -13,12 +13,16 @@ describe("CLI", function () {
     const messages = {};
     const schema = { type: "object", properties: { num: { type: "number" } } };
     beforeEach(() => setUp(messages));
-    afterEach(() => tearDown());
+    afterEach(() => {
+      tearDown();
+      nock.cleanAll();
+    });
 
     it("should return 0 when file is valid (user-supplied local schema)", function () {
       return cli({
         filename: "./testfiles/valid.json",
         schema: "./testfiles/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(0, result);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
@@ -29,6 +33,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/invalid.json",
         schema: "./testfiles/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(99, result);
         expect(messages.log).to.contain(
@@ -45,6 +50,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(0, result);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
@@ -60,6 +66,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/invalid.json",
         schema: "https://example.com/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(99, result);
         expect(messages.log).to.contain(
@@ -84,8 +91,62 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({
+        filename: "./testfiles/valid.json",
+        catalogs: [],
+      }).then((result) => {
         assert.equal(0, result);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        mock1.done();
+        mock2.done();
+      });
+    });
+
+    it("should return 0 when file is valid (with auto-detected schema from custom catalog matching local schema)", function () {
+      return cli({
+        filename: "./testfiles/valid.json",
+        catalogs: ["./testfiles/catalog-local.json"],
+      }).then((result) => {
+        assert.equal(0, result);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+      });
+    });
+
+    it("should return 0 when file is valid (with auto-detected schema from custom catalog matching schema URL)", function () {
+      const mock = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
+      return cli({
+        filename: "./testfiles/valid.json",
+        catalogs: ["./testfiles/catalog-url.json"],
+      }).then((result) => {
+        assert.equal(0, result, messages.error);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        mock.done();
+      });
+    });
+
+    it("should return 0 when file is valid (with auto-detected schema from custom catalog fallbacking to schemastore.org)", function () {
+      const mock1 = nock("https://www.schemastore.org")
+        .get("/api/json/catalog.json")
+        .reply(200, {
+          schemas: [
+            {
+              url: "https://example.com/schema.json",
+              fileMatch: ["valid.json", "invalid.json"],
+            },
+          ],
+        });
+      const mock2 = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
+      return cli({
+        filename: "./testfiles/valid.json",
+        catalogs: ["./testfiles/catalog-nomatch.json"],
+      }).then((result) => {
+        assert.equal(0, result, messages.error);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         mock1.done();
         mock2.done();
@@ -107,7 +168,10 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/invalid.json" }).then((result) => {
+      return cli({
+        filename: "./testfiles/invalid.json",
+        catalogs: [],
+      }).then((result) => {
         assert.equal(99, result);
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid"
@@ -132,17 +196,20 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(0, result);
-        mock1.done();
-        mock2.done();
-      });
+      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
+        (result) => {
+          assert.equal(0, result);
+          mock1.done();
+          mock2.done();
+        }
+      );
     });
 
     it("should validate yaml files", function () {
       return cli({
         filename: "./testfiles/valid.yaml",
         schema: "./testfiles/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(0, result);
         expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid");
@@ -160,13 +227,15 @@ describe("CLI", function () {
         .get("/api/json/catalog.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
-        expect(messages.error[0]).to.contain(
-          "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
-        );
-        mock.done();
-      });
+      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
+        (result) => {
+          assert.equal(1, result);
+          expect(messages.error[0]).to.contain(
+            "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
+          );
+          mock.done();
+        }
+      );
     });
 
     it("should return 1 if invalid response fetching auto-detected schema", async function () {
@@ -184,14 +253,16 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
-        expect(messages.error[0]).to.contain(
-          "❌ Failed fetching https://example.com/schema.json"
-        );
-        mock1.done();
-        mock2.done();
-      });
+      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
+        (result) => {
+          assert.equal(1, result);
+          expect(messages.error[0]).to.contain(
+            "❌ Failed fetching https://example.com/schema.json"
+          );
+          mock1.done();
+          mock2.done();
+        }
+      );
     });
 
     it("should return 1 if we can't find a schema", async function () {
@@ -206,13 +277,15 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
-        expect(messages.error).to.contain(
-          "❌ Could not find a schema to validate ./testfiles/valid.json"
-        );
-        mock.done();
-      });
+      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
+        (result) => {
+          assert.equal(1, result);
+          expect(messages.error).to.contain(
+            "❌ Could not find a schema to validate ./testfiles/valid.json"
+          );
+          mock.done();
+        }
+      );
     });
 
     it("should return 1 if multiple schemas are matched", async function () {
@@ -233,22 +306,24 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
-        expect(messages.error).to.contain(
-          "❌ Could not find a schema to validate ./testfiles/valid.json"
-        );
-        expect(messages.log).to.contain(
-          "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
-        );
-        expect(messages.log).to.contain(
-          "example schema 1: https://example.com/schema1.json"
-        );
-        expect(messages.log).to.contain(
-          "example schema 2: https://example.com/schema2.json"
-        );
-        mock.done();
-      });
+      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
+        (result) => {
+          assert.equal(1, result);
+          expect(messages.error).to.contain(
+            "❌ Could not find a schema to validate ./testfiles/valid.json"
+          );
+          expect(messages.log).to.contain(
+            "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
+          );
+          expect(messages.log).to.contain(
+            "example schema 1: https://example.com/schema1.json"
+          );
+          expect(messages.log).to.contain(
+            "example schema 2: https://example.com/schema2.json"
+          );
+          mock.done();
+        }
+      );
     });
 
     it("should return 1 if invalid response fetching user-supplied schema", async function () {
@@ -259,6 +334,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(1, result);
         expect(messages.error[0]).to.contain(
@@ -269,29 +345,9 @@ describe("CLI", function () {
     });
 
     it("should return 1 if local target file not found", async function () {
-      return cli({ filename: "./testfiles/does-not-exist.json" }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error).to.contain(
-            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
-          );
-        }
-      );
-    });
-
-    it("should return 1 if target file type is not supported", async function () {
-      return cli({ filename: "./testfiles/not-supported.txt" }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error).to.contain("❌ Unsupported format .txt");
-        }
-      );
-    });
-
-    it("should return 1 if local schema file not found", async function () {
       return cli({
-        filename: "./testfiles/valid.json",
-        schema: "./testfiles/does-not-exist.json",
+        filename: "./testfiles/does-not-exist.json",
+        catalogs: [],
       }).then((result) => {
         assert.equal(1, result);
         expect(messages.error).to.contain(
@@ -300,10 +356,46 @@ describe("CLI", function () {
       });
     });
 
+    it("should return 1 if target file type is not supported", async function () {
+      return cli({
+        filename: "./testfiles/not-supported.txt",
+        catalogs: [],
+      }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain("❌ Unsupported format .txt");
+      });
+    });
+
+    it("should return 1 if local schema file not found", async function () {
+      return cli({
+        filename: "./testfiles/valid.json",
+        schema: "./testfiles/does-not-exist.json",
+        catalogs: [],
+      }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain(
+          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+        );
+      });
+    });
+
+    it("should return 1 if local catalog file not found", async function () {
+      return cli({
+        filename: "./testfiles/valid.json",
+        catalogs: ["./testfiles/does-not-exist.json"],
+      }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain(
+          "❌ Catalog not found: ./testfiles/does-not-exist.json"
+        );
+      });
+    });
+
     it("should return 0 if ignore-errors flag is passed", async function () {
       return cli({
         filename: "./testfiles/not-supported.txt",
         ignoreErrors: true,
+        catalogs: [],
       }).then((result) => {
         assert.equal(0, result);
         expect(messages.error).to.contain("❌ Unsupported format .txt");
@@ -318,6 +410,7 @@ describe("Argument parser", function () {
     expect(args).to.have.property("ignoreErrors", false);
     expect(args).to.have.property("cacheTtl", 600);
     expect(args).to.have.property("verbose", 0);
+    expect(args).to.have.property("catalogs").that.eql([]);
     expect(args).to.not.have.property("schema");
   });
 
@@ -346,5 +439,19 @@ describe("Argument parser", function () {
       "http://foo.bar/baz",
     ]);
     expect(args).to.have.property("schema", "http://foo.bar/baz");
+  });
+
+  it("should accept catalogs param", function () {
+    const args = parseArgs([
+      "node",
+      "index.js",
+      "infile.json",
+      "--catalogs",
+      "catalog1.json",
+      "catalog2.json",
+    ]);
+    expect(args).to.have.property("catalogs");
+    expect(args.catalogs).to.be.an("Array");
+    expect(args.catalogs).to.have.lengthOf(2);
   });
 });
