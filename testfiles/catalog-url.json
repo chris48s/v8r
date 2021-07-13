@@ -1,0 +1,13 @@
+{
+  "version": 1.0,
+  "schemas": [
+    {
+      "name": "Valid custom schema",
+      "fileMatch": [
+        "valid.json",
+        "valid.yml"
+      ],
+      "url": "https://example.com/schema.json"
+    }
+  ]
+}

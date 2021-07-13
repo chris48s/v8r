@@ -17,11 +17,28 @@ const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
-async function getSchemaUrlForFilename(filename, cache, ttl) {
-  const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
+async function getSchemaUrlForFilename(filename, cache, ttl, catalogs) {
+  let schemaLocation;
+  try {
+    const schemas = catalogs.flatMap((c) =>
+      JSON.parse(fs.readFileSync(c, "utf8").toString()).schemas.map((s) => {
+        if (!isUrl(s.url)) {
+          s.url = path.resolve(path.dirname(c), s.url);
+        }
+        return s;
+      })
+    );
+    schemaLocation = getSchemaMatchForFilename(schemas, filename);
+  } catch {
+    const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
+    schemaLocation = getSchemaMatchForFilename(schemas, filename);
+  }
+  return schemaLocation;
+}
 
+function getSchemaMatchForFilename(schemas, filename) {
   const matches = [];
-  schemas.forEach(function (schema) {
+  schemas.forEach((schema) => {
     if ("fileMatch" in schema) {
       if (schema.fileMatch.includes(path.basename(filename))) {
         matches.push(schema);
@@ -35,7 +52,6 @@ async function getSchemaUrlForFilename(filename, cache, ttl) {
       }
     }
   });
-
   if (matches.length === 1) {
     return matches[0].url;
   }
@@ -100,8 +116,15 @@ function Validator() {
       fs.readFileSync(filename, "utf8").toString(),
       path.extname(filename)
     );
+
+    for (const catalog of args.catalogs) {
+      if (!fs.existsSync(catalog)) {
+        throw new Error(`❌ Catalog not found: ${catalog}`);
+      }
+    }
     const schemaLocation =
-      args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
+      args.schema ||
+      (await getSchemaUrlForFilename(filename, cache, ttl, args.catalogs));
     const schema = isUrl(schemaLocation)
       ? await cachedFetch(schemaLocation, cache, ttl)
       : JSON.parse(fs.readFileSync(schemaLocation, "utf8").toString());
@@ -168,6 +191,14 @@ function parseArgs(argv) {
       type: "string",
       describe:
         "Local path or URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
+    })
+    .option("catalogs", {
+      type: "string",
+      alias: "c",
+      array: true,
+      default: [],
+      describe:
+        "Local paths of custom catalogs to use prior to schemastore.org",
     })
     .option("ignore-errors", {
       type: "boolean",
