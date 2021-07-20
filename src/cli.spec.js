@@ -290,13 +290,11 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
-        (result) => {
-          assert.equal(0, result);
-          mock1.done();
-          mock2.done();
-        }
-      );
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+        assert.equal(0, result);
+        mock1.done();
+        mock2.done();
+      });
     });
 
     it("should validate yaml files", function () {
@@ -320,15 +318,13 @@ describe("CLI", function () {
         .get("/api/json/catalog.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error[0]).to.contain(
-            "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
-          );
-          mock.done();
-        }
-      );
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error[0]).to.contain(
+          "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
+        );
+        mock.done();
+      });
     });
 
     it("should return 1 if invalid response fetching auto-detected schema", async function () {
@@ -346,16 +342,14 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error[0]).to.contain(
-            "❌ Failed fetching https://example.com/schema.json"
-          );
-          mock1.done();
-          mock2.done();
-        }
-      );
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error[0]).to.contain(
+          "❌ Failed fetching https://example.com/schema.json"
+        );
+        mock1.done();
+        mock2.done();
+      });
     });
 
     it("should return 1 if we can't find a schema", async function () {
@@ -370,15 +364,13 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error).to.contain(
-            "❌ Could not find a schema to validate ./testfiles/valid.json"
-          );
-          mock.done();
-        }
-      );
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain(
+          "❌ Could not find a schema to validate ./testfiles/valid.json"
+        );
+        mock.done();
+      });
     });
 
     it("should return 1 if multiple schemas are matched", async function () {
@@ -399,24 +391,22 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json", catalogs: [] }).then(
-        (result) => {
-          assert.equal(1, result);
-          expect(messages.error).to.contain(
-            "❌ Could not find a schema to validate ./testfiles/valid.json"
-          );
-          expect(messages.log).to.contain(
-            "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
-          );
-          expect(messages.log).to.contain(
-            "example schema 1: https://example.com/schema1.json"
-          );
-          expect(messages.log).to.contain(
-            "example schema 2: https://example.com/schema2.json"
-          );
-          mock.done();
-        }
-      );
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+        assert.equal(1, result);
+        expect(messages.error).to.contain(
+          "❌ Could not find a schema to validate ./testfiles/valid.json"
+        );
+        expect(messages.log).to.contain(
+          "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
+        );
+        expect(messages.log).to.contain(
+          "example schema 1: https://example.com/schema1.json"
+        );
+        expect(messages.log).to.contain(
+          "example schema 2: https://example.com/schema2.json"
+        );
+        mock.done();
+      });
     });
 
     it("should return 1 if invalid response fetching user-supplied schema", async function () {
