@@ -17,28 +17,48 @@ const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
-async function getSchemaUrlForFilename(filename, cache, ttl, catalogs) {
-  let schemaLocation;
-  try {
-    const schemas = catalogs.flatMap((c) =>
-      JSON.parse(fs.readFileSync(c, "utf8").toString()).schemas.map((s) => {
-        if (!isUrl(s.url)) {
-          s.url = path.resolve(path.dirname(c), s.url);
-        }
-        return s;
-      })
-    );
-    schemaLocation = getSchemaMatchForFilename(schemas, filename);
-  } catch {
-    const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
-    schemaLocation = getSchemaMatchForFilename(schemas, filename);
+async function getFromUrlOrFile(location, cache, ttl) {
+  return isUrl(location)
+    ? await cachedFetch(location, cache, ttl)
+    : JSON.parse(fs.readFileSync(location, "utf8").toString());
+}
+async function getSchemaUrlForFilename(catalogs, filename, cache, ttl) {
+  for (const [i, catalogLocation] of catalogs.entries()) {
+    const catalog = await getFromUrlOrFile(catalogLocation, cache, ttl);
+    if (
+      !Array.isArray(catalog.schemas) ||
+      catalog.schemas.some((o) => o.url === undefined)
+    ) {
+      throw new Error(`❌ Malformed catalog at ${catalogLocation}`);
+    }
+
+    const { schemas } = catalog;
+    const matches = getSchemaMatchesForFilename(schemas, filename);
+    if (matches.length === 1) {
+      console.log(`ℹ️ Found schema in ${catalog} ...`);
+      return matches[0].url; // Match found. We're done.
+    }
+    if (matches.length === 0 && i < catalogs.length - 1) {
+      continue; // No match found. Try the next catalog in the array.
+    }
+    if (matches.length > 1) {
+      // We found >1 matches in the same catalog. This is always a hard error.
+      console.log(
+        `Found multiple possible schemas for ${filename}. Possible matches:`
+      );
+      matches.forEach(function (match) {
+        console.log(`${match.description}: ${match.url}`);
+      });
+    }
+    // Either we found >1 matches in the same catalog or we found 0 matches
+    // in the last catalog and there are no more catalogs left to try.
+    throw new Error(`❌ Could not find a schema to validate ${filename}`);
   }
-  return schemaLocation;
 }
 
-function getSchemaMatchForFilename(schemas, filename) {
+function getSchemaMatchesForFilename(schemas, filename) {
   const matches = [];
-  schemas.forEach((schema) => {
+  schemas.forEach(function (schema) {
     if ("fileMatch" in schema) {
       if (schema.fileMatch.includes(path.basename(filename))) {
         matches.push(schema);
@@ -52,18 +72,7 @@ function getSchemaMatchForFilename(schemas, filename) {
       }
     }
   });
-  if (matches.length === 1) {
-    return matches[0].url;
-  }
-  if (matches.length > 1) {
-    console.log(
-      `Found multiple possible schemas for ${filename}. Possible matches:`
-    );
-    matches.forEach(function (match) {
-      console.log(`${match.description}: ${match.url}`);
-    });
-  }
-  throw new Error(`❌ Could not find a schema to validate ${filename}`);
+  return matches;
 }
 
 async function validate(data, schema, resolver) {
@@ -117,17 +126,15 @@ function Validator() {
       path.extname(filename)
     );
 
-    for (const catalog of args.catalogs) {
-      if (!fs.existsSync(catalog)) {
-        throw new Error(`❌ Catalog not found: ${catalog}`);
-      }
-    }
     const schemaLocation =
       args.schema ||
-      (await getSchemaUrlForFilename(filename, cache, ttl, args.catalogs));
-    const schema = isUrl(schemaLocation)
-      ? await cachedFetch(schemaLocation, cache, ttl)
-      : JSON.parse(fs.readFileSync(schemaLocation, "utf8").toString());
+      (await getSchemaUrlForFilename(
+        (args.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
+        filename,
+        cache,
+        ttl
+      ));
+    const schema = await getFromUrlOrFile(schemaLocation, cache, ttl);
     if (
       "$schema" in schema &&
       schema.$schema.includes("json-schema.org/draft/2019-09/schema")
@@ -196,10 +203,10 @@ function parseArgs(argv) {
       type: "string",
       alias: "c",
       array: true,
-      default: [],
       describe:
         "Local paths of custom catalogs to use prior to schemastore.org",
     })
+    .conflicts("schema", "catalogs")
     .option("ignore-errors", {
       type: "boolean",
       default: false,
