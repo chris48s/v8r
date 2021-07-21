@@ -9,9 +9,34 @@ const { setUp, tearDown } = require("./test-helpers.js");
 chai.use(require("chai-as-promised"));
 
 describe("CLI", function () {
+  // Moch the catalog validation schema
+  beforeEach(() => {
+    nock("https://json.schemastore.org")
+      .persist()
+      .get("/schema-catalog.json")
+      .reply(200, {
+        properties: {
+          schemas: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["url"],
+              properties: {
+                url: {
+                  type: "string",
+                  format: "uri",
+                  pattern: "^https://",
+                },
+              },
+            },
+          },
+        },
+      });
+  });
   describe("success behaviour", function () {
     const messages = {};
     const schema = { type: "object", properties: { num: { type: "number" } } };
+
     beforeEach(() => setUp(messages));
     afterEach(() => {
       tearDown();
@@ -124,16 +149,6 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom local catalog matching local schema)", function () {
-      return cli({
-        filename: "./testfiles/valid.json",
-        catalogs: ["./testfiles/catalog-local.json"],
-      }).then((result) => {
-        assert.equal(0, result);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
-      });
-    });
-
     it("should return 0 when file is valid (with auto-detected schema from custom local catalog matching remote schema)", function () {
       const storeMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
@@ -179,32 +194,10 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["https://my-catalog.com/catalog.json"],
       }).then((result) => {
-        assert.equal(0, result, messages.error);
+        assert.equal(0, result);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         catalogMock.done();
         catalogSchemaMock.done();
-      });
-    });
-
-    it("should return 0 when file is valid (with auto-detected schema from custom remote catalog matching relativly defined schema)", function () {
-      const catalogMock = nock("https://my-catalog.com")
-        .get("/catalog.json")
-        .reply(200, {
-          schemas: [
-            {
-              url: "testfiles/schema.json",
-              fileMatch: ["valid.json", "invalid.json"],
-            },
-          ],
-        });
-
-      return cli({
-        filename: "./testfiles/valid.json",
-        catalogs: ["https://my-catalog.com/catalog.json"],
-      }).then((result) => {
-        assert.equal(0, result, messages.error);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
-        catalogMock.done();
       });
     });
 
@@ -237,15 +230,20 @@ describe("CLI", function () {
     });
 
     it("should return 0 when file is valid (with auto-detected schema from custom catalog fallbacking to the next catalog)", function () {
+      const mock = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
       return cli({
         filename: "./testfiles/valid.json",
         catalogs: [
           "./testfiles/catalog-nomatch.json",
-          "./testfiles/catalog-local.json",
+          "./testfiles/catalog-url.json",
         ],
       }).then((result) => {
         assert.equal(0, result, messages.error);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        mock.done();
       });
     });
 
@@ -499,7 +497,7 @@ describe("CLI", function () {
         assert.equal(1, result);
         mock.done();
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at https://example.com/catalog.json"
+          "❌ Malformed catalog at https://example.com/catalog.json",
         );
       });
     });
@@ -521,23 +519,14 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 1 on malformed catalog ('schemas' elements should contains an url)", async function () {
-      const mock = nock("https://example.com")
-        .get("/catalog.json")
-        .reply(200, {
-          schemas: {
-            name: "Missing url schema",
-          },
-        });
-
+    it("should return 1 on malformed catalog ('schemas' elements should contains a valid url)", async function () {
       return cli({
         filename: "./testfiles/valid.json",
-        catalogs: ["https://example.com/catalog.json"],
+        catalogs: ["./testfiles/catalog-local.json"],
       }).then((result) => {
         assert.equal(1, result);
-        mock.done();
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at https://example.com/catalog.json"
+          "❌ Malformed catalog at ./testfiles/catalog-local.json"
         );
       });
     });

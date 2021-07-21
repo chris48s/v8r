@@ -15,6 +15,10 @@ const logging = require("./logging.js");
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
+
+const SCHEMASTORE_CATALOG_SCHEMA_URL =
+  "https://www.schemastore.org/api/json/schema-catalog.json";
+
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
 async function getFromUrlOrFile(location, cache, ttl) {
@@ -25,10 +29,15 @@ async function getFromUrlOrFile(location, cache, ttl) {
 async function getSchemaUrlForFilename(catalogs, filename, cache, ttl) {
   for (const [i, catalogLocation] of catalogs.entries()) {
     const catalog = await getFromUrlOrFile(catalogLocation, cache, ttl);
-    if (
-      !Array.isArray(catalog.schemas) ||
-      catalog.schemas.some((o) => o.url === undefined)
-    ) {
+    const catalogSchema = await getFromUrlOrFile(
+      SCHEMASTORE_CATALOG_SCHEMA_URL,
+      cache,
+      ttl
+    );
+
+    // Validate the catalog
+    const valid = await validate(catalog, catalogSchema, cache, ttl);
+    if (!valid || catalog.schemas === undefined) {
       throw new Error(`❌ Malformed catalog at ${catalogLocation}`);
     }
 
@@ -75,7 +84,8 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-async function validate(data, schema, resolver) {
+async function validate(data, schema, cache, ttl) {
+  const resolver = (url) => cachedFetch(url, cache, ttl);
   const ajv = new Ajv({ schemaId: "auto", loadSchema: resolver });
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-04.json"));
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
@@ -145,10 +155,7 @@ function Validator() {
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );
 
-    const resolver = function (url) {
-      return cachedFetch(url, cache, ttl);
-    };
-    const valid = await validate(data, schema, resolver);
+    const valid = await validate(data, schema, cache, ttl);
     if (valid) {
       console.log(`✅ ${filename} is valid`);
     } else {
