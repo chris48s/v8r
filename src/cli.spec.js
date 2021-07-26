@@ -9,8 +9,9 @@ const { setUp, tearDown } = require("./test-helpers.js");
 chai.use(require("chai-as-promised"));
 
 describe("CLI", function () {
-  // Moch the catalog validation schema
+  // Mock the catalog validation schema
   beforeEach(() => {
+    nock.disableNetConnect();
     nock("https://json.schemastore.org")
       .persist()
       .get("/schema-catalog.json")
@@ -149,7 +150,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom local catalog matching remote schema)", function () {
+    it("should return 0 when file is valid (with auto-detected schema from custom local catalog)", function () {
       const storeMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
@@ -175,7 +176,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom remote catalog matching remote schema)", function () {
+    it("should return 0 when file is valid (with auto-detected schema from custom remote catalog)", function () {
       const catalogMock = nock("https://my-catalog.com")
         .get("/catalog.json")
         .reply(200, {
@@ -229,7 +230,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom catalog fallbacking to the next catalog)", function () {
+    it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to the next catalog)", function () {
       const mock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
@@ -247,7 +248,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom catalog fallbacking to schemastore.org)", function () {
+    it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to schemastore.org)", function () {
       const storeMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
@@ -497,7 +498,7 @@ describe("CLI", function () {
         assert.equal(1, result);
         mock.done();
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at https://example.com/catalog.json",
+          "❌ Malformed catalog at https://example.com/catalog.json"
         );
       });
     });

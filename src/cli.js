@@ -17,7 +17,7 @@ const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
 
 const SCHEMASTORE_CATALOG_SCHEMA_URL =
-  "https://www.schemastore.org/api/json/schema-catalog.json";
+  "https://json.schemastore.org/schema-catalog.json";
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
@@ -44,7 +44,7 @@ async function getSchemaUrlForFilename(catalogs, filename, cache, ttl) {
     const { schemas } = catalog;
     const matches = getSchemaMatchesForFilename(schemas, filename);
     if (matches.length === 1) {
-      console.log(`ℹ️ Found schema in ${catalog} ...`);
+      console.log(`ℹ️ Found schema in ${catalogLocation} ...`);
       return matches[0].url; // Match found. We're done.
     }
     if (matches.length === 0 && i < catalogs.length - 1) {
@@ -211,7 +211,7 @@ function parseArgs(argv) {
       alias: "c",
       array: true,
       describe:
-        "Local paths of custom catalogs to use prior to schemastore.org",
+        "Local path or URL of custom catalogs to use prior to schemastore.org",
     })
     .conflicts("schema", "catalogs")
     .option("ignore-errors", {
