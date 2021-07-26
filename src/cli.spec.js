@@ -202,34 +202,6 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 99 when file is invalid (with auto-detected schema and custom catalogs)", function () {
-      const mock1 = nock("https://www.schemastore.org")
-        .get("/api/json/catalog.json")
-        .reply(200, {
-          schemas: [
-            {
-              url: "https://example.com/schema.json",
-              fileMatch: ["valid.json", "invalid.json"],
-            },
-          ],
-        });
-      const mock2 = nock("https://example.com")
-        .get("/schema.json")
-        .reply(200, schema);
-
-      return cli({
-        filename: "./testfiles/invalid.json",
-        catalogs: ["./testfiles/catalog-nomatch.json"],
-      }).then((result) => {
-        assert.equal(99, result, messages.error);
-        expect(messages.log).to.contain(
-          "❌ ./testfiles/invalid.json is invalid"
-        );
-        mock1.done();
-        mock2.done();
-      });
-    });
-
     it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to the next catalog)", function () {
       const mock = nock("https://example.com")
         .get("/schema.json")
