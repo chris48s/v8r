@@ -15,11 +15,57 @@ const logging = require("./logging.js");
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
+
+const SCHEMASTORE_CATALOG_SCHEMA_URL =
+  "https://json.schemastore.org/schema-catalog.json";
+
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
-async function getSchemaUrlForFilename(filename, cache, ttl) {
-  const { schemas } = await cachedFetch(SCHEMASTORE_CATALOG_URL, cache, ttl);
+async function getFromUrlOrFile(location, cache, ttl) {
+  return isUrl(location)
+    ? await cachedFetch(location, cache, ttl)
+    : JSON.parse(fs.readFileSync(location, "utf8").toString());
+}
+async function getSchemaUrlForFilename(catalogs, filename, cache, ttl) {
+  for (const [i, catalogLocation] of catalogs.entries()) {
+    const catalog = await getFromUrlOrFile(catalogLocation, cache, ttl);
+    const catalogSchema = await getFromUrlOrFile(
+      SCHEMASTORE_CATALOG_SCHEMA_URL,
+      cache,
+      ttl
+    );
 
+    // Validate the catalog
+    const valid = await validate(catalog, catalogSchema, cache, ttl);
+    if (!valid || catalog.schemas === undefined) {
+      throw new Error(`❌ Malformed catalog at ${catalogLocation}`);
+    }
+
+    const { schemas } = catalog;
+    const matches = getSchemaMatchesForFilename(schemas, filename);
+    if (matches.length === 1) {
+      console.log(`ℹ️ Found schema in ${catalogLocation} ...`);
+      return matches[0].url; // Match found. We're done.
+    }
+    if (matches.length === 0 && i < catalogs.length - 1) {
+      continue; // No match found. Try the next catalog in the array.
+    }
+    if (matches.length > 1) {
+      // We found >1 matches in the same catalog. This is always a hard error.
+      console.log(
+        `Found multiple possible schemas for ${filename}. Possible matches:`
+      );
+      matches.forEach(function (match) {
+        console.log(`${match.description}: ${match.url}`);
+      });
+    }
+    // Either we found >1 matches in the same catalog or we found 0 matches
+    // in the last catalog and there are no more catalogs left to try.
+    throw new Error(`❌ Could not find a schema to validate ${filename}`);
+  }
+}
+
+function getSchemaMatchesForFilename(schemas, filename) {
   const matches = [];
   schemas.forEach(function (schema) {
     if ("fileMatch" in schema) {
@@ -35,22 +81,11 @@ async function getSchemaUrlForFilename(filename, cache, ttl) {
       }
     }
   });
-
-  if (matches.length === 1) {
-    return matches[0].url;
-  }
-  if (matches.length > 1) {
-    console.log(
-      `Found multiple possible schemas for ${filename}. Possible matches:`
-    );
-    matches.forEach(function (match) {
-      console.log(`${match.description}: ${match.url}`);
-    });
-  }
-  throw new Error(`❌ Could not find a schema to validate ${filename}`);
+  return matches;
 }
 
-async function validate(data, schema, resolver) {
+async function validate(data, schema, cache, ttl) {
+  const resolver = (url) => cachedFetch(url, cache, ttl);
   const ajv = new Ajv({ schemaId: "auto", loadSchema: resolver });
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-04.json"));
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
@@ -100,11 +135,16 @@ function Validator() {
       fs.readFileSync(filename, "utf8").toString(),
       path.extname(filename)
     );
+
     const schemaLocation =
-      args.schema || (await getSchemaUrlForFilename(filename, cache, ttl));
-    const schema = isUrl(schemaLocation)
-      ? await cachedFetch(schemaLocation, cache, ttl)
-      : JSON.parse(fs.readFileSync(schemaLocation, "utf8").toString());
+      args.schema ||
+      (await getSchemaUrlForFilename(
+        (args.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
+        filename,
+        cache,
+        ttl
+      ));
+    const schema = await getFromUrlOrFile(schemaLocation, cache, ttl);
     if (
       "$schema" in schema &&
       schema.$schema.includes("json-schema.org/draft/2019-09/schema")
@@ -115,10 +155,7 @@ function Validator() {
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );
 
-    const resolver = function (url) {
-      return cachedFetch(url, cache, ttl);
-    };
-    const valid = await validate(data, schema, resolver);
+    const valid = await validate(data, schema, cache, ttl);
     if (valid) {
       console.log(`✅ ${filename} is valid`);
     } else {
@@ -169,6 +206,14 @@ function parseArgs(argv) {
       describe:
         "Local path or URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
     })
+    .option("catalogs", {
+      type: "string",
+      alias: "c",
+      array: true,
+      describe:
+        "Local path or URL of custom catalogs to use prior to schemastore.org",
+    })
+    .conflicts("schema", "catalogs")
     .option("ignore-errors", {
       type: "boolean",
       default: false,

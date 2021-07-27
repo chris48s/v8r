@@ -1,8 +1,8 @@
 "use strict";
 
 const got = require("got");
-const callCounter = {};
 const callLimit = 10;
+let callCounter = {};
 
 function expire(cache, ttl) {
   Object.entries(cache.all()).forEach(function ([url, cachedResponse]) {
@@ -63,4 +63,8 @@ async function cachedFetch(url, cache, ttl) {
   }
 }
 
-module.exports = { cachedFetch, expire };
+function resetCallCounter() {
+  callCounter = {};
+}
+
+module.exports = { cachedFetch, expire, resetCallCounter };
