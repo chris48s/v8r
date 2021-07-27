@@ -50,13 +50,22 @@ Validating action.yml against schema from https://json.schemastore.org/github-ac
 $ v8r feature.geojson
 ❌ Could not find a schema to validate feature.geojson
 
-# ..you can specify one
+# ..you can specify a schema
 $ v8r feature.geojson -s https://json.schemastore.org/geojson
 Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
 ✅ feature.geojson is valid
 
-# ..or specify a custom catalog
+# ..or use a custom catalog
+$ cat > my-catalog.json <<EOF
+{ "$schema": "https://json.schemastore.org/schema-catalog.json",
+  "version": 1,
+  "schemas": [ { "name": "geojson",
+                 "description": "geojson",
+                 "url": "https://json.schemastore.org/geojson.json",
+                 "fileMatch": ["*.geojson"] } ] }
+EOF
 $ v8r feature.geojson -c my-catalog.json
+ℹ️ Found schema in my-catalog.json ...
 Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
 ✅ feature.geojson is valid
 ```
