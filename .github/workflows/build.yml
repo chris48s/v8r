@@ -1,0 +1,84 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: echo "build_status_message=failing" >> $GITHUB_ENV
+      - run: echo "build_status_color=red" >> $GITHUB_ENV
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: |
+          npm run prettier:check
+          npm run lint
+
+      - name: Run tests
+        run: |
+          npm test
+          npm run coverage
+
+      - run: echo "build_status_message=passing" >> $GITHUB_ENV
+      - run: echo "build_status_color=brightgreen" >> $GITHUB_ENV
+
+      - name: Upload coverage report to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage/cobertura-coverage.xml
+
+      - name: Write Coverage badge
+        uses: action-badges/cobertura-coverage-xml-badges@main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          badge-branch: badges
+          file-name: coverage.svg
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          coverage-file-name: ./coverage/cobertura-coverage.xml
+
+      - name: Write Build Status badge
+        if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: action-badges/core@main
+        with:
+          badge-branch: badges
+          file-name: build-status.svg
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          label: build
+          message: "${{ env.build_status_message }}"
+          message-color: "${{ env.build_status_color }}"
+
+  package-json-badges:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Write License badge
+        uses: action-badges/package-json-badges@main
+        with:
+          badge-branch: badges
+          file-name: package-license.svg
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          integration: license
+
+      - name: Write Node Version badge
+        uses: action-badges/package-json-badges@main
+        with:
+          badge-branch: badges
+          file-name: package-node-version.svg
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          integration: node-version
+
+      - name: Write License badge
+        uses: action-badges/package-json-badges@main
+        with:
+          badge-branch: badges
+          file-name: package-version.svg
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          integration: version

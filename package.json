@@ -5,7 +5,7 @@
   "scripts": {
     "test": "V8R_CACHE_NAME=v8r-test nyc --reporter=text mocha \"src/**/*.spec.js\"",
     "lint": "eslint \"src/**/*.js\"",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
+    "coverage": "nyc report --reporter=cobertura",
     "prettier": "prettier --write \"**/*.js\"",
     "prettier:check": "prettier --check \"**/*.js\"",
     "v8r": "src/index.js"
