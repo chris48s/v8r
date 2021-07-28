@@ -7,4 +7,4 @@ testfiles/*
 .eslintrc.json
 .nycrc
 .nyc_output/*
-coverage.lcov
+coverage/*

@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.6.0](https://www.npmjs.com/package/v8r/v/0.6.0) - 2021-07-28
+
+* Add the ability to search custom schema catalogs using the `--catalogs` param
+
 ## 📦 [0.5.0](https://www.npmjs.com/package/v8r/v/0.5.0) - 2021-01-13
 
 * Allow validation against a local schema
