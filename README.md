@@ -1,10 +1,10 @@
 # v8r
 
-![Build status](https://github.com/chris48s/v8r/workflows/Run%20tests/badge.svg?branch=main)
-[![codecov](https://codecov.io/gh/chris48s/v8r/branch/main/graph/badge.svg?token=KL998A5CJH)](https://codecov.io/gh/chris48s/v8r)
-![NPM version](https://img.shields.io/npm/v/v8r.svg)
-![License](https://img.shields.io/npm/l/v8r.svg)
-![Node Compatibility](https://img.shields.io/node/v/v8r.svg)
+![build](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/build-status.svg)
+![coverage](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/coverage.svg)
+![version](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/package-version.svg)
+![license](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/package-license.svg)
+![node](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/package-node-version.svg)
 
 A command-line JSON and YAML validator that's on your wavelength.
 
