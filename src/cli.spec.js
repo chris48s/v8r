@@ -113,9 +113,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({
-        filename: "./testfiles/valid.json",
-      }).then((result) => {
+      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         mock1.done();
@@ -138,9 +136,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({
-        filename: "./testfiles/invalid.json",
-      }).then((result) => {
+      return cli({ filename: "./testfiles/invalid.json" }).then((result) => {
         assert.equal(result, 99);
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid"
@@ -398,23 +394,23 @@ describe("CLI", function () {
     });
 
     it("should return 1 if local target file not found", async function () {
-      return cli({
-        filename: "./testfiles/does-not-exist.json",
-      }).then((result) => {
-        assert.equal(result, 1);
-        expect(messages.error).to.contain(
-          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
-        );
-      });
+      return cli({ filename: "./testfiles/does-not-exist.json" }).then(
+        (result) => {
+          assert.equal(result, 1);
+          expect(messages.error).to.contain(
+            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+          );
+        }
+      );
     });
 
     it("should return 1 if target file type is not supported", async function () {
-      return cli({
-        filename: "./testfiles/not-supported.txt",
-      }).then((result) => {
-        assert.equal(result, 1);
-        expect(messages.error).to.contain("❌ Unsupported format .txt");
-      });
+      return cli({ filename: "./testfiles/not-supported.txt" }).then(
+        (result) => {
+          assert.equal(result, 1);
+          expect(messages.error).to.contain("❌ Unsupported format .txt");
+        }
+      );
     });
 
     it("should return 1 if local schema file not found", async function () {
