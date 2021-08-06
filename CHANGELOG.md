@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.6.1](https://www.npmjs.com/package/v8r/v/0.6.1) - 2021-08-06
+
+* Refactor cache module to remove global state
+
 ## 📦 [0.6.0](https://www.npmjs.com/package/v8r/v/0.6.0) - 2021-07-28
 
 * Add the ability to search custom schema catalogs using the `--catalogs` param
