@@ -2,30 +2,27 @@
 
 const chai = require("chai");
 const assert = chai.assert;
+const expect = chai.expect;
 const flatCache = require("flat-cache");
 const nock = require("nock");
-const { cachedFetch, expire } = require("./cache.js");
+const { Cache } = require("./cache.js");
 const { testCacheName, setUp, tearDown } = require("./test-helpers.js");
 
 describe("Cache", function () {
-  describe("cachedFetch function", function () {
+  describe("fetch function", function () {
     const messages = {};
-    const testCache = flatCache.load(testCacheName);
+    const testCache = new Cache(flatCache.load(testCacheName), 3000);
     beforeEach(() => setUp(messages));
     afterEach(() => tearDown());
 
     it("should use cached response if valid", async function () {
       nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
 
-      testCache.setKey("https://www.foobar.com/baz", {
+      testCache.cache.setKey("https://www.foobar.com/baz", {
         timestamp: Date.now(),
         body: { cached: true },
       });
-      const resp = await cachedFetch(
-        "https://www.foobar.com/baz",
-        testCache,
-        3000
-      );
+      const resp = await testCache.fetch("https://www.foobar.com/baz");
       assert.deepEqual(resp, { cached: true });
       nock.cleanAll();
     });
@@ -35,45 +32,68 @@ describe("Cache", function () {
         .get("/baz")
         .reply(200, { cached: false });
 
-      testCache.setKey("https://www.foobar.com/baz", {
+      testCache.cache.setKey("https://www.foobar.com/baz", {
         timestamp: Date.now() - 3001,
         body: { cached: true },
       });
-      const resp = await cachedFetch(
-        "https://www.foobar.com/baz",
-        testCache,
-        3000
-      );
+      const resp = await testCache.fetch("https://www.foobar.com/baz");
       assert.deepEqual(resp, { cached: false });
+      mock.done();
+    });
+  });
+
+  describe("cyclic detection", function () {
+    const messages = {};
+    const testCache = new Cache(flatCache.load(testCacheName), 3000);
+    beforeEach(() => setUp(messages));
+    afterEach(() => tearDown());
+
+    it("throws if callLimit is exceeded", async function () {
+      const mock = nock("https://www.foobar.com")
+        .get("/baz")
+        .reply(200, { cached: false });
+
+      testCache.callLimit = 2;
+      // the first two calls should work
+      await testCache.fetch("https://www.foobar.com/baz");
+      await testCache.fetch("https://www.foobar.com/baz");
+
+      //..and then the third one should fail
+      await expect(
+        testCache.fetch("https://www.foobar.com/baz")
+      ).to.be.rejectedWith(
+        Error,
+        "❌ Called https://www.foobar.com/baz >2 times. Possible circular reference."
+      );
       mock.done();
     });
   });
 
   describe("expire function", function () {
     const messages = {};
-    const testCache = flatCache.load(testCacheName);
+    const testCache = new Cache(flatCache.load(testCacheName), 3000);
     beforeEach(() => setUp(messages));
     afterEach(() => tearDown());
 
     it("should delete expired and malformed cache objects", async function () {
       const now = Date.now();
-      testCache.setKey("expired1", {
+      testCache.cache.setKey("expired1", {
         timestamp: now - 3001,
         body: null,
       });
-      testCache.setKey("expired2", {
+      testCache.cache.setKey("expired2", {
         timestamp: now - 20000,
         body: null,
       });
-      testCache.setKey("fresh", {
+      testCache.cache.setKey("fresh", {
         timestamp: now + 5000,
         body: null,
       });
-      testCache.setKey("malformed", {
+      testCache.cache.setKey("malformed", {
         timestamp: now + 5000,
       });
-      expire(testCache, 3000);
-      assert.deepEqual(Object.keys(testCache.all()), ["fresh"]);
+      testCache.expire();
+      assert.deepEqual(Object.keys(testCache.cache.all()), ["fresh"]);
     });
   });
 });

@@ -10,7 +10,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
-const { cachedFetch } = require("./cache.js");
+const { Cache } = require("./cache.js");
 const logging = require("./logging.js");
 
 const SCHEMASTORE_CATALOG_URL =
@@ -21,22 +21,21 @@ const SCHEMASTORE_CATALOG_SCHEMA_URL =
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
-async function getFromUrlOrFile(location, cache, ttl) {
+async function getFromUrlOrFile(location, cache) {
   return isUrl(location)
-    ? await cachedFetch(location, cache, ttl)
+    ? await cache.fetch(location)
     : JSON.parse(fs.readFileSync(location, "utf8").toString());
 }
-async function getSchemaUrlForFilename(catalogs, filename, cache, ttl) {
+async function getSchemaUrlForFilename(catalogs, filename, cache) {
   for (const [i, catalogLocation] of catalogs.entries()) {
-    const catalog = await getFromUrlOrFile(catalogLocation, cache, ttl);
+    const catalog = await getFromUrlOrFile(catalogLocation, cache);
     const catalogSchema = await getFromUrlOrFile(
       SCHEMASTORE_CATALOG_SCHEMA_URL,
-      cache,
-      ttl
+      cache
     );
 
     // Validate the catalog
-    const valid = await validate(catalog, catalogSchema, cache, ttl);
+    const valid = await validate(catalog, catalogSchema, cache);
     if (!valid || catalog.schemas === undefined) {
       throw new Error(`❌ Malformed catalog at ${catalogLocation}`);
     }
@@ -84,8 +83,8 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-async function validate(data, schema, cache, ttl) {
-  const resolver = (url) => cachedFetch(url, cache, ttl);
+async function validate(data, schema, cache) {
+  const resolver = (url) => cache.fetch(url);
   const ajv = new Ajv({ schemaId: "auto", loadSchema: resolver });
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-04.json"));
   ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
@@ -117,7 +116,7 @@ function secondsToMilliseconds(seconds) {
   return seconds * 1000;
 }
 
-function getCache() {
+function getFlatCache() {
   if (process.env.V8R_CACHE_NAME) {
     return flatCache.load(process.env.V8R_CACHE_NAME);
   }
@@ -125,11 +124,10 @@ function getCache() {
 }
 
 function Validator() {
-  const cache = getCache();
-
   return async function (args) {
     const filename = args.filename;
     const ttl = secondsToMilliseconds(args.cacheTtl || 0);
+    const cache = new Cache(getFlatCache(), ttl);
 
     const data = parseFile(
       fs.readFileSync(filename, "utf8").toString(),
@@ -141,10 +139,9 @@ function Validator() {
       (await getSchemaUrlForFilename(
         (args.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
         filename,
-        cache,
-        ttl
+        cache
       ));
-    const schema = await getFromUrlOrFile(schemaLocation, cache, ttl);
+    const schema = await getFromUrlOrFile(schemaLocation, cache);
     if (
       "$schema" in schema &&
       schema.$schema.includes("json-schema.org/draft/2019-09/schema")
@@ -155,7 +152,7 @@ function Validator() {
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );
 
-    const valid = await validate(data, schema, cache, ttl);
+    const valid = await validate(data, schema, cache);
     if (valid) {
       console.log(`✅ ${filename} is valid`);
     } else {

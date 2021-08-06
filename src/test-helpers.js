@@ -1,7 +1,6 @@
 "use strict";
 
 const flatCache = require("flat-cache");
-const cache = require("./cache.js");
 
 const originals = {};
 const consoleMethods = ["log", "error", "debug"];
@@ -17,7 +16,6 @@ function setUp(messages) {
 }
 
 function tearDown() {
-  cache.resetCallCounter();
   flatCache.clearCacheById(testCacheName);
   consoleMethods.forEach(function (fn) {
     console[fn] = originals[fn];
