@@ -49,7 +49,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         schema: "./testfiles/schema.json",
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
       });
     });
@@ -59,7 +59,7 @@ describe("CLI", function () {
         filename: "./testfiles/invalid.json",
         schema: "./testfiles/schema.json",
       }).then((result) => {
-        assert.equal(99, result);
+        assert.equal(result, 99);
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid"
         );
@@ -75,7 +75,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         mock.done();
       });
@@ -90,7 +90,7 @@ describe("CLI", function () {
         filename: "./testfiles/invalid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
-        assert.equal(99, result);
+        assert.equal(result, 99);
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid"
         );
@@ -116,7 +116,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/valid.json",
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         mock1.done();
         mock2.done();
@@ -141,7 +141,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/invalid.json",
       }).then((result) => {
-        assert.equal(99, result);
+        assert.equal(result, 99);
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid"
         );
@@ -169,7 +169,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-url.json"],
       }).then((result) => {
-        assert.equal(0, result, messages.error);
+        assert.equal(result, 0, messages.error);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         expect(storeMock.isDone()).to.be.false;
         catalogSchemaMock.done();
@@ -195,7 +195,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["https://my-catalog.com/catalog.json"],
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         catalogMock.done();
         catalogSchemaMock.done();
@@ -214,7 +214,7 @@ describe("CLI", function () {
           "./testfiles/catalog-url.json",
         ],
       }).then((result) => {
-        assert.equal(0, result, messages.error);
+        assert.equal(result, 0, messages.error);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         mock.done();
       });
@@ -239,7 +239,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-nomatch.json"],
       }).then((result) => {
-        assert.equal(0, result, messages.error);
+        assert.equal(result, 0, messages.error);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
         storeMock.done();
         storeSchemaMock.done();
@@ -262,7 +262,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         mock1.done();
         mock2.done();
       });
@@ -273,7 +273,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.yaml",
         schema: "./testfiles/schema.json",
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid");
       });
     });
@@ -290,7 +290,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
         );
@@ -314,7 +314,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://example.com/schema.json"
         );
@@ -336,7 +336,7 @@ describe("CLI", function () {
         });
 
       return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "❌ Could not find a schema to validate ./testfiles/valid.json"
         );
@@ -363,7 +363,7 @@ describe("CLI", function () {
         });
 
       return cli({ filename: "./testfiles/valid.json" }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "❌ Could not find a schema to validate ./testfiles/valid.json"
         );
@@ -389,7 +389,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://example.com/schema.json"
         );
@@ -401,7 +401,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/does-not-exist.json",
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
         );
@@ -412,7 +412,7 @@ describe("CLI", function () {
       return cli({
         filename: "./testfiles/not-supported.txt",
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain("❌ Unsupported format .txt");
       });
     });
@@ -422,7 +422,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         schema: "./testfiles/does-not-exist.json",
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
         );
@@ -434,7 +434,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["./testfiles/does-not-exist.json"],
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
         );
@@ -450,7 +450,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://example.com/catalog.json"
         );
@@ -467,7 +467,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         mock.done();
         expect(messages.error).to.contain(
           "❌ Malformed catalog at https://example.com/catalog.json"
@@ -484,7 +484,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         mock.done();
         expect(messages.error).to.contain(
           "❌ Malformed catalog at https://example.com/catalog.json"
@@ -497,7 +497,7 @@ describe("CLI", function () {
         filename: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-local.json"],
       }).then((result) => {
-        assert.equal(1, result);
+        assert.equal(result, 1);
         expect(messages.error).to.contain(
           "❌ Malformed catalog at ./testfiles/catalog-local.json"
         );
@@ -509,7 +509,7 @@ describe("CLI", function () {
         filename: "./testfiles/not-supported.txt",
         ignoreErrors: true,
       }).then((result) => {
-        assert.equal(0, result);
+        assert.equal(result, 0);
         expect(messages.error).to.contain("❌ Unsupported format .txt");
       });
     });
