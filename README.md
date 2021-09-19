@@ -57,7 +57,7 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 
 # ..or use a custom catalog
 $ cat > my-catalog.json <<EOF
-{ "$schema": "https://json.schemastore.org/schema-catalog.json",
+{ "\$schema": "https://json.schemastore.org/schema-catalog.json",
   "version": 1,
   "schemas": [ { "name": "geojson",
                  "description": "geojson",
