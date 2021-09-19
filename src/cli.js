@@ -42,6 +42,7 @@ async function getSchemaUrlForFilename(catalogs, filename, cache) {
 
     const { schemas } = catalog;
     const matches = getSchemaMatchesForFilename(schemas, filename);
+    console.debug(`ℹ️ Searching for schema in ${catalogLocation} ...`);
     if (matches.length === 1) {
       console.log(`ℹ️ Found schema in ${catalogLocation} ...`);
       return matches[0].url; // Match found. We're done.

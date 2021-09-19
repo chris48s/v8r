@@ -56,6 +56,7 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 ✅ feature.geojson is valid
 
 # ..or use a custom catalog
+# v8r will search any custom catalogs before falling back to Schema Store
 $ cat > my-catalog.json <<EOF
 { "\$schema": "https://json.schemastore.org/schema-catalog.json",
   "version": 1,
