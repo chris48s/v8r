@@ -28,7 +28,7 @@ jobs:
       - run: echo "build_status_color=brightgreen" >> $GITHUB_ENV
 
       - name: Upload coverage report to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
           file: ./coverage/cobertura-coverage.xml
 
