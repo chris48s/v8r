@@ -54,6 +54,17 @@ describe("CLI", function () {
       });
     });
 
+    it("should return 0 when file is valid (user-supplied local schema ref in files)", function () {
+      return cli({
+        filename: "./testfiles/valid-with-schema-ref.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        expect(messages.log).to.contain(
+          "✅ ./testfiles/valid-with-schema-ref.json is valid"
+        );
+      });
+    });
+
     it("should return 99 when file is invalid (user-supplied local schema)", function () {
       return cli({
         filename: "./testfiles/invalid.json",

@@ -3,6 +3,7 @@
 ## next
 
 * Docs/logging improvements to clarify behaviour of `--catalogs` param
+* Add support "$schema" key
 
 ## 📦 [0.6.1](https://www.npmjs.com/package/v8r/v/0.6.1) - 2021-08-06
 
