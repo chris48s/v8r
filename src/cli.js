@@ -137,6 +137,7 @@ function Validator() {
 
     const schemaLocation =
       args.schema ||
+      data.$schema ||
       (await getSchemaUrlForFilename(
         (args.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
         filename,
