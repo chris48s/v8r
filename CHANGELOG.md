@@ -1,7 +1,9 @@
 # Changelog
 
-## next
+## 📦 [0.7.0](https://www.npmjs.com/package/v8r/v/0.7.0) - 2021-11-30
 
+* Upgrade to ajv 8 internally
+  Adds compatibility for JSON Schema draft 2019-09 and draft 2020-12
 * Docs/logging improvements to clarify behaviour of `--catalogs` param
 
 ## 📦 [0.6.1](https://www.npmjs.com/package/v8r/v/0.6.1) - 2021-08-06
