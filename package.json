@@ -22,7 +22,9 @@
   "author": "chris48s",
   "license": "MIT",
   "dependencies": {
-    "ajv": "^6.12.6",
+    "ajv": "^8.8.2",
+    "ajv-draft-04": "^1.0.0",
+    "ajv-formats": "^2.1.1",
     "flat-cache": "^3.0.4",
     "got": "^11.8.0",
     "is-url": "^1.2.4",

@@ -1,6 +1,5 @@
 "use strict";
 
-const Ajv = require("ajv");
 const flatCache = require("flat-cache");
 const fs = require("fs");
 const isUrl = require("is-url");
@@ -10,6 +9,7 @@ const path = require("path");
 const yaml = require("js-yaml");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
+const { validate } = require("./ajv.js");
 const { Cache } = require("./cache.js");
 const logging = require("./logging.js");
 
@@ -84,21 +84,6 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-async function validate(data, schema, cache) {
-  const resolver = (url) => cache.fetch(url);
-  const ajv = new Ajv({ schemaId: "auto", loadSchema: resolver });
-  ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-04.json"));
-  ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
-  const validate = await ajv.compileAsync(schema);
-  const valid = validate(data);
-  if (!valid) {
-    console.log("\nErrors:");
-    console.log(validate.errors);
-    console.log("");
-  }
-  return valid;
-}
-
 function parseFile(contents, format) {
   switch (format) {
     case ".json":
@@ -143,12 +128,6 @@ function Validator() {
         cache
       ));
     const schema = await getFromUrlOrFile(schemaLocation, cache);
-    if (
-      "$schema" in schema &&
-      schema.$schema.includes("json-schema.org/draft/2019-09/schema")
-    ) {
-      throw new Error(`❌ Unsupported JSON schema version ${schema.$schema}`);
-    }
     console.log(
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );

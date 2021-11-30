@@ -16,6 +16,8 @@ describe("CLI", function () {
       .persist()
       .get("/schema-catalog.json")
       .reply(200, {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
         properties: {
           schemas: {
             type: "array",
@@ -36,7 +38,11 @@ describe("CLI", function () {
   });
   describe("success behaviour", function () {
     const messages = {};
-    const schema = { type: "object", properties: { num: { type: "number" } } };
+    const schema = {
+      $schema: "http://json-schema.org/draft-07/schema#",
+      type: "object",
+      properties: { num: { type: "number" } },
+    };
 
     beforeEach(() => setUp(messages));
     afterEach(() => {

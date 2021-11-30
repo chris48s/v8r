@@ -104,7 +104,13 @@ Validating feature.geojson against schema from https://json.schemastore.org/geoj
 
 ### ❓ What JSON schema versions are supported?
 
-💡 `v8r` works with JSON schema draft-04, draft-06 and draft-07.
+💡 `v8r` works with JSON schema drafts:
+
+* draft-04
+* draft-06
+* draft-07
+* draft 2019-09
+* draft 2020-12
 
 ### ❓ Will 100% of the schemas on schemastore.org work with this tool?
 
