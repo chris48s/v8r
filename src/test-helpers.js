@@ -1,6 +1,4 @@
-"use strict";
-
-const flatCache = require("flat-cache");
+import flatCache from "flat-cache";
 
 const originals = {};
 const consoleMethods = ["log", "error", "debug"];
@@ -22,4 +20,4 @@ function tearDown() {
   });
 }
 
-module.exports = { testCacheName, setUp, tearDown };
+export { testCacheName, setUp, tearDown };

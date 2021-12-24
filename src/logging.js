@@ -1,5 +1,3 @@
-"use strict";
-
 const origWarn = console.warn;
 const origInfo = console.info;
 const origDebug = console.debug;
@@ -19,4 +17,5 @@ function cleanup() {
   console.debug = origDebug;
 }
 
-module.exports = { cleanup, init };
+const logging = { cleanup, init };
+export default logging;

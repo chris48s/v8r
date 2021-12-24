@@ -3,9 +3,9 @@
   "version": "0.7.0",
   "description": "A command-line JSON and YAML validator that's on your wavelength",
   "scripts": {
-    "test": "V8R_CACHE_NAME=v8r-test nyc --reporter=text mocha \"src/**/*.spec.js\"",
+    "test": "V8R_CACHE_NAME=v8r-test c8 --reporter=text mocha \"src/**/*.spec.js\"",
     "lint": "eslint \"src/**/*.js\"",
-    "coverage": "nyc report --reporter=cobertura",
+    "coverage": "c8 report --reporter=cobertura",
     "prettier": "prettier --write \"**/*.js\"",
     "prettier:check": "prettier --check \"**/*.js\"",
     "v8r": "src/index.js"
@@ -14,6 +14,7 @@
     "v8r": "src/index.js"
   },
   "main": "src/index.js",
+  "exports": "./src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chris48s/v8r.git"
@@ -33,6 +34,7 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "c8": "^7.10.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.0.1",
@@ -41,12 +43,12 @@
     "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^9.0.0",
     "nock": "^13.0.4",
-    "nyc": "^15.1.0",
     "prettier": "^2.1.2"
   },
   "engines": {
-    "node": ">= 12"
+    "node": "^12.20.0 || ^14.13.1 || >=15.0.0"
   },
+  "type": "module",
   "keywords": [
     "JSON",
     "YAML",

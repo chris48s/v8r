@@ -1,10 +1,13 @@
-"use strict";
+import { createRequire } from "module";
+// TODO: once JSON modules is stable these requires could become imports
+// https://nodejs.org/api/esm.html#esm_experimental_json_modules
+const require = createRequire(import.meta.url);
 
-const AjvDraft4 = require("ajv-draft-04");
-const Ajv = require("ajv");
-const Ajv2019 = require("ajv/dist/2019");
-const Ajv2020 = require("ajv/dist/2020");
-const addFormats = require("ajv-formats");
+import AjvDraft4 from "ajv-draft-04";
+import Ajv from "ajv";
+import Ajv2019 from "ajv/dist/2019.js";
+import Ajv2020 from "ajv/dist/2020.js";
+import addFormats from "ajv-formats";
 
 function _ajvFactory(schema, cache) {
   const resolver = (url) => cache.fetch(url);
@@ -63,4 +66,4 @@ async function validate(data, schema, cache) {
   return valid;
 }
 
-module.exports = { _ajvFactory, validate };
+export { _ajvFactory, validate };

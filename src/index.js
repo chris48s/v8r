@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-"use strict";
-
-const { cli, parseArgs } = require("./cli.js");
+import { cli, parseArgs } from "./cli.js";
 
 (async () => {
   const exitCode = await cli(parseArgs(process.argv));

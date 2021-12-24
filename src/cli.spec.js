@@ -1,12 +1,12 @@
-"use strict";
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+import nock from "nock";
+import { cli, parseArgs } from "./cli.js";
+import { setUp, tearDown } from "./test-helpers.js";
 
-const chai = require("chai");
 const assert = chai.assert;
 const expect = chai.expect;
-const nock = require("nock");
-const { cli, parseArgs } = require("./cli.js");
-const { setUp, tearDown } = require("./test-helpers.js");
-chai.use(require("chai-as-promised"));
+chai.use(chaiAsPromised);
 
 describe("CLI", function () {
   // Mock the catalog validation schema
