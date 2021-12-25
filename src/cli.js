@@ -170,6 +170,13 @@ function parseArgs(argv) {
         yargs.positional("filename", { describe: "Local file to validate" });
       }
     )
+    .version(
+      // Workaround for https://github.com/yargs/yargs/issues/1934
+      // TODO: remove once fixed
+      JSON.parse(
+        fs.readFileSync(new URL("../package.json", import.meta.url).pathname)
+      ).version
+    )
     .option("verbose", {
       alias: "v",
       type: "boolean",
