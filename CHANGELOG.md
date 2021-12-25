@@ -1,5 +1,10 @@
 # Changelog
 
+## 📦 [0.8.0](https://www.npmjs.com/package/v8r/v/0.9.0) - 2021-12-25
+
+* Switch from CommonJS to ESModules internally
+* Requires node `^12.20.0 || ^14.13.1 || >=15.0.0`
+
 ## 📦 [0.7.0](https://www.npmjs.com/package/v8r/v/0.7.0) - 2021-11-30
 
 * Upgrade to ajv 8 internally
