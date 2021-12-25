@@ -12,7 +12,7 @@ A command-line JSON and YAML validator that's on your wavelength.
 
 One-off:
 ```bash
-npx v8r <filename>
+npx v8r@latest <filename>
 ```
 
 Local install:
