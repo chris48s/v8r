@@ -1,17 +1,15 @@
-"use strict";
-
-const flatCache = require("flat-cache");
-const fs = require("fs");
-const isUrl = require("is-url");
-const minimatch = require("minimatch");
-const os = require("os");
-const path = require("path");
-const yaml = require("js-yaml");
-const yargs = require("yargs/yargs");
-const { hideBin } = require("yargs/helpers");
-const { validate } = require("./ajv.js");
-const { Cache } = require("./cache.js");
-const logging = require("./logging.js");
+import flatCache from "flat-cache";
+import fs from "fs";
+import isUrl from "is-url";
+import minimatch from "minimatch";
+import os from "os";
+import path from "path";
+import yaml from "js-yaml";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+import { validate } from "./ajv.js";
+import { Cache } from "./cache.js";
+import logging from "./logging.js";
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
@@ -26,6 +24,7 @@ async function getFromUrlOrFile(location, cache) {
     ? await cache.fetch(location)
     : JSON.parse(fs.readFileSync(location, "utf8").toString());
 }
+
 async function getSchemaUrlForFilename(catalogs, filename, cache) {
   for (const [i, catalogLocation] of catalogs.entries()) {
     const catalog = await getFromUrlOrFile(catalogLocation, cache);
@@ -205,4 +204,4 @@ function parseArgs(argv) {
     }).argv;
 }
 
-module.exports = { cli, parseArgs };
+export { cli, parseArgs };

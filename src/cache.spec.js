@@ -1,12 +1,11 @@
-"use strict";
+import chai from "chai";
+import flatCache from "flat-cache";
+import nock from "nock";
+import { Cache } from "./cache.js";
+import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
-const chai = require("chai");
 const assert = chai.assert;
 const expect = chai.expect;
-const flatCache = require("flat-cache");
-const nock = require("nock");
-const { Cache } = require("./cache.js");
-const { testCacheName, setUp, tearDown } = require("./test-helpers.js");
 
 describe("Cache", function () {
   describe("fetch function", function () {

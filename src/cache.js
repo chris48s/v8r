@@ -1,6 +1,4 @@
-"use strict";
-
-const got = require("got");
+import got from "got";
 
 class Cache {
   constructor(flatCache, ttl) {
@@ -72,4 +70,4 @@ class Cache {
   }
 }
 
-module.exports = { Cache };
+export { Cache };

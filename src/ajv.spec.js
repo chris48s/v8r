@@ -1,11 +1,10 @@
-"use strict";
+import chai from "chai";
+import flatCache from "flat-cache";
+import { Cache } from "./cache.js";
+import { _ajvFactory } from "./ajv.js";
+import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
-const chai = require("chai");
 const expect = chai.expect;
-const flatCache = require("flat-cache");
-const { Cache } = require("./cache.js");
-const { _ajvFactory } = require("./ajv.js");
-const { testCacheName, setUp, tearDown } = require("./test-helpers.js");
 
 describe("_ajvFactory", function () {
   describe("schema drafts compatibility", function () {
