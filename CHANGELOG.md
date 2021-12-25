@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.8.1](https://www.npmjs.com/package/v8r/v/0.8.1) - 2021-12-25
+
+* Fix `--version` flag when installed globally
+
 ## 📦 [0.8.0](https://www.npmjs.com/package/v8r/v/0.8.0) - 2021-12-25
 
 * Switch from CommonJS to ESModules internally
