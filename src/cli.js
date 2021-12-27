@@ -1,17 +1,16 @@
 import flatCache from "flat-cache";
 import fs from "fs";
-import glob from "glob";
 import isUrl from "is-url";
-import JSON5 from "json5";
 import minimatch from "minimatch";
 import os from "os";
 import path from "path";
-import yaml from "js-yaml";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
+import { getFiles } from "./glob.js";
 import logging from "./logging.js";
+import { parseFile } from "./parser.js";
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
@@ -27,14 +26,6 @@ const EXIT = {
 };
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
-
-const globPromise = function (pattern, options) {
-  return new Promise((resolve, reject) => {
-    glob(pattern, options, (err, files) =>
-      err === null ? resolve(files) : reject(err)
-    );
-  });
-};
 
 async function getFromUrlOrFile(location, cache) {
   return isUrl(location)
@@ -100,23 +91,6 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-function parseFile(contents, format) {
-  switch (format) {
-    case ".json":
-    case ".geojson":
-    case ".jsonld":
-      return JSON.parse(contents);
-    case ".jsonc":
-    case ".json5":
-      return JSON5.parse(contents);
-    case ".yml":
-    case ".yaml":
-      return yaml.load(contents);
-    default:
-      throw new Error(`Unsupported format ${format}`);
-  }
-}
-
 function secondsToMilliseconds(seconds) {
   return seconds * 1000;
 }
@@ -174,15 +148,6 @@ function mergeResults(results, ignoreErrors) {
     return EXIT.ERROR;
   }
   return EXIT.VALID;
-}
-
-async function getFiles(pattern) {
-  try {
-    return await globPromise(pattern, { dot: true });
-  } catch (e) {
-    logging.error(e.message);
-    return [];
-  }
 }
 
 function Validator() {
