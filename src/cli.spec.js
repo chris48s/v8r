@@ -315,6 +315,16 @@ describe("CLI", function () {
         assert(containsSuccess(messages, "./testfiles/valid.yaml is valid"));
       });
     });
+
+    it("should validate json5 files", function () {
+      return cli({
+        pattern: "./testfiles/valid.json5",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(containsSuccess(messages, "./testfiles/valid.json5 is valid"));
+      });
+    });
   });
 
   describe("error handling, single file", function () {

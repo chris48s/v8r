@@ -2,6 +2,7 @@ import flatCache from "flat-cache";
 import fs from "fs";
 import glob from "glob";
 import isUrl from "is-url";
+import JSON5 from "json5";
 import minimatch from "minimatch";
 import os from "os";
 import path from "path";
@@ -105,6 +106,9 @@ function parseFile(contents, format) {
     case ".geojson":
     case ".jsonld":
       return JSON.parse(contents);
+    case ".jsonc":
+    case ".json5":
+      return JSON5.parse(contents);
     case ".yml":
     case ".yaml":
       return yaml.load(contents);
