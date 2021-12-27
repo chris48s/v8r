@@ -1,4 +1,5 @@
 import got from "got";
+import logging from "./logging.js";
 
 class Cache {
   constructor(flatCache, ttl) {
@@ -12,10 +13,10 @@ class Cache {
     Object.entries(this.cache.all()).forEach(
       function ([url, cachedResponse]) {
         if (!("timestamp" in cachedResponse) || !("body" in cachedResponse)) {
-          console.debug(`ℹ️ Cache error: deleting malformed response`);
+          logging.debug(`Cache error: deleting malformed response`);
           this.cache.removeKey(url);
         } else if (Date.now() > cachedResponse.timestamp + this.ttl) {
-          console.debug(`ℹ️ Cache stale: deleting cached response from ${url}`);
+          logging.debug(`Cache stale: deleting cached response from ${url}`);
           this.cache.removeKey(url);
         }
         this.cache.save(true);
@@ -38,7 +39,7 @@ class Cache {
     }
     if (this.callCounter[url] > this.callLimit) {
       throw new Error(
-        `❌ Called ${url} >${this.callLimit} times. Possible circular reference.`
+        `Called ${url} >${this.callLimit} times. Possible circular reference.`
       );
     }
   }
@@ -52,12 +53,12 @@ class Cache {
     this.expire();
     const cachedResponse = this.cache.getKey(url);
     if (cachedResponse !== undefined) {
-      console.debug(`ℹ️ Cache hit: using cached response from ${url}`);
+      logging.debug(`Cache hit: using cached response from ${url}`);
       return cachedResponse.body;
     }
 
     try {
-      console.debug(`ℹ️ Cache miss: calling ${url}`);
+      logging.debug(`Cache miss: calling ${url}`);
       const resp = await got(url);
       const parsedBody = JSON.parse(resp.body);
       if (this.ttl > 0) {
@@ -67,9 +68,9 @@ class Cache {
       return parsedBody;
     } catch (error) {
       if (error.response) {
-        throw new Error(`❌ Failed fetching ${url}\n${error.response.body}`);
+        throw new Error(`Failed fetching ${url}\n${error.response.body}`);
       }
-      throw new Error(`❌ Failed fetching ${url}`);
+      throw new Error(`Failed fetching ${url}`);
     }
   }
 }

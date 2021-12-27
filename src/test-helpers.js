@@ -20,4 +20,33 @@ function tearDown() {
   });
 }
 
-export { testCacheName, setUp, tearDown };
+function isString(el) {
+  return typeof el === "string" || el instanceof String;
+}
+
+function containsSuccess(messages, expectedString, expectedCount = 1) {
+  const counter = (count, el) =>
+    count + (isString(el) && el.includes("✔") && el.includes(expectedString));
+  return messages.log.reduce(counter, 0) === expectedCount;
+}
+
+function containsInfo(messages, expectedString, expectedCount = 1) {
+  const counter = (count, el) =>
+    count + (isString(el) && el.includes("ℹ") && el.includes(expectedString));
+  return messages.log.reduce(counter, 0) === expectedCount;
+}
+
+function containsError(messages, expectedString, expectedCount = 1) {
+  const counter = (count, el) =>
+    count + (isString(el) && el.includes("✖") && el.includes(expectedString));
+  return messages.error.reduce(counter, 0) === expectedCount;
+}
+
+export {
+  testCacheName,
+  setUp,
+  tearDown,
+  containsSuccess,
+  containsInfo,
+  containsError,
+};

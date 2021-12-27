@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 const origWarn = console.warn;
 const origInfo = console.info;
 const origDebug = console.debug;
@@ -17,5 +19,21 @@ function cleanup() {
   console.debug = origDebug;
 }
 
-const logging = { cleanup, init };
+function info(message) {
+  console.log(chalk.blue.bold("ℹ ") + message);
+}
+
+function debug(message) {
+  console.debug(chalk.blue.bold("ℹ ") + message);
+}
+
+function error(message) {
+  console.error(chalk.red.bold("✖ ") + message);
+}
+
+function success(message) {
+  console.log(chalk.green.bold("✔ ") + message);
+}
+
+const logging = { cleanup, init, info, debug, error, success };
 export default logging;

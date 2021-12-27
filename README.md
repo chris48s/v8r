@@ -40,12 +40,12 @@ By default, v8r queries [Schema Store](https://www.schemastore.org/) to detect a
 ```bash
 # if v8r can't auto-detect a schema for your file..
 $ v8r feature.geojson
-❌ Could not find a schema to validate feature.geojson
+✖ Could not find a schema to validate feature.geojson
 
 # ..you can specify one using the --schema flag
 $ v8r feature.geojson --schema https://json.schemastore.org/geojson
-Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
-✅ feature.geojson is valid
+ℹ Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
+✔ feature.geojson is valid
 ```
 
 ### Using a custom catlog
@@ -63,9 +63,9 @@ $ cat > my-catalog.json <<EOF
 EOF
 
 $ v8r feature.geojson -c my-catalog.json
-ℹ️ Found schema in my-catalog.json ...
-Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
-✅ feature.geojson is valid
+ℹ Found schema in my-catalog.json ...
+ℹ Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
+✔ feature.geojson is valid
 ```
 
 This can be used to specify different custom schemas for multiple file patterns.

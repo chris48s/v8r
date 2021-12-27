@@ -44,14 +44,14 @@ async function getSchemaUrlForFilename(catalogs, filename, cache) {
     // Validate the catalog
     const valid = await validate(catalog, catalogSchema, cache);
     if (!valid || catalog.schemas === undefined) {
-      throw new Error(`❌ Malformed catalog at ${catalogLocation}`);
+      throw new Error(`Malformed catalog at ${catalogLocation}`);
     }
 
     const { schemas } = catalog;
     const matches = getSchemaMatchesForFilename(schemas, filename);
-    console.debug(`ℹ️ Searching for schema in ${catalogLocation} ...`);
+    logging.debug(`Searching for schema in ${catalogLocation} ...`);
     if (matches.length === 1) {
-      console.log(`ℹ️ Found schema in ${catalogLocation} ...`);
+      logging.info(`Found schema in ${catalogLocation} ...`);
       return matches[0].url; // Match found. We're done.
     }
     if (matches.length === 0 && i < catalogs.length - 1) {
@@ -59,16 +59,16 @@ async function getSchemaUrlForFilename(catalogs, filename, cache) {
     }
     if (matches.length > 1) {
       // We found >1 matches in the same catalog. This is always a hard error.
-      console.log(
-        `Found multiple possible schemas for ${filename}. Possible matches:`
+      const matchesLog = matches
+        .map((match) => `  ${match.description}: ${match.url}`)
+        .join("\n");
+      logging.info(
+        `Found multiple possible schemas for ${filename}. Possible matches:\n${matchesLog}`
       );
-      matches.forEach(function (match) {
-        console.log(`${match.description}: ${match.url}`);
-      });
     }
     // Either we found >1 matches in the same catalog or we found 0 matches
     // in the last catalog and there are no more catalogs left to try.
-    throw new Error(`❌ Could not find a schema to validate ${filename}`);
+    throw new Error(`Could not find a schema to validate ${filename}`);
   }
 }
 
@@ -101,7 +101,7 @@ function parseFile(contents, format) {
     case ".yaml":
       return yaml.load(contents);
     default:
-      throw new Error(`❌ Unsupported format ${format}`);
+      throw new Error(`Unsupported format ${format}`);
   }
 }
 
@@ -117,7 +117,7 @@ function getFlatCache() {
 }
 
 async function validateFile(filename, args, cache) {
-  console.log(`ℹ️ Processing ${filename}`);
+  logging.info(`Processing ${filename}`);
   try {
     const data = parseFile(
       fs.readFileSync(filename, "utf8").toString(),
@@ -132,15 +132,15 @@ async function validateFile(filename, args, cache) {
         cache
       ));
     const schema = await getFromUrlOrFile(schemaLocation, cache);
-    console.log(
+    logging.info(
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );
 
     const valid = await validate(data, schema, cache);
     if (valid) {
-      console.log(`✅ ${filename} is valid\n`);
+      logging.success(`${filename} is valid\n`);
     } else {
-      console.log(`❌ ${filename} is invalid\n`);
+      logging.error(`${filename} is invalid\n`);
     }
 
     if (valid) {
@@ -148,7 +148,7 @@ async function validateFile(filename, args, cache) {
     }
     return EXIT.INVALID;
   } catch (e) {
-    console.error(`${e.message}\n`);
+    logging.error(`${e.message}\n`);
     return EXIT.ERROR;
   }
 }
@@ -168,7 +168,7 @@ function getFiles(pattern) {
   try {
     return glob.sync(pattern, { dot: true });
   } catch (e) {
-    console.error(e.message);
+    logging.error(e.message);
     return [];
   }
 }
@@ -177,7 +177,7 @@ function Validator() {
   return async function (args) {
     const filenames = getFiles(args.pattern);
     if (filenames.length === 0) {
-      console.error(`❌ Pattern '${args.pattern}' did not match any files`);
+      logging.error(`Pattern '${args.pattern}' did not match any files`);
       return EXIT.NOTFOUND;
     }
     const ttl = secondsToMilliseconds(args.cacheTtl || 0);
@@ -198,7 +198,7 @@ async function cli(args) {
     const validate = new Validator();
     return await validate(args);
   } catch (e) {
-    console.error(e.message);
+    logging.error(e.message);
     return EXIT.ERROR;
   } finally {
     logging.cleanup();

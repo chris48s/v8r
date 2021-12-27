@@ -62,7 +62,7 @@ describe("Cache", function () {
         testCache.fetch("https://www.foobar.com/baz")
       ).to.be.rejectedWith(
         Error,
-        "❌ Called https://www.foobar.com/baz >2 times. Possible circular reference."
+        "Called https://www.foobar.com/baz >2 times. Possible circular reference."
       );
       mock.done();
     });
