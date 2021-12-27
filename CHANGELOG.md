@@ -1,5 +1,15 @@
 # Changelog
 
+## 📦 [0.9.0](https://www.npmjs.com/package/v8r/v/0.9.0) - 2021-12-27
+
+* Accept glob pattern instead of filename. It is now possible to validate multiple files at once. e.g:
+  ```bash
+  v8r '{file1.json,file2.json}'
+  v8r 'files/*'
+  ```
+* Improvements to terminal output styling
+* `.jsonc` and `.json5` files can now be validated
+
 ## 📦 [0.8.1](https://www.npmjs.com/package/v8r/v/0.8.1) - 2021-12-25
 
 * Fix `--version` flag when installed globally
