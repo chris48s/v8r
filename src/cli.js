@@ -27,10 +27,18 @@ const EXIT = {
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
+const globPromise = function (pattern, options) {
+  return new Promise((resolve, reject) => {
+    glob(pattern, options, (err, files) =>
+      err === null ? resolve(files) : reject(err)
+    );
+  });
+};
+
 async function getFromUrlOrFile(location, cache) {
   return isUrl(location)
     ? await cache.fetch(location)
-    : JSON.parse(fs.readFileSync(location, "utf8").toString());
+    : JSON.parse(await fs.promises.readFile(location, "utf8"));
 }
 
 async function getSchemaUrlForFilename(catalogs, filename, cache) {
@@ -120,7 +128,7 @@ async function validateFile(filename, args, cache) {
   logging.info(`Processing ${filename}`);
   try {
     const data = parseFile(
-      fs.readFileSync(filename, "utf8").toString(),
+      await fs.promises.readFile(filename, "utf8"),
       path.extname(filename)
     );
 
@@ -164,9 +172,9 @@ function mergeResults(results, ignoreErrors) {
   return EXIT.VALID;
 }
 
-function getFiles(pattern) {
+async function getFiles(pattern) {
   try {
-    return glob.sync(pattern, { dot: true });
+    return await globPromise(pattern, { dot: true });
   } catch (e) {
     logging.error(e.message);
     return [];
@@ -175,7 +183,7 @@ function getFiles(pattern) {
 
 function Validator() {
   return async function (args) {
-    const filenames = getFiles(args.pattern);
+    const filenames = await getFiles(args.pattern);
     if (filenames.length === 0) {
       logging.error(`Pattern '${args.pattern}' did not match any files`);
       return EXIT.NOTFOUND;
