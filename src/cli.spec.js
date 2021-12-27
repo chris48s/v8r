@@ -106,7 +106,7 @@ describe("CLI", function () {
     });
 
     it("should return 0 when file is valid (with auto-detected schema)", function () {
-      const mock1 = nock("https://www.schemastore.org")
+      const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -116,20 +116,20 @@ describe("CLI", function () {
             },
           ],
         });
-      const mock2 = nock("https://example.com")
+      const schemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
 
       return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 0);
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
-        mock1.done();
-        mock2.done();
+        catalogMock.done();
+        schemaMock.done();
       });
     });
 
     it("should return 99 when file is invalid (with auto-detected schema)", function () {
-      const mock1 = nock("https://www.schemastore.org")
+      const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -139,7 +139,7 @@ describe("CLI", function () {
             },
           ],
         });
-      const mock2 = nock("https://example.com")
+      const schemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
 
@@ -148,13 +148,13 @@ describe("CLI", function () {
         expect(messages.log).to.contain(
           "❌ ./testfiles/invalid.json is invalid\n"
         );
-        mock1.done();
-        mock2.done();
+        catalogMock.done();
+        schemaMock.done();
       });
     });
 
     it("should return 0 when file is valid (with auto-detected schema from custom local catalog)", function () {
-      const storeMock = nock("https://www.schemastore.org")
+      const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -164,7 +164,7 @@ describe("CLI", function () {
             },
           ],
         });
-      const catalogSchemaMock = nock("https://example.com")
+      const schemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
 
@@ -173,14 +173,27 @@ describe("CLI", function () {
         catalogs: ["./testfiles/catalog-url.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
+        expect(messages.log).to.contain(
+          "ℹ️ Found schema in ./testfiles/catalog-url.json ..."
+        );
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
-        expect(storeMock.isDone()).to.be.false;
-        catalogSchemaMock.done();
+        expect(catalogMock.isDone()).to.be.false;
+        schemaMock.done();
       });
     });
 
     it("should return 0 when file is valid (with auto-detected schema from custom remote catalog)", function () {
-      const catalogMock = nock("https://my-catalog.com")
+      const storeCatalogMock = nock("https://www.schemastore.org")
+        .get("/api/json/catalog.json")
+        .reply(200, {
+          schemas: [
+            {
+              url: "https://example.com/not-used-schema.json",
+              fileMatch: ["valid.json", "invalid.json"],
+            },
+          ],
+        });
+      const customCatalogMock = nock("https://my-catalog.com")
         .get("/catalog.json")
         .reply(200, {
           schemas: [
@@ -190,7 +203,7 @@ describe("CLI", function () {
             },
           ],
         });
-      const catalogSchemaMock = nock("https://example.com")
+      const customSchemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
 
@@ -199,9 +212,13 @@ describe("CLI", function () {
         catalogs: ["https://my-catalog.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 0);
+        expect(messages.log).to.contain(
+          "ℹ️ Found schema in https://my-catalog.com/catalog.json ..."
+        );
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
-        catalogMock.done();
-        catalogSchemaMock.done();
+        expect(storeCatalogMock.isDone()).to.be.false;
+        customCatalogMock.done();
+        customSchemaMock.done();
       });
     });
 
@@ -218,13 +235,16 @@ describe("CLI", function () {
         ],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
+        expect(messages.log).to.contain(
+          "ℹ️ Found schema in ./testfiles/catalog-url.json ..."
+        );
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         mock.done();
       });
     });
 
     it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to schemastore.org)", function () {
-      const storeMock = nock("https://www.schemastore.org")
+      const storeCatalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -243,14 +263,17 @@ describe("CLI", function () {
         catalogs: ["./testfiles/catalog-nomatch.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
+        expect(messages.log).to.contain(
+          "ℹ️ Found schema in https://www.schemastore.org/api/json/catalog.json ..."
+        );
         expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
-        storeMock.done();
+        storeCatalogMock.done();
         storeSchemaMock.done();
       });
     });
 
     it("should find a schema using glob patterns", function () {
-      const mock1 = nock("https://www.schemastore.org")
+      const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -260,14 +283,14 @@ describe("CLI", function () {
             },
           ],
         });
-      const mock2 = nock("https://example.com")
+      const schemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
 
       return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 0);
-        mock1.done();
-        mock2.done();
+        catalogMock.done();
+        schemaMock.done();
       });
     });
 
@@ -302,7 +325,7 @@ describe("CLI", function () {
     });
 
     it("should return 1 if invalid response fetching auto-detected schema", async function () {
-      const mock1 = nock("https://www.schemastore.org")
+      const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
           schemas: [
@@ -312,7 +335,7 @@ describe("CLI", function () {
             },
           ],
         });
-      const mock2 = nock("https://example.com")
+      const schemaMock = nock("https://example.com")
         .get("/schema.json")
         .reply(404, {});
 
@@ -321,8 +344,8 @@ describe("CLI", function () {
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://example.com/schema.json"
         );
-        mock1.done();
-        mock2.done();
+        catalogMock.done();
+        schemaMock.done();
       });
     });
 
