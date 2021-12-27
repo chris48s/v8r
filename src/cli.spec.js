@@ -36,7 +36,8 @@ describe("CLI", function () {
         },
       });
   });
-  describe("success behaviour", function () {
+
+  describe("success behaviour, single file", function () {
     const messages = {};
     const schema = {
       $schema: "http://json-schema.org/draft-07/schema#",
@@ -52,22 +53,22 @@ describe("CLI", function () {
 
     it("should return 0 when file is valid (user-supplied local schema)", function () {
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
       });
     });
 
     it("should return 99 when file is invalid (user-supplied local schema)", function () {
       return cli({
-        filename: "./testfiles/invalid.json",
+        pattern: "./testfiles/invalid.json",
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
         expect(messages.log).to.contain(
-          "❌ ./testfiles/invalid.json is invalid"
+          "❌ ./testfiles/invalid.json is invalid\n"
         );
       });
     });
@@ -78,11 +79,11 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         mock.done();
       });
     });
@@ -93,12 +94,12 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/invalid.json",
+        pattern: "./testfiles/invalid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
         expect(messages.log).to.contain(
-          "❌ ./testfiles/invalid.json is invalid"
+          "❌ ./testfiles/invalid.json is invalid\n"
         );
         mock.done();
       });
@@ -119,9 +120,9 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         mock1.done();
         mock2.done();
       });
@@ -142,10 +143,10 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/invalid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/invalid.json" }).then((result) => {
         assert.equal(result, 99);
         expect(messages.log).to.contain(
-          "❌ ./testfiles/invalid.json is invalid"
+          "❌ ./testfiles/invalid.json is invalid\n"
         );
         mock1.done();
         mock2.done();
@@ -168,11 +169,11 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-url.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         expect(storeMock.isDone()).to.be.false;
         catalogSchemaMock.done();
       });
@@ -194,11 +195,11 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["https://my-catalog.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         catalogMock.done();
         catalogSchemaMock.done();
       });
@@ -210,14 +211,14 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: [
           "./testfiles/catalog-nomatch.json",
           "./testfiles/catalog-url.json",
         ],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         mock.done();
       });
     });
@@ -238,11 +239,11 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-nomatch.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
         storeMock.done();
         storeSchemaMock.done();
       });
@@ -263,7 +264,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 0);
         mock1.done();
         mock2.done();
@@ -272,16 +273,16 @@ describe("CLI", function () {
 
     it("should validate yaml files", function () {
       return cli({
-        filename: "./testfiles/valid.yaml",
+        pattern: "./testfiles/valid.yaml",
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid");
+        expect(messages.log).to.contain("✅ ./testfiles/valid.yaml is valid\n");
       });
     });
   });
 
-  describe("error handling", function () {
+  describe("error handling, single file", function () {
     const messages = {};
     beforeEach(() => setUp(messages));
     afterEach(() => tearDown());
@@ -291,7 +292,7 @@ describe("CLI", function () {
         .get("/api/json/catalog.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://www.schemastore.org/api/json/catalog.json"
@@ -315,7 +316,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(404, {});
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error[0]).to.contain(
           "❌ Failed fetching https://example.com/schema.json"
@@ -337,10 +338,10 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error).to.contain(
-          "❌ Could not find a schema to validate ./testfiles/valid.json"
+          "❌ Could not find a schema to validate ./testfiles/valid.json\n"
         );
         mock.done();
       });
@@ -364,10 +365,10 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ filename: "./testfiles/valid.json" }).then((result) => {
+      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error).to.contain(
-          "❌ Could not find a schema to validate ./testfiles/valid.json"
+          "❌ Could not find a schema to validate ./testfiles/valid.json\n"
         );
         expect(messages.log).to.contain(
           "Found multiple possible schemas for ./testfiles/valid.json. Possible matches:"
@@ -388,7 +389,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
@@ -399,46 +400,55 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 1 if local target file not found", async function () {
-      return cli({ filename: "./testfiles/does-not-exist.json" }).then(
+    it("should return 98 if glob pattern matches no files", async function () {
+      return cli({ pattern: "./testfiles/does-not-exist.json" }).then(
         (result) => {
-          assert.equal(result, 1);
+          assert.equal(result, 98);
           expect(messages.error).to.contain(
-            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+            "❌ Pattern './testfiles/does-not-exist.json' did not match any files"
           );
         }
       );
     });
 
+    it("should return 98 if glob pattern is invalid", async function () {
+      return cli({ pattern: "" }).then((result) => {
+        assert.equal(result, 98);
+        expect(messages.error).to.contain(
+          "❌ Pattern '' did not match any files"
+        );
+      });
+    });
+
     it("should return 1 if target file type is not supported", async function () {
-      return cli({ filename: "./testfiles/not-supported.txt" }).then(
+      return cli({ pattern: "./testfiles/not-supported.txt" }).then(
         (result) => {
           assert.equal(result, 1);
-          expect(messages.error).to.contain("❌ Unsupported format .txt");
+          expect(messages.error).to.contain("❌ Unsupported format .txt\n");
         }
       );
     });
 
     it("should return 1 if local schema file not found", async function () {
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         schema: "./testfiles/does-not-exist.json",
       }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error).to.contain(
-          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'\n"
         );
       });
     });
 
     it("should return 1 if local catalog file not found", async function () {
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["./testfiles/does-not-exist.json"],
       }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error).to.contain(
-          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
+          "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'\n"
         );
       });
     });
@@ -449,7 +459,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -466,13 +476,13 @@ describe("CLI", function () {
         .reply(200, {});
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
         mock.done();
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at https://example.com/catalog.json"
+          "❌ Malformed catalog at https://example.com/catalog.json\n"
         );
       });
     });
@@ -483,36 +493,92 @@ describe("CLI", function () {
         .reply(200, { schemas: {} });
 
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
         mock.done();
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at https://example.com/catalog.json"
+          "❌ Malformed catalog at https://example.com/catalog.json\n"
         );
       });
     });
 
     it("should return 1 on malformed catalog ('schemas' elements should contains a valid url)", async function () {
       return cli({
-        filename: "./testfiles/valid.json",
+        pattern: "./testfiles/valid.json",
         catalogs: ["./testfiles/catalog-local.json"],
       }).then((result) => {
         assert.equal(result, 1);
         expect(messages.error).to.contain(
-          "❌ Malformed catalog at ./testfiles/catalog-local.json"
+          "❌ Malformed catalog at ./testfiles/catalog-local.json\n"
         );
       });
     });
 
     it("should return 0 if ignore-errors flag is passed", async function () {
       return cli({
-        filename: "./testfiles/not-supported.txt",
+        pattern: "./testfiles/not-supported.txt",
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);
-        expect(messages.error).to.contain("❌ Unsupported format .txt");
+        expect(messages.error).to.contain("❌ Unsupported format .txt\n");
+      });
+    });
+  });
+
+  describe("multiple file processing", function () {
+    const messages = {};
+    beforeEach(() => setUp(messages));
+    afterEach(() => tearDown());
+
+    it("should return 0 if all files are valid", async function () {
+      return cli({
+        pattern: "{./testfiles/valid.json,./testfiles/valid.yaml}",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        const counter = (count, el) =>
+          count + (el.includes("✅") && el.includes("is valid"));
+        assert.equal(messages.log.reduce(counter, 0), 2);
+      });
+    });
+
+    it("should return 99 if any file is invalid", async function () {
+      return cli({
+        pattern:
+          "{./testfiles/valid.json,./testfiles/invalid.json,./testfiles/not-supported.txt}",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 99);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
+        expect(messages.log).to.contain(
+          "❌ ./testfiles/invalid.json is invalid\n"
+        );
+        expect(messages.error).to.contain("❌ Unsupported format .txt\n");
+      });
+    });
+
+    it("should return 1 if any file throws an error and no files are invalid", async function () {
+      return cli({
+        pattern: "{./testfiles/valid.json,./testfiles/not-supported.txt}",
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 1);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
+        expect(messages.error).to.contain("❌ Unsupported format .txt\n");
+      });
+    });
+
+    it("should ignore errors when ignore-errors flag is passed", async function () {
+      return cli({
+        pattern: "{./testfiles/valid.json,./testfiles/not-supported.txt}",
+        schema: "./testfiles/schema.json",
+        ignoreErrors: true,
+      }).then((result) => {
+        assert.equal(result, 0);
+        expect(messages.log).to.contain("✅ ./testfiles/valid.json is valid\n");
+        expect(messages.error).to.contain("❌ Unsupported format .txt\n");
       });
     });
   });

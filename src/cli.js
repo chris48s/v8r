@@ -1,5 +1,6 @@
 import flatCache from "flat-cache";
 import fs from "fs";
+import glob from "glob";
 import isUrl from "is-url";
 import minimatch from "minimatch";
 import os from "os";
@@ -16,6 +17,13 @@ const SCHEMASTORE_CATALOG_URL =
 
 const SCHEMASTORE_CATALOG_SCHEMA_URL =
   "https://json.schemastore.org/schema-catalog.json";
+
+const EXIT = {
+  VALID: 0,
+  ERROR: 1,
+  NOTFOUND: 98,
+  INVALID: 99,
+};
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
 
@@ -108,12 +116,9 @@ function getFlatCache() {
   return flatCache.load("v8r", CACHE_DIR);
 }
 
-function Validator() {
-  return async function (args) {
-    const filename = args.filename;
-    const ttl = secondsToMilliseconds(args.cacheTtl || 0);
-    const cache = new Cache(getFlatCache(), ttl);
-
+async function validateFile(filename, args, cache) {
+  console.log(`ℹ️ Processing ${filename}`);
+  try {
     const data = parseFile(
       fs.readFileSync(filename, "utf8").toString(),
       path.extname(filename)
@@ -133,11 +138,57 @@ function Validator() {
 
     const valid = await validate(data, schema, cache);
     if (valid) {
-      console.log(`✅ ${filename} is valid`);
+      console.log(`✅ ${filename} is valid\n`);
     } else {
-      console.log(`❌ ${filename} is invalid`);
+      console.log(`❌ ${filename} is invalid\n`);
     }
-    return valid;
+
+    if (valid) {
+      return EXIT.VALID;
+    }
+    return EXIT.INVALID;
+  } catch (e) {
+    console.error(`${e.message}\n`);
+    return EXIT.ERROR;
+  }
+}
+
+function mergeResults(results, ignoreErrors) {
+  const codes = Object.values(results);
+  if (codes.includes(EXIT.INVALID)) {
+    return EXIT.INVALID;
+  }
+  if (codes.includes(EXIT.ERROR) && !ignoreErrors) {
+    return EXIT.ERROR;
+  }
+  return EXIT.VALID;
+}
+
+function getFiles(pattern) {
+  try {
+    return glob.sync(pattern, { dot: true });
+  } catch (e) {
+    console.error(e.message);
+    return [];
+  }
+}
+
+function Validator() {
+  return async function (args) {
+    const filenames = getFiles(args.pattern);
+    if (filenames.length === 0) {
+      console.error(`❌ Pattern '${args.pattern}' did not match any files`);
+      return EXIT.NOTFOUND;
+    }
+    const ttl = secondsToMilliseconds(args.cacheTtl || 0);
+    const cache = new Cache(getFlatCache(), ttl);
+
+    const results = Object.fromEntries(filenames.map((key) => [key, null]));
+    for (const [filename] of Object.entries(results)) {
+      results[filename] = await validateFile(filename, args, cache);
+      cache.resetCounters();
+    }
+    return mergeResults(results, args.ignoreErrors);
   };
 }
 
@@ -145,17 +196,10 @@ async function cli(args) {
   logging.init(args.verbose);
   try {
     const validate = new Validator();
-    const valid = await validate(args);
-    if (valid) {
-      return 0;
-    }
-    return 99;
+    return await validate(args);
   } catch (e) {
     console.error(e.message);
-    if (args.ignoreErrors) {
-      return 0;
-    }
-    return 1;
+    return EXIT.ERROR;
   } finally {
     logging.cleanup();
   }
@@ -164,10 +208,12 @@ async function cli(args) {
 function parseArgs(argv) {
   return yargs(hideBin(argv))
     .command(
-      "$0 <filename>",
-      "Validate a local json/yaml file against a schema",
+      "$0 <pattern>",
+      "Validate local json/yaml files against schema(s)",
       (yargs) => {
-        yargs.positional("filename", { describe: "Local file to validate" });
+        yargs.positional("pattern", {
+          describe: "Glob pattern describing local file or files to validate",
+        });
       }
     )
     .version(
@@ -187,7 +233,11 @@ function parseArgs(argv) {
       alias: "s",
       type: "string",
       describe:
-        "Local path or URL of schema to validate file against. If not supplied, we will attempt to find an appropriate schema on schemastore.org using the filename",
+        "Local path or URL of a schema to validate against. " +
+        "If not supplied, we will attempt to find an appropriate schema on " +
+        "schemastore.org using the filename. If passed with a glob pattern " +
+        "that matches multiple files, all matching files will be validated " +
+        "against this schema",
     })
     .option("catalogs", {
       type: "string",
@@ -201,13 +251,16 @@ function parseArgs(argv) {
       type: "boolean",
       default: false,
       describe:
-        "Exit with code 0 even if an error was encountered. Passing this flag means a non-zero exit code is only issued if validation could be completed successfully and the file was invalid",
+        "Exit with code 0 even if an error was encountered. Passing this flag " +
+        "means a non-zero exit code is only issued if validation could be " +
+        "completed successfully and one or more files were invalid",
     })
     .option("cache-ttl", {
       type: "number",
       default: 600,
       describe:
-        "Remove cached HTTP responses older than <cache-ttl> seconds old. Passing 0 clears and disables cache completely",
+        "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
+        "Passing 0 clears and disables cache completely",
     }).argv;
 }
 

@@ -43,6 +43,10 @@ class Cache {
     }
   }
 
+  resetCounters() {
+    this.callCounter = {};
+  }
+
   async fetch(url) {
     this.limitDepth(url);
     this.expire();

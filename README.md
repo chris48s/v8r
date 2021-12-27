@@ -23,40 +23,36 @@ v8r <filename>
 
 ## Usage Examples
 
+### Validating files
+
+v8r can validate JSON or YAML files. You can pass either a single filename or a glob pattern:
+
 ```bash
-# v8r queries https://www.schemastore.org/ to detect a suitable schema based on the filename
-$ v8r package.json  # v8r can validate JSON..
-Validating package.json against schema from https://json.schemastore.org/package ...
+$ v8r package.json  # single filename
 
-Errors:
-[
-  {
-    keyword: 'type',
-    dataPath: '.name',
-    schemaPath: '#/properties/name/type',
-    params: { type: 'string' },
-    message: 'should be string'
-  }
-]
+$ v8r '**/.eslintrc.yml'  # glob pattern
+```
 
-❌ package.json is invalid
+### Manually specifying a schema
 
-$ v8r action.yml  # ..and YAML
-Validating action.yml against schema from https://json.schemastore.org/github-action ...
-✅ action.yml is valid
+By default, v8r queries [Schema Store](https://www.schemastore.org/) to detect a suitable schema based on the filename.
 
-
+```bash
 # if v8r can't auto-detect a schema for your file..
 $ v8r feature.geojson
 ❌ Could not find a schema to validate feature.geojson
 
-# ..you can specify a schema
-$ v8r feature.geojson -s https://json.schemastore.org/geojson
+# ..you can specify one using the --schema flag
+$ v8r feature.geojson --schema https://json.schemastore.org/geojson
 Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
 ✅ feature.geojson is valid
+```
 
-# ..or use a custom catalog
-# v8r will search any custom catalogs before falling back to Schema Store
+### Using a custom catlog
+
+You can also define a custom [schema catalog](https://json.schemastore.org/schema-catalog.json). v8r will search any custom catalogs before falling back to [Schema Store](https://www.schemastore.org/).
+
+```bash
 $ cat > my-catalog.json <<EOF
 { "\$schema": "https://json.schemastore.org/schema-catalog.json",
   "version": 1,
@@ -65,29 +61,35 @@ $ cat > my-catalog.json <<EOF
                  "url": "https://json.schemastore.org/geojson.json",
                  "fileMatch": ["*.geojson"] } ] }
 EOF
+
 $ v8r feature.geojson -c my-catalog.json
 ℹ️ Found schema in my-catalog.json ...
 Validating feature.geojson against schema from https://json.schemastore.org/geojson ...
 ✅ feature.geojson is valid
 ```
 
+This can be used to specify different custom schemas for multiple file patterns.
+
 ## Exit codes
 
 * v8r always exits with code `0` when:
-    * The input file was validated against a schema and the input file was **valid**
+    * The input glob pattern matched one or more files, all input files were validated against a schema, and all input files were **valid**
     * `v8r` was called with `--help` or `--version` flags
 
-* By default v8r exits with code `1` when an error was encountered trying to validate the input file. For example:
+* By default v8r exits with code `1` when an error was encountered trying to validate one or more input files. For example:
     * No suitable schema could be found
     * An error was encountered during an HTTP request
-    * The input file did not exist
-    * The input file was not JSON or yaml
+    * An input file was not JSON or yaml
     * etc
 
     This behaviour can be modified using the `--ignore-errors` flag. When invoked with `--ignore-errors` v8r will exit with code `0` even if one of these errors was encountered while attempting validation. A non-zero exit code will only be issued if validation could be completed successfully and the file was invalid.
 
+* v8r always exits with code `98` when:
+    * The input glob pattern was invalid
+    * The input glob pattern was valid but did not match any files
+
 * v8r always exits with code `99` when:
-    * The input file was validated against a schema and the input file was **invalid**
+    * The input glob pattern matched one or more files, one or more input files were validated against a schema and the input file was **invalid**
 
 ## FAQ
 
