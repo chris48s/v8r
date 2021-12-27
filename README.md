@@ -28,10 +28,15 @@ v8r <filename>
 v8r can validate JSON or YAML files. You can pass either a single filename or a glob pattern:
 
 ```bash
-$ v8r package.json  # single filename
+# single filename
+$ v8r package.json
 
-$ v8r '**/.eslintrc.yml'  # glob pattern
+# glob patterns
+$ v8r '**/.eslintrc.yml'
+$ v8r '{file1.json,file2.json}'
 ```
+
+[DigitalOcean's Glob Tool](https://www.digitalocean.com/community/tools/glob) can be used to help construct glob patterns
 
 ### Manually specifying a schema
 
@@ -50,7 +55,7 @@ $ v8r feature.geojson --schema https://json.schemastore.org/geojson
 
 ### Using a custom catlog
 
-You can also define a custom [schema catalog](https://json.schemastore.org/schema-catalog.json). v8r will search any custom catalogs before falling back to [Schema Store](https://www.schemastore.org/).
+Using the `--schema` flag will validate all files matched by the glob pattern against that schema. You can also define a custom [schema catalog](https://json.schemastore.org/schema-catalog.json). v8r will search any custom catalogs before falling back to [Schema Store](https://www.schemastore.org/).
 
 ```bash
 $ cat > my-catalog.json <<EOF
