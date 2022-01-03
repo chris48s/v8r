@@ -59,7 +59,7 @@ describe("CLI", function () {
 
     it("should return 0 when file is valid (user-supplied local schema)", function () {
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
@@ -69,7 +69,7 @@ describe("CLI", function () {
 
     it("should return 99 when file is invalid (user-supplied local schema)", function () {
       return cli({
-        pattern: "./testfiles/invalid.json",
+        patterns: ["./testfiles/invalid.json"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
@@ -83,7 +83,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
@@ -98,7 +98,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/invalid.json",
+        patterns: ["./testfiles/invalid.json"],
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
@@ -122,7 +122,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 0);
         assert(containsSuccess(messages, "./testfiles/valid.json is valid"));
         catalogMock.done();
@@ -145,7 +145,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ pattern: "./testfiles/invalid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/invalid.json"] }).then((result) => {
         assert.equal(result, 99);
         assert(containsError(messages, "./testfiles/invalid.json is invalid"));
         catalogMock.done();
@@ -169,7 +169,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["./testfiles/catalog-url.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
@@ -211,7 +211,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["https://my-catalog.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 0);
@@ -234,7 +234,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: [
           "./testfiles/catalog-nomatch.json",
           "./testfiles/catalog-url.json",
@@ -268,7 +268,7 @@ describe("CLI", function () {
         .reply(200, schema);
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["./testfiles/catalog-nomatch.json"],
       }).then((result) => {
         assert.equal(result, 0, messages.error);
@@ -299,7 +299,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(200, schema);
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 0);
         catalogMock.done();
         schemaMock.done();
@@ -308,7 +308,7 @@ describe("CLI", function () {
 
     it("should validate yaml files", function () {
       return cli({
-        pattern: "./testfiles/valid.yaml",
+        patterns: ["./testfiles/valid.yaml"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
@@ -318,7 +318,7 @@ describe("CLI", function () {
 
     it("should validate json5 files", function () {
       return cli({
-        pattern: "./testfiles/valid.json5",
+        patterns: ["./testfiles/valid.json5"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
@@ -337,7 +337,7 @@ describe("CLI", function () {
         .get("/api/json/catalog.json")
         .reply(404, {});
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 1);
         assert(
           containsError(
@@ -364,7 +364,7 @@ describe("CLI", function () {
         .get("/schema.json")
         .reply(404, {});
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 1);
         assert(
           containsError(
@@ -389,7 +389,7 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 1);
         assert(
           containsError(
@@ -419,7 +419,7 @@ describe("CLI", function () {
           ],
         });
 
-      return cli({ pattern: "./testfiles/valid.json" }).then((result) => {
+      return cli({ patterns: ["./testfiles/valid.json"] }).then((result) => {
         assert.equal(result, 1);
         assert(
           containsError(
@@ -455,7 +455,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
@@ -469,29 +469,29 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 98 if glob pattern matches no files", async function () {
-      return cli({ pattern: "./testfiles/does-not-exist.json" }).then(
-        (result) => {
-          assert.equal(result, 98);
-          assert(
-            containsError(
-              messages,
-              "Pattern './testfiles/does-not-exist.json' did not match any files"
-            )
-          );
-        }
-      );
+    it("should return 98 if any glob pattern matches no files", async function () {
+      return cli({
+        patterns: ["./testfiles/valid.json", "./testfiles/does-not-exist.json"],
+      }).then((result) => {
+        assert.equal(result, 98);
+        assert(
+          containsError(
+            messages,
+            "Pattern './testfiles/does-not-exist.json' did not match any files"
+          )
+        );
+      });
     });
 
     it("should return 98 if glob pattern is invalid", async function () {
-      return cli({ pattern: "" }).then((result) => {
+      return cli({ patterns: [""] }).then((result) => {
         assert.equal(result, 98);
         assert(containsError(messages, "Pattern '' did not match any files"));
       });
     });
 
     it("should return 1 if target file type is not supported", async function () {
-      return cli({ pattern: "./testfiles/not-supported.txt" }).then(
+      return cli({ patterns: ["./testfiles/not-supported.txt"] }).then(
         (result) => {
           assert.equal(result, 1);
           assert(containsError(messages, "Unsupported format .txt"));
@@ -501,7 +501,7 @@ describe("CLI", function () {
 
     it("should return 1 if local schema file not found", async function () {
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         schema: "./testfiles/does-not-exist.json",
       }).then((result) => {
         assert.equal(result, 1);
@@ -516,7 +516,7 @@ describe("CLI", function () {
 
     it("should return 1 if local catalog file not found", async function () {
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["./testfiles/does-not-exist.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -535,7 +535,7 @@ describe("CLI", function () {
         .reply(404, {});
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -555,7 +555,7 @@ describe("CLI", function () {
         .reply(200, {});
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -575,7 +575,7 @@ describe("CLI", function () {
         .reply(200, { schemas: {} });
 
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["https://example.com/catalog.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -591,7 +591,7 @@ describe("CLI", function () {
 
     it("should return 1 on malformed catalog ('schemas' elements should contains a valid url)", async function () {
       return cli({
-        pattern: "./testfiles/valid.json",
+        patterns: ["./testfiles/valid.json"],
         catalogs: ["./testfiles/catalog-local.json"],
       }).then((result) => {
         assert.equal(result, 1);
@@ -606,7 +606,7 @@ describe("CLI", function () {
 
     it("should return 0 if ignore-errors flag is passed", async function () {
       return cli({
-        pattern: "./testfiles/not-supported.txt",
+        patterns: ["./testfiles/not-supported.txt"],
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);
@@ -622,7 +622,17 @@ describe("CLI", function () {
 
     it("should return 0 if all files are valid", async function () {
       return cli({
-        pattern: "{./testfiles/valid.json,./testfiles/valid.yaml}",
+        patterns: ["{./testfiles/valid.json,./testfiles/valid.yaml}"],
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(containsSuccess(messages, "is valid", 2));
+      });
+    });
+
+    it("should accept multiple glob patterns", async function () {
+      return cli({
+        patterns: ["./testfiles/valid.json", "./testfiles/valid.yaml"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
@@ -632,8 +642,9 @@ describe("CLI", function () {
 
     it("should return 99 if any file is invalid", async function () {
       return cli({
-        pattern:
+        patterns: [
           "{./testfiles/valid.json,./testfiles/invalid.json,./testfiles/not-supported.txt}",
+        ],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
@@ -645,7 +656,7 @@ describe("CLI", function () {
 
     it("should return 1 if any file throws an error and no files are invalid", async function () {
       return cli({
-        pattern: "{./testfiles/valid.json,./testfiles/not-supported.txt}",
+        patterns: ["{./testfiles/valid.json,./testfiles/not-supported.txt}"],
         schema: "./testfiles/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
@@ -656,7 +667,7 @@ describe("CLI", function () {
 
     it("should ignore errors when ignore-errors flag is passed", async function () {
       return cli({
-        pattern: "{./testfiles/valid.json,./testfiles/not-supported.txt}",
+        patterns: ["{./testfiles/valid.json,./testfiles/not-supported.txt}"],
         schema: "./testfiles/schema.json",
         ignoreErrors: true,
       }).then((result) => {
@@ -717,5 +728,19 @@ describe("Argument parser", function () {
     expect(args).to.have.property("catalogs");
     expect(args.catalogs).to.be.an("Array");
     expect(args.catalogs).to.have.lengthOf(2);
+  });
+
+  it("should accept multiple patterns", function () {
+    const args = parseArgs([
+      "node",
+      "index.js",
+      "file1.json",
+      "dir/*",
+      "file2.json",
+      "*.yaml",
+    ]);
+    expect(args).to.have.property("patterns");
+    expect(args.patterns).to.be.an("Array");
+    expect(args.patterns).to.have.lengthOf(4);
   });
 });

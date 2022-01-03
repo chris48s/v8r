@@ -152,11 +152,16 @@ function mergeResults(results, ignoreErrors) {
 
 function Validator() {
   return async function (args) {
-    const filenames = await getFiles(args.pattern);
-    if (filenames.length === 0) {
-      logging.error(`Pattern '${args.pattern}' did not match any files`);
-      return EXIT.NOTFOUND;
+    let filenames = [];
+    for (const pattern of args.patterns) {
+      const matches = await getFiles(pattern);
+      if (matches.length === 0) {
+        logging.error(`Pattern '${pattern}' did not match any files`);
+        return EXIT.NOTFOUND;
+      }
+      filenames = filenames.concat(matches);
     }
+
     const ttl = secondsToMilliseconds(args.cacheTtl || 0);
     const cache = new Cache(getFlatCache(), ttl);
 
@@ -185,11 +190,12 @@ async function cli(args) {
 function parseArgs(argv) {
   return yargs(hideBin(argv))
     .command(
-      "$0 <pattern>",
+      "$0 <patterns..>",
       "Validate local json/yaml files against schema(s)",
       (yargs) => {
-        yargs.positional("pattern", {
-          describe: "Glob pattern describing local file or files to validate",
+        yargs.positional("patterns", {
+          describe:
+            "One or more filenames or glob patterns describing local file or files to validate",
         });
       }
     )
@@ -212,8 +218,8 @@ function parseArgs(argv) {
       describe:
         "Local path or URL of a schema to validate against. " +
         "If not supplied, we will attempt to find an appropriate schema on " +
-        "schemastore.org using the filename. If passed with a glob pattern " +
-        "that matches multiple files, all matching files will be validated " +
+        "schemastore.org using the filename. If passed with glob pattern(s) " +
+        "matching multiple files, all matching files will be validated " +
         "against this schema",
     })
     .option("catalogs", {

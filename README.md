@@ -25,15 +25,17 @@ v8r <filename>
 
 ### Validating files
 
-v8r can validate JSON or YAML files. You can pass either a single filename or a glob pattern:
+v8r can validate JSON or YAML files. You can pass filenames or glob patterns:
 
 ```bash
 # single filename
 $ v8r package.json
 
+# multiple files
+$ v8r file1.json file2.json
+
 # glob patterns
-$ v8r '**/.eslintrc.yml'
-$ v8r '{file1.json,file2.json}'
+$ v8r 'dir/*.yml' 'dir/*.yaml'
 ```
 
 [DigitalOcean's Glob Tool](https://www.digitalocean.com/community/tools/glob) can be used to help construct glob patterns
@@ -78,7 +80,7 @@ This can be used to specify different custom schemas for multiple file patterns.
 ## Exit codes
 
 * v8r always exits with code `0` when:
-    * The input glob pattern matched one or more files, all input files were validated against a schema, and all input files were **valid**
+    * The input glob pattern(s) matched one or more files, all input files were validated against a schema, and all input files were **valid**
     * `v8r` was called with `--help` or `--version` flags
 
 * By default v8r exits with code `1` when an error was encountered trying to validate one or more input files. For example:
@@ -90,8 +92,8 @@ This can be used to specify different custom schemas for multiple file patterns.
     This behaviour can be modified using the `--ignore-errors` flag. When invoked with `--ignore-errors` v8r will exit with code `0` even if one of these errors was encountered while attempting validation. A non-zero exit code will only be issued if validation could be completed successfully and the file was invalid.
 
 * v8r always exits with code `98` when:
-    * The input glob pattern was invalid
-    * The input glob pattern was valid but did not match any files
+    * An input glob pattern was invalid
+    * An input glob pattern was valid but did not match any files
 
 * v8r always exits with code `99` when:
     * The input glob pattern matched one or more files, one or more input files were validated against a schema and the input file was **invalid**
