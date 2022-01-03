@@ -1,5 +1,12 @@
 # Changelog
 
+## 📦 [0.10.0](https://www.npmjs.com/package/v8r/v/0.10.0) - 2022-01-03
+
+* Accept multiple filenames or globs as positional args. e.g:
+  ```bash
+  v8r file1.json file2.json 'dir/*.yaml'
+  ```
+
 ## 📦 [0.9.0](https://www.npmjs.com/package/v8r/v/0.9.0) - 2021-12-27
 
 * Accept glob pattern instead of filename. It is now possible to validate multiple files at once. e.g:
