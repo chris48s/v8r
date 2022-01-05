@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix --version option
+
 ## 📦 [0.10.0](https://www.npmjs.com/package/v8r/v/0.10.0) - 2022-01-03
 
 * Accept multiple filenames or globs as positional args. e.g:

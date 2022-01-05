@@ -2,6 +2,7 @@ import flatCache from "flat-cache";
 import fs from "fs";
 import isUrl from "is-url";
 import minimatch from "minimatch";
+import { createRequire } from "module";
 import os from "os";
 import path from "path";
 import yargs from "yargs";
@@ -199,13 +200,7 @@ function parseArgs(argv) {
         });
       }
     )
-    .version(
-      // Workaround for https://github.com/yargs/yargs/issues/1934
-      // TODO: remove once fixed
-      JSON.parse(
-        fs.readFileSync(new URL("../package.json", import.meta.url).pathname)
-      ).version
-    )
+    .version(createRequire(import.meta.url)("../package.json").version)
     .option("verbose", {
       alias: "v",
       type: "boolean",
