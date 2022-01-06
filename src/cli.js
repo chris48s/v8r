@@ -200,7 +200,11 @@ function parseArgs(argv) {
         });
       }
     )
-    .version(createRequire(import.meta.url)("../package.json").version)
+    .version(
+      // Workaround for https://github.com/yargs/yargs/issues/1934
+      // TODO: remove once fixed
+      createRequire(import.meta.url)("../package.json").version
+    )
     .option("verbose", {
       alias: "v",
       type: "boolean",
