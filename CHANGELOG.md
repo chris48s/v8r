@@ -1,5 +1,10 @@
 # Changelog
 
+## Next
+
+* Drop compatibility with node 12
+* Upgrade to got 12 internally
+
 ## 📦 [0.10.1](https://www.npmjs.com/package/v8r/v/0.10.1) - 2022-01-06
 
 * Fix `--version` flag when installed globally in some environments
