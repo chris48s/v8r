@@ -11,7 +11,7 @@ import addFormats from "ajv-formats";
 
 function _ajvFactory(schema, cache) {
   const resolver = (url) => cache.fetch(url);
-  const opts = { loadSchema: resolver, strict: "log" };
+  const opts = { allErrors: true, loadSchema: resolver, strict: "log" };
 
   if (
     typeof schema["$schema"] === "string" ||
