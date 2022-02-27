@@ -1,9 +1,10 @@
 # Changelog
 
-## Next
+## 📦 [0.11.0](https://www.npmjs.com/package/v8r/v/0.11.0) - 2022-02-27
 
-* Drop compatibility with node 12
+* Drop compatibility with node 12, now requires node `^14.13.1 || >=15.0.0`
 * Upgrade to got 12 internally
+* Call ajv with `allErrors` flag
 
 ## 📦 [0.10.1](https://www.npmjs.com/package/v8r/v/0.10.1) - 2022-01-06
 
