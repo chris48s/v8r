@@ -1,7 +1,5 @@
 import flatCache from "flat-cache";
 import fs from "fs";
-import isUrl from "is-url";
-import minimatch from "minimatch";
 import { createRequire } from "module";
 import os from "os";
 import path from "path";
@@ -9,15 +7,14 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
+import { getSchemaUrlForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
+import { getFromUrlOrFile } from "./io.js";
 import logging from "./logging.js";
 import { parseFile } from "./parser.js";
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
-
-const SCHEMASTORE_CATALOG_SCHEMA_URL =
-  "https://json.schemastore.org/schema-catalog.json";
 
 const EXIT = {
   VALID: 0,
@@ -27,70 +24,6 @@ const EXIT = {
 };
 
 const CACHE_DIR = path.join(os.tmpdir(), "flat-cache");
-
-async function getFromUrlOrFile(location, cache) {
-  return isUrl(location)
-    ? await cache.fetch(location)
-    : JSON.parse(await fs.promises.readFile(location, "utf8"));
-}
-
-async function getSchemaUrlForFilename(catalogs, filename, cache) {
-  for (const [i, catalogLocation] of catalogs.entries()) {
-    const catalog = await getFromUrlOrFile(catalogLocation, cache);
-    const catalogSchema = await getFromUrlOrFile(
-      SCHEMASTORE_CATALOG_SCHEMA_URL,
-      cache
-    );
-
-    // Validate the catalog
-    const valid = await validate(catalog, catalogSchema, cache);
-    if (!valid || catalog.schemas === undefined) {
-      throw new Error(`Malformed catalog at ${catalogLocation}`);
-    }
-
-    const { schemas } = catalog;
-    const matches = getSchemaMatchesForFilename(schemas, filename);
-    logging.debug(`Searching for schema in ${catalogLocation} ...`);
-    if (matches.length === 1) {
-      logging.info(`Found schema in ${catalogLocation} ...`);
-      return matches[0].url; // Match found. We're done.
-    }
-    if (matches.length === 0 && i < catalogs.length - 1) {
-      continue; // No match found. Try the next catalog in the array.
-    }
-    if (matches.length > 1) {
-      // We found >1 matches in the same catalog. This is always a hard error.
-      const matchesLog = matches
-        .map((match) => `  ${match.description}: ${match.url}`)
-        .join("\n");
-      logging.info(
-        `Found multiple possible schemas for ${filename}. Possible matches:\n${matchesLog}`
-      );
-    }
-    // Either we found >1 matches in the same catalog or we found 0 matches
-    // in the last catalog and there are no more catalogs left to try.
-    throw new Error(`Could not find a schema to validate ${filename}`);
-  }
-}
-
-function getSchemaMatchesForFilename(schemas, filename) {
-  const matches = [];
-  schemas.forEach(function (schema) {
-    if ("fileMatch" in schema) {
-      if (schema.fileMatch.includes(path.basename(filename))) {
-        matches.push(schema);
-        return;
-      }
-      for (const glob of schema.fileMatch) {
-        if (minimatch(path.normalize(filename), glob)) {
-          matches.push(schema);
-          break;
-        }
-      }
-    }
-  });
-  return matches;
-}
 
 function secondsToMilliseconds(seconds) {
   return seconds * 1000;
