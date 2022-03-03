@@ -55,7 +55,7 @@ function getSchemaMatchesForFilename(schemas, filename) {
         return;
       }
       for (const glob of schema.fileMatch) {
-        if (minimatch(path.normalize(filename), glob)) {
+        if (minimatch(path.normalize(filename), glob, { dot: true })) {
           matches.push(schema);
           break;
         }

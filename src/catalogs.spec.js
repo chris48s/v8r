@@ -17,6 +17,10 @@ describe("getSchemaMatchesForFilename", function () {
       url: "https://example.com/duplicate.json",
       fileMatch: ["file2.json"],
     },
+    {
+      url: "https://example.com/starts-with-a-dot-schema.json",
+      fileMatch: ["*.starts-with-a-dot.json"],
+    },
   ];
 
   it("returns [] when no matches found", function () {
@@ -54,6 +58,17 @@ describe("getSchemaMatchesForFilename", function () {
       {
         url: "https://example.com/duplicate.json",
         fileMatch: ["file2.json"],
+      },
+    ]);
+  });
+
+  it("returns a match if filename starts with a dot", function () {
+    expect(
+      getSchemaMatchesForFilename(schemas, ".starts-with-a-dot.json")
+    ).to.deep.equal([
+      {
+        url: "https://example.com/starts-with-a-dot-schema.json",
+        fileMatch: ["*.starts-with-a-dot.json"],
       },
     ]);
   });
