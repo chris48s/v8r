@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { cli, parseArgs } from "./cli.js";
+import { cli } from "./cli.js";
+import { getConfig } from "./config.js";
 
 (async () => {
-  const exitCode = await cli(parseArgs(process.argv));
+  const exitCode = await cli(await getConfig(process.argv));
   process.exit(exitCode);
 })();

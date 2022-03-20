@@ -1,10 +1,7 @@
 import flatCache from "flat-cache";
 import fs from "fs";
-import { createRequire } from "module";
 import os from "os";
 import path from "path";
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
 import { getSchemaUrlForFilename } from "./catalogs.js";
@@ -36,7 +33,7 @@ function getFlatCache() {
   return flatCache.load("v8r", CACHE_DIR);
 }
 
-async function validateFile(filename, args, cache) {
+async function validateFile(filename, config, cache) {
   logging.info(`Processing ${filename}`);
   try {
     const data = parseFile(
@@ -45,9 +42,9 @@ async function validateFile(filename, args, cache) {
     );
 
     const schemaLocation =
-      args.schema ||
+      config.schema ||
       (await getSchemaUrlForFilename(
-        (args.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
+        (config.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
         filename,
         cache
       ));
@@ -85,9 +82,9 @@ function mergeResults(results, ignoreErrors) {
 }
 
 function Validator() {
-  return async function (args) {
+  return async function (config) {
     let filenames = [];
-    for (const pattern of args.patterns) {
+    for (const pattern of config.patterns) {
       const matches = await getFiles(pattern);
       if (matches.length === 0) {
         logging.error(`Pattern '${pattern}' did not match any files`);
@@ -96,23 +93,24 @@ function Validator() {
       filenames = filenames.concat(matches);
     }
 
-    const ttl = secondsToMilliseconds(args.cacheTtl || 0);
+    const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(), ttl);
 
     const results = Object.fromEntries(filenames.map((key) => [key, null]));
     for (const [filename] of Object.entries(results)) {
-      results[filename] = await validateFile(filename, args, cache);
+      results[filename] = await validateFile(filename, config, cache);
       cache.resetCounters();
     }
-    return mergeResults(results, args.ignoreErrors);
+    return mergeResults(results, config.ignoreErrors);
   };
 }
 
-async function cli(args) {
-  logging.init(args.verbose);
+async function cli(config) {
+  logging.init(config.verbose);
+  logging.debug(`Merged args/config: ${JSON.stringify(config, null, 2)}`);
   try {
     const validate = new Validator();
-    return await validate(args);
+    return await validate(config);
   } catch (e) {
     logging.error(e.message);
     return EXIT.ERROR;
@@ -121,62 +119,4 @@ async function cli(args) {
   }
 }
 
-function parseArgs(argv) {
-  return yargs(hideBin(argv))
-    .command(
-      "$0 <patterns..>",
-      "Validate local json/yaml files against schema(s)",
-      (yargs) => {
-        yargs.positional("patterns", {
-          describe:
-            "One or more filenames or glob patterns describing local file or files to validate",
-        });
-      }
-    )
-    .version(
-      // Workaround for https://github.com/yargs/yargs/issues/1934
-      // TODO: remove once fixed
-      createRequire(import.meta.url)("../package.json").version
-    )
-    .option("verbose", {
-      alias: "v",
-      type: "boolean",
-      description: "Run with verbose logging. Can be stacked e.g: -vv -vvv",
-    })
-    .count("verbose")
-    .option("schema", {
-      alias: "s",
-      type: "string",
-      describe:
-        "Local path or URL of a schema to validate against. " +
-        "If not supplied, we will attempt to find an appropriate schema on " +
-        "schemastore.org using the filename. If passed with glob pattern(s) " +
-        "matching multiple files, all matching files will be validated " +
-        "against this schema",
-    })
-    .option("catalogs", {
-      type: "string",
-      alias: "c",
-      array: true,
-      describe:
-        "Local path or URL of custom catalogs to use prior to schemastore.org",
-    })
-    .conflicts("schema", "catalogs")
-    .option("ignore-errors", {
-      type: "boolean",
-      default: false,
-      describe:
-        "Exit with code 0 even if an error was encountered. Passing this flag " +
-        "means a non-zero exit code is only issued if validation could be " +
-        "completed successfully and one or more files were invalid",
-    })
-    .option("cache-ttl", {
-      type: "number",
-      default: 600,
-      describe:
-        "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
-        "Passing 0 clears and disables cache completely",
-    }).argv;
-}
-
-export { cli, parseArgs };
+export { cli };
