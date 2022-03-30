@@ -121,4 +121,4 @@ async function getConfig(argv) {
   return mergeConfigs(args, config);
 }
 
-export { getConfig };
+export { getConfig, parseArgs };

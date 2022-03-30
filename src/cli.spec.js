@@ -1,7 +1,6 @@
 import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import nock from "nock";
-import { cli, parseArgs } from "./cli.js";
+import { cli } from "./cli.js";
 import {
   setUp,
   tearDown,
@@ -12,7 +11,6 @@ import {
 
 const assert = chai.assert;
 const expect = chai.expect;
-chai.use(chaiAsPromised);
 
 describe("CLI", function () {
   // Mock the catalog validation schema
@@ -676,71 +674,5 @@ describe("CLI", function () {
         assert(containsError(messages, "Unsupported format .txt"));
       });
     });
-  });
-});
-
-describe("Argument parser", function () {
-  it("should populate default params when not specified", function () {
-    const args = parseArgs(["node", "index.js", "infile.json"]);
-    expect(args).to.have.property("ignoreErrors", false);
-    expect(args).to.have.property("cacheTtl", 600);
-    expect(args).to.have.property("verbose", 0);
-    expect(args).to.not.have.property("catalogs");
-    expect(args).to.not.have.property("schema");
-  });
-
-  it("should override default params when specified", function () {
-    const args = parseArgs([
-      "node",
-      "index.js",
-      "infile.json",
-      "--ignore-errors",
-      "--cache-ttl",
-      "86400",
-      "-vv",
-    ]);
-    expect(args).to.have.property("ignoreErrors", true);
-    expect(args).to.have.property("cacheTtl", 86400);
-    expect(args).to.have.property("verbose", 2);
-    expect(args).to.not.have.property("schema");
-  });
-
-  it("should accept schema param", function () {
-    const args = parseArgs([
-      "node",
-      "index.js",
-      "infile.json",
-      "--schema",
-      "http://foo.bar/baz",
-    ]);
-    expect(args).to.have.property("schema", "http://foo.bar/baz");
-  });
-
-  it("should accept catalogs param", function () {
-    const args = parseArgs([
-      "node",
-      "index.js",
-      "infile.json",
-      "--catalogs",
-      "catalog1.json",
-      "catalog2.json",
-    ]);
-    expect(args).to.have.property("catalogs");
-    expect(args.catalogs).to.be.an("Array");
-    expect(args.catalogs).to.have.lengthOf(2);
-  });
-
-  it("should accept multiple patterns", function () {
-    const args = parseArgs([
-      "node",
-      "index.js",
-      "file1.json",
-      "dir/*",
-      "file2.json",
-      "*.yaml",
-    ]);
-    expect(args).to.have.property("patterns");
-    expect(args.patterns).to.be.an("Array");
-    expect(args.patterns).to.have.lengthOf(4);
   });
 });

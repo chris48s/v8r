@@ -1,4 +1,5 @@
 import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 import flatCache from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
@@ -6,6 +7,7 @@ import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;
+chai.use(chaiAsPromised);
 
 describe("Cache", function () {
   describe("fetch function", function () {
