@@ -11,8 +11,11 @@ async function validateConfig(config) {
   return config;
 }
 
-async function getCosmiConfig() {
-  const configFile = (await cosmiconfig("v8r").search()) || { config: {} };
+async function getCosmiConfig(cosmiconfigOptions) {
+  const configFile = (await cosmiconfig(
+    "v8r",
+    cosmiconfigOptions
+  ).search()) || { config: {} };
   if (configFile.filepath) {
     logging.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
   } else {
@@ -115,8 +118,8 @@ function parseArgs(argv, config) {
   return parser.argv;
 }
 
-async function getConfig(argv) {
-  const config = await getCosmiConfig();
+async function getConfig(argv, cosmiconfigOptions = {}) {
+  const config = await getCosmiConfig(cosmiconfigOptions);
   const args = parseArgs(argv, config);
   return mergeConfigs(args, config);
 }

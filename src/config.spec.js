@@ -1,6 +1,8 @@
 import chai from "chai";
-import { parseArgs } from "./config.js";
+import { getConfig, parseArgs } from "./config.js";
+import { setUp, tearDown, containsInfo } from "./test-helpers.js";
 
+const assert = chai.assert;
 const expect = chai.expect;
 
 describe("Argument parser", function () {
@@ -51,6 +53,7 @@ describe("Argument parser", function () {
     expect(args).to.have.property("ignoreErrors", true);
     expect(args).to.have.property("cacheTtl", 86400);
     expect(args).to.have.property("verbose", 2);
+    expect(args).to.not.have.property("catalogs");
     expect(args).to.not.have.property("schema");
   });
 
@@ -79,6 +82,7 @@ describe("Argument parser", function () {
     expect(args).to.have.property("ignoreErrors", true);
     expect(args).to.have.property("cacheTtl", 86400);
     expect(args).to.have.property("verbose", 2);
+    expect(args).to.not.have.property("catalogs");
     expect(args).to.not.have.property("schema");
   });
 
@@ -118,5 +122,73 @@ describe("Argument parser", function () {
       "file2.json",
       "*.yaml",
     ]);
+  });
+});
+
+describe("getConfig", function () {
+  const messages = {};
+
+  beforeEach(() => setUp(messages));
+  afterEach(() => {
+    tearDown();
+  });
+
+  it("should use defaults if no config file found", async function () {
+    const config = await getConfig(["node", "index.js", "infile.json"], {
+      searchPlaces: ["./testfiles/does-not-exist.json"],
+      cache: false,
+    });
+    expect(config).to.have.property("ignoreErrors", false);
+    expect(config).to.have.property("cacheTtl", 600);
+    expect(config).to.have.property("verbose", 0);
+    expect(config).to.not.have.property("catalogs");
+    expect(config).to.not.have.property("schema");
+    assert(containsInfo(messages, "No config file found"));
+  });
+
+  it("should read options from config file if available", async function () {
+    const config = await getConfig(["node", "index.js"], {
+      searchPlaces: ["./testfiles/example-config.json"],
+      cache: false,
+    });
+    expect(config).to.have.property("ignoreErrors", true);
+    expect(config).to.have.property("cacheTtl", 300);
+    expect(config).to.have.property("verbose", 1);
+    expect(config).to.have.deep.property("patterns", ["./foobar/*.json"]);
+    expect(config).to.not.have.property("catalogs");
+    expect(config).to.not.have.property("schema");
+    assert(
+      containsInfo(
+        messages,
+        "Loaded config file from testfiles/example-config.json"
+      )
+    );
+  });
+
+  it("should override options from config file with args if specified", async function () {
+    const config = await getConfig(
+      [
+        "node",
+        "index.js",
+        "infile.json",
+        "--ignore-errors",
+        "--cache-ttl",
+        "86400",
+        "-vv",
+      ],
+      { searchPlaces: ["./testfiles/example-config.json"], cache: false }
+    );
+    expect(config).to.have.deep.property("patterns", ["infile.json"]);
+    expect(config).to.have.property("ignoreErrors", true);
+    expect(config).to.have.property("cacheTtl", 86400);
+    expect(config).to.have.property("verbose", 2);
+    expect(config).to.not.have.property("catalogs");
+    expect(config).to.not.have.property("schema");
+    assert(
+      containsInfo(
+        messages,
+        "Loaded config file from testfiles/example-config.json"
+      )
+    );
   });
 });

@@ -1,0 +1,6 @@
+{
+    "cacheTtl": 300,
+    "ignoreErrors": true,
+    "patterns": ["./foobar/*.json"],
+    "verbose": 1
+}
