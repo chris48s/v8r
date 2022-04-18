@@ -4,7 +4,7 @@ import os from "os";
 import path from "path";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
-import { getSchemaUrlForFilename } from "./catalogs.js";
+import { getMatchForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logging from "./logging.js";
@@ -33,24 +33,41 @@ function getFlatCache() {
   return flatCache.load("v8r", CACHE_DIR);
 }
 
+function getCatalogs(config) {
+  let catalogs = [];
+  if (config.customCatalog) {
+    catalogs.push({
+      location: config.configFileRelativePath,
+      catalog: config.customCatalog,
+    });
+  }
+  if (config.catalogs) {
+    catalogs = catalogs.concat(
+      config.catalogs.map(function (loc) {
+        return { location: loc };
+      })
+    );
+  }
+  catalogs.push({ location: SCHEMASTORE_CATALOG_URL });
+  return catalogs;
+}
+
 async function validateFile(filename, config, cache) {
   logging.info(`Processing ${filename}`);
   try {
-    const data = parseFile(
-      await fs.promises.readFile(filename, "utf8"),
-      path.extname(filename)
-    );
-
-    const schemaLocation =
-      config.schema ||
-      (await getSchemaUrlForFilename(
-        (config.catalogs || []).concat([SCHEMASTORE_CATALOG_URL]),
-        filename,
-        cache
-      ));
+    const catalogs = getCatalogs(config);
+    const catalogMatch = config.schema
+      ? {}
+      : await getMatchForFilename(catalogs, filename, cache);
+    const schemaLocation = config.schema || catalogMatch.location;
     const schema = await getFromUrlOrFile(schemaLocation, cache);
     logging.info(
       `Validating ${filename} against schema from ${schemaLocation} ...`
+    );
+
+    const data = parseFile(
+      await fs.promises.readFile(filename, "utf8"),
+      catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename)
     );
 
     const valid = await validate(data, schema, cache);

@@ -7,18 +7,34 @@ import logging from "./logging.js";
 const SCHEMASTORE_CATALOG_SCHEMA_URL =
   "https://json.schemastore.org/schema-catalog.json";
 
-async function getSchemaUrlForFilename(catalogs, filename, cache) {
-  for (const [i, catalogLocation] of catalogs.entries()) {
-    const catalog = await getFromUrlOrFile(catalogLocation, cache);
-    const catalogSchema = await getFromUrlOrFile(
-      SCHEMASTORE_CATALOG_SCHEMA_URL,
-      cache
-    );
+function coerceMatch(inMatch) {
+  const outMatch = {};
+  outMatch.location = inMatch.url || inMatch.location;
+  for (const [key, value] of Object.entries(inMatch)) {
+    if (!["location", "url"].includes(key)) {
+      outMatch[key] = value;
+    }
+  }
+  return outMatch;
+}
 
-    // Validate the catalog
-    const valid = await validate(catalog, catalogSchema, cache);
-    if (!valid || catalog.schemas === undefined) {
-      throw new Error(`Malformed catalog at ${catalogLocation}`);
+async function getMatchForFilename(catalogs, filename, cache) {
+  for (const [i, rec] of catalogs.entries()) {
+    const catalogLocation = rec.location;
+    const catalog =
+      rec.catalog || (await getFromUrlOrFile(catalogLocation, cache));
+
+    if (!rec.catalog) {
+      const catalogSchema = await getFromUrlOrFile(
+        SCHEMASTORE_CATALOG_SCHEMA_URL,
+        cache
+      );
+
+      // Validate the catalog
+      const valid = await validate(catalog, catalogSchema, cache);
+      if (!valid || catalog.schemas === undefined) {
+        throw new Error(`Malformed catalog at ${catalogLocation}`);
+      }
     }
 
     const { schemas } = catalog;
@@ -26,7 +42,7 @@ async function getSchemaUrlForFilename(catalogs, filename, cache) {
     logging.debug(`Searching for schema in ${catalogLocation} ...`);
     if (matches.length === 1) {
       logging.info(`Found schema in ${catalogLocation} ...`);
-      return matches[0].url; // Match found. We're done.
+      return coerceMatch(matches[0]); // Match found. We're done.
     }
     if (matches.length === 0 && i < catalogs.length - 1) {
       continue; // No match found. Try the next catalog in the array.
@@ -34,7 +50,15 @@ async function getSchemaUrlForFilename(catalogs, filename, cache) {
     if (matches.length > 1) {
       // We found >1 matches in the same catalog. This is always a hard error.
       const matchesLog = matches
-        .map((match) => `  ${match.description}: ${match.url}`)
+        .map(function (match) {
+          let outStr = "";
+          outStr += `  ${match.name}\n`;
+          if (match.description) {
+            outStr += `  ${match.description}\n`;
+          }
+          outStr += `  ${match.url || match.location}\n`;
+          return outStr;
+        })
         .join("\n");
       logging.info(
         `Found multiple possible schemas for ${filename}. Possible matches:\n${matchesLog}`
@@ -65,4 +89,4 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-export { getSchemaMatchesForFilename, getSchemaUrlForFilename };
+export { getSchemaMatchesForFilename, getMatchForFilename };

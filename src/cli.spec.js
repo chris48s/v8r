@@ -406,12 +406,12 @@ describe("CLI", function () {
           schemas: [
             {
               url: "https://example.com/schema1.json",
-              description: "example schema 1",
+              name: "example schema 1",
               fileMatch: ["valid.json"],
             },
             {
               url: "https://example.com/schema2.json",
-              description: "example schema 2",
+              name: "example schema 2",
               fileMatch: ["testfiles/valid*"],
             },
           ],
@@ -434,13 +434,13 @@ describe("CLI", function () {
         assert(
           containsInfo(
             messages,
-            "example schema 1: https://example.com/schema1.json"
+            "example schema 1\n  https://example.com/schema1.json"
           )
         );
         assert(
           containsInfo(
             messages,
-            "example schema 2: https://example.com/schema2.json"
+            "example schema 2\n  https://example.com/schema2.json"
           )
         );
         mock.done();
@@ -489,12 +489,13 @@ describe("CLI", function () {
     });
 
     it("should return 1 if target file type is not supported", async function () {
-      return cli({ patterns: ["./testfiles/not-supported.txt"] }).then(
-        (result) => {
-          assert.equal(result, 1);
-          assert(containsError(messages, "Unsupported format .txt"));
-        }
-      );
+      return cli({
+        patterns: ["./testfiles/not-supported.txt"],
+        schema: "./testfiles/schema.json",
+      }).then((result) => {
+        assert.equal(result, 1);
+        assert(containsError(messages, "Unsupported format .txt"));
+      });
     });
 
     it("should return 1 if local schema file not found", async function () {
@@ -605,6 +606,7 @@ describe("CLI", function () {
     it("should return 0 if ignore-errors flag is passed", async function () {
       return cli({
         patterns: ["./testfiles/not-supported.txt"],
+        schema: "./testfiles/schema.json",
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);

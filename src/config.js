@@ -27,8 +27,12 @@ async function getCosmiConfig(cosmiconfigOptions) {
 
 function mergeConfigs(args, config) {
   const mergedConfig = { ...args };
-  mergedConfig.cacheName = config.cacheName;
-  mergedConfig.customCatalog = config.customCatalog;
+  mergedConfig.cacheName = config?.config?.cacheName;
+  mergedConfig.customCatalog = config?.config?.customCatalog;
+  mergedConfig.configFileRelativePath = undefined;
+  if (config.filepath) {
+    mergedConfig.configFileRelativePath = getRelativeFilePath(config);
+  }
   return mergedConfig;
 }
 
