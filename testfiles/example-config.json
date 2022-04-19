@@ -1,5 +1,15 @@
 {
     "cacheTtl": 300,
+    "customCatalog": {
+        "schemas": [
+            {
+                "name": "custom schema",
+                "fileMatch": ["valid.json", "invalid.json"],
+                "location": "./testfiles/schema.json",
+                "parser": "json5"
+            }
+        ]
+    },
     "ignoreErrors": true,
     "patterns": ["./foobar/*.json"],
     "verbose": 1

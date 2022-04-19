@@ -143,6 +143,9 @@ describe("getConfig", function () {
     expect(config).to.have.property("verbose", 0);
     expect(config).to.not.have.property("catalogs");
     expect(config).to.not.have.property("schema");
+    expect(config).to.have.property("cacheName", undefined);
+    expect(config).to.have.property("customCatalog", undefined);
+    expect(config).to.have.property("configFileRelativePath", undefined);
     assert(containsInfo(messages, "No config file found"));
   });
 
@@ -157,6 +160,21 @@ describe("getConfig", function () {
     expect(config).to.have.deep.property("patterns", ["./foobar/*.json"]);
     expect(config).to.not.have.property("catalogs");
     expect(config).to.not.have.property("schema");
+    expect(config).to.have.property("cacheName", undefined);
+    expect(config).to.have.deep.property("customCatalog", {
+      schemas: [
+        {
+          name: "custom schema",
+          fileMatch: ["valid.json", "invalid.json"],
+          location: "./testfiles/schema.json",
+          parser: "json5",
+        },
+      ],
+    });
+    expect(config).to.have.property(
+      "configFileRelativePath",
+      "testfiles/example-config.json"
+    );
     assert(
       containsInfo(
         messages,
@@ -184,6 +202,21 @@ describe("getConfig", function () {
     expect(config).to.have.property("verbose", 2);
     expect(config).to.not.have.property("catalogs");
     expect(config).to.not.have.property("schema");
+    expect(config).to.have.property("cacheName", undefined);
+    expect(config).to.have.deep.property("customCatalog", {
+      schemas: [
+        {
+          name: "custom schema",
+          fileMatch: ["valid.json", "invalid.json"],
+          location: "./testfiles/schema.json",
+          parser: "json5",
+        },
+      ],
+    });
+    expect(config).to.have.property(
+      "configFileRelativePath",
+      "testfiles/example-config.json"
+    );
     assert(
       containsInfo(
         messages,

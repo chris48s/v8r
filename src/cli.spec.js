@@ -55,7 +55,7 @@ describe("CLI", function () {
       nock.cleanAll();
     });
 
-    it("should return 0 when file is valid (user-supplied local schema)", function () {
+    it("should return 0 when file is valid (with user-supplied local schema)", function () {
       return cli({
         patterns: ["./testfiles/valid.json"],
         schema: "./testfiles/schema.json",
@@ -65,7 +65,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 99 when file is invalid (user-supplied local schema)", function () {
+    it("should return 99 when file is invalid (with user-supplied local schema)", function () {
       return cli({
         patterns: ["./testfiles/invalid.json"],
         schema: "./testfiles/schema.json",
@@ -151,7 +151,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom local catalog)", function () {
+    it("should use schema from custom local catalog if match found", function () {
       const catalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
@@ -183,7 +183,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom remote catalog)", function () {
+    it("should use schema from custom remote catalog if match found", function () {
       const storeCatalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
@@ -226,7 +226,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to the next catalog)", function () {
+    it("should fall back to next custom catalog if match not found in first", function () {
       const mock = nock("https://example.com")
         .get("/schema.json")
         .reply(200, schema);
@@ -250,7 +250,7 @@ describe("CLI", function () {
       });
     });
 
-    it("should return 0 when file is valid (with auto-detected schema from custom catalog falling back to schemastore.org)", function () {
+    it("should fall back to schemastore.org if match not found in custom catalogs", function () {
       const storeCatalogMock = nock("https://www.schemastore.org")
         .get("/api/json/catalog.json")
         .reply(200, {
@@ -268,6 +268,100 @@ describe("CLI", function () {
       return cli({
         patterns: ["./testfiles/valid.json"],
         catalogs: ["./testfiles/catalog-nomatch.json"],
+      }).then((result) => {
+        assert.equal(result, 0, messages.error);
+        assert(
+          containsInfo(
+            messages,
+            "Found schema in https://www.schemastore.org/api/json/catalog.json ..."
+          )
+        );
+        assert(containsSuccess(messages, "./testfiles/valid.json is valid"));
+        storeCatalogMock.done();
+        storeSchemaMock.done();
+      });
+    });
+
+    it("should use schema from config file if match found", function () {
+      return cli({
+        patterns: ["./testfiles/valid.json"],
+        catalogs: ["./testfiles/catalog-url.json"],
+        customCatalog: {
+          schemas: [
+            {
+              name: "custom schema",
+              fileMatch: ["valid.json", "valid.yml"],
+              location: "./testfiles/schema.json",
+            },
+          ],
+        },
+        configFileRelativePath: "foobar.conf",
+      }).then((result) => {
+        assert.equal(result, 0, messages.error);
+        assert(containsInfo(messages, "Found schema in foobar.conf ..."));
+        assert(containsSuccess(messages, "./testfiles/valid.json is valid"));
+      });
+    });
+
+    it("should fall back to custom catalog if match not found in config file", function () {
+      const mock = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
+      return cli({
+        patterns: ["./testfiles/valid.json"],
+        catalogs: ["./testfiles/catalog-url.json"],
+        customCatalog: {
+          schemas: [
+            {
+              name: "custom schema",
+              fileMatch: ["does-not-match.json"],
+              location: "./testfiles/schema.json",
+            },
+          ],
+        },
+        configFileRelativePath: "foobar.conf",
+      }).then((result) => {
+        assert.equal(result, 0, messages.error);
+        assert(
+          containsInfo(
+            messages,
+            "Found schema in ./testfiles/catalog-url.json ..."
+          )
+        );
+        assert(containsSuccess(messages, "./testfiles/valid.json is valid"));
+        mock.done();
+      });
+    });
+
+    it("should fall back to schemastore.org if match not found in config file or custom catalogs", function () {
+      const storeCatalogMock = nock("https://www.schemastore.org")
+        .get("/api/json/catalog.json")
+        .reply(200, {
+          schemas: [
+            {
+              url: "https://example.com/schema.json",
+              fileMatch: ["valid.json", "invalid.json"],
+            },
+          ],
+        });
+      const storeSchemaMock = nock("https://example.com")
+        .get("/schema.json")
+        .reply(200, schema);
+
+      return cli({
+        patterns: ["./testfiles/valid.json"],
+        catalogs: ["./testfiles/catalog-nomatch.json"],
+        customCatalog: {
+          schemas: [
+            {
+              name: "custom schema",
+              fileMatch: ["does-not-match.json"],
+              location: "./testfiles/schema.json",
+            },
+          ],
+        },
+        configFileRelativePath: "foobar.conf",
       }).then((result) => {
         assert.equal(result, 0, messages.error);
         assert(
@@ -321,6 +415,28 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(containsSuccess(messages, "./testfiles/valid.json5 is valid"));
+      });
+    });
+
+    it("should use custom parser in preference to file extension if specified", function () {
+      return cli({
+        patterns: ["./testfiles/with-comments.json"],
+        customCatalog: {
+          schemas: [
+            {
+              name: "custom schema",
+              fileMatch: ["with-comments.json"],
+              location: "./testfiles/schema.json",
+              parser: "json5",
+            },
+          ],
+        },
+        configFileRelativePath: "foobar.conf",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(
+          containsSuccess(messages, "./testfiles/with-comments.json is valid")
+        );
       });
     });
   });
