@@ -5,7 +5,7 @@
             {
                 "name": "custom schema",
                 "fileMatch": ["valid.json", "invalid.json"],
-                "location": "./testfiles/schema.json",
+                "location": "./testfiles/schemas/schema.json",
                 "parser": "json5"
             }
         ]

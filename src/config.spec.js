@@ -151,7 +151,7 @@ describe("getConfig", function () {
 
   it("should read options from config file if available", async function () {
     const config = await getConfig(["node", "index.js"], {
-      searchPlaces: ["./testfiles/example-config.json"],
+      searchPlaces: ["./testfiles/configs/config.json"],
       cache: false,
     });
     expect(config).to.have.property("ignoreErrors", true);
@@ -166,19 +166,19 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: "./testfiles/schema.json",
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],
     });
     expect(config).to.have.property(
       "configFileRelativePath",
-      "testfiles/example-config.json"
+      "testfiles/configs/config.json"
     );
     assert(
       containsInfo(
         messages,
-        "Loaded config file from testfiles/example-config.json"
+        "Loaded config file from testfiles/configs/config.json"
       )
     );
   });
@@ -194,7 +194,10 @@ describe("getConfig", function () {
         "86400",
         "-vv",
       ],
-      { searchPlaces: ["./testfiles/example-config.json"], cache: false }
+      {
+        searchPlaces: ["./testfiles/configs/config.json"],
+        cache: false,
+      }
     );
     expect(config).to.have.deep.property("patterns", ["infile.json"]);
     expect(config).to.have.property("ignoreErrors", true);
@@ -208,19 +211,19 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: "./testfiles/schema.json",
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],
     });
     expect(config).to.have.property(
       "configFileRelativePath",
-      "testfiles/example-config.json"
+      "testfiles/configs/config.json"
     );
     assert(
       containsInfo(
         messages,
-        "Loaded config file from testfiles/example-config.json"
+        "Loaded config file from testfiles/configs/config.json"
       )
     );
   });
