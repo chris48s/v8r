@@ -4,14 +4,11 @@ import os from "os";
 import path from "path";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
-import { getMatchForFilename } from "./catalogs.js";
+import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logging from "./logging.js";
 import { parseFile } from "./parser.js";
-
-const SCHEMASTORE_CATALOG_URL =
-  "https://www.schemastore.org/api/json/catalog.json";
 
 const EXIT = {
   VALID: 0,
@@ -31,25 +28,6 @@ function getFlatCache() {
     return flatCache.load(process.env.V8R_CACHE_NAME);
   }
   return flatCache.load("v8r", CACHE_DIR);
-}
-
-function getCatalogs(config) {
-  let catalogs = [];
-  if (config.customCatalog) {
-    catalogs.push({
-      location: config.configFileRelativePath,
-      catalog: config.customCatalog,
-    });
-  }
-  if (config.catalogs) {
-    catalogs = catalogs.concat(
-      config.catalogs.map(function (loc) {
-        return { location: loc };
-      })
-    );
-  }
-  catalogs.push({ location: SCHEMASTORE_CATALOG_URL });
-  return catalogs;
 }
 
 async function validateFile(filename, config, cache) {

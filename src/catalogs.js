@@ -4,6 +4,8 @@ import { validate } from "./ajv.js";
 import { getFromUrlOrFile } from "./io.js";
 import logging from "./logging.js";
 
+const SCHEMASTORE_CATALOG_URL =
+  "https://www.schemastore.org/api/json/catalog.json";
 const SCHEMASTORE_CATALOG_SCHEMA_URL =
   "https://json.schemastore.org/schema-catalog.json";
 
@@ -16,6 +18,25 @@ function coerceMatch(inMatch) {
     }
   }
   return outMatch;
+}
+
+function getCatalogs(config) {
+  let catalogs = [];
+  if (config.customCatalog) {
+    catalogs.push({
+      location: config.configFileRelativePath,
+      catalog: config.customCatalog,
+    });
+  }
+  if (config.catalogs) {
+    catalogs = catalogs.concat(
+      config.catalogs.map(function (loc) {
+        return { location: loc };
+      })
+    );
+  }
+  catalogs.push({ location: SCHEMASTORE_CATALOG_URL });
+  return catalogs;
 }
 
 async function getMatchForFilename(catalogs, filename, cache) {
@@ -89,4 +110,4 @@ function getSchemaMatchesForFilename(schemas, filename) {
   return matches;
 }
 
-export { getSchemaMatchesForFilename, getMatchForFilename };
+export { getCatalogs, getMatchForFilename, getSchemaMatchesForFilename };
