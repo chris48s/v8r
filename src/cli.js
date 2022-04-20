@@ -5,6 +5,7 @@ import path from "path";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
+import { getConfig } from "./config.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logging from "./logging.js";
@@ -13,6 +14,7 @@ import { parseFile } from "./parser.js";
 const EXIT = {
   VALID: 0,
   ERROR: 1,
+  INVALID_CONFIG: 97,
   NOTFOUND: 98,
   INVALID: 99,
 };
@@ -101,8 +103,18 @@ function Validator() {
 }
 
 async function cli(config) {
+  if (!config) {
+    try {
+      config = await getConfig(process.argv);
+    } catch (e) {
+      logging.error(e.message);
+      return EXIT.INVALID_CONFIG;
+    }
+  }
+
   logging.init(config.verbose);
   logging.debug(`Merged args/config: ${JSON.stringify(config, null, 2)}`);
+
   try {
     const validate = new Validator();
     return await validate(config);

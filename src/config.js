@@ -1,14 +1,28 @@
+import { createRequire } from "module";
+// TODO: once JSON modules is stable these requires could become imports
+// https://nodejs.org/api/esm.html#esm_experimental_json_modules
+const require = createRequire(import.meta.url);
+
+import Ajv2019 from "ajv/dist/2019.js";
 import { cosmiconfig } from "cosmiconfig";
 import decamelize from "decamelize";
-import { createRequire } from "module";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import logging from "./logging.js";
 
-async function validateConfig(config) {
-  // TODO
-  return config;
+function validateConfig(config) {
+  const ajv = new Ajv2019({ allErrors: true, strict: false });
+  const schema = require("../config-schema.json");
+  const validateFn = ajv.compile(schema);
+  const valid = validateFn(config);
+  if (!valid) {
+    console.log("\nErrors:");
+    console.log(validateFn.errors);
+    console.log("");
+    throw new Error("Malformed config file");
+  }
+  return valid;
 }
 
 async function getCosmiConfig(cosmiconfigOptions) {
@@ -21,8 +35,8 @@ async function getCosmiConfig(cosmiconfigOptions) {
   } else {
     logging.info(`No config file found`);
   }
-  const config = await validateConfig(configFile);
-  return config;
+  validateConfig(configFile.config);
+  return configFile;
 }
 
 function mergeConfigs(args, config) {
@@ -67,7 +81,7 @@ function parseArgs(argv, config) {
     .version(
       // Workaround for https://github.com/yargs/yargs/issues/1934
       // TODO: remove once fixed
-      createRequire(import.meta.url)("../package.json").version
+      require("../package.json").version
     )
     .option("verbose", {
       alias: "v",
@@ -128,4 +142,4 @@ async function getConfig(argv, cosmiconfigOptions = {}) {
   return mergeConfigs(args, config);
 }
 
-export { getConfig, parseArgs };
+export { getConfig, parseArgs, validateConfig };

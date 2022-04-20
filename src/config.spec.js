@@ -1,5 +1,5 @@
 import chai from "chai";
-import { getConfig, parseArgs } from "./config.js";
+import { getConfig, parseArgs, validateConfig } from "./config.js";
 import { setUp, tearDown, containsInfo } from "./test-helpers.js";
 
 const assert = chai.assert;
@@ -226,5 +226,105 @@ describe("getConfig", function () {
         "Loaded config file from testfiles/configs/config.json"
       )
     );
+  });
+});
+
+describe("validateConfig", function () {
+  const messages = {};
+
+  beforeEach(() => setUp(messages));
+  afterEach(() => {
+    tearDown();
+  });
+
+  it("should pass valid configs", function () {
+    const validConfigs = [
+      {},
+      {
+        ignoreErrors: true,
+        verbose: 0,
+        patterns: ["foobar.js"],
+        cacheTtl: 600,
+        customCatalog: {
+          schemas: [
+            {
+              name: "Schema 1",
+              fileMatch: ["file1.json"],
+              location: "localschema.json",
+            },
+            {
+              name: "Schema 2",
+              description: "Long Description",
+              fileMatch: ["file2.json"],
+              location: "https://example.com/remoteschema.json",
+              parser: "json5",
+            },
+          ],
+        },
+      },
+    ];
+    for (const config of validConfigs) {
+      expect(validateConfig(config)).to.be.true;
+    }
+  });
+
+  it("should reject invalid configs", function () {
+    const invalidConfigs = [
+      { ignoreErrors: "string" },
+      { foo: "bar" },
+      { verbose: "string" },
+      { verbose: -1 },
+      { patterns: "string" },
+      { patterns: [] },
+      { patterns: ["valid", "ok", false] },
+      { patterns: ["duplicate", "duplicate"] },
+      { cacheTtl: "string" },
+      { cacheTtl: -1 },
+      { customCatalog: "string" },
+      { customCatalog: {} },
+      { customCatalog: { schemas: [{}] } },
+      {
+        customCatalog: {
+          schemas: [
+            {
+              name: "Schema 1",
+              fileMatch: ["file1.json"],
+              location: "localschema.json",
+              foo: "bar",
+            },
+          ],
+        },
+      },
+      {
+        customCatalog: {
+          schemas: [
+            {
+              name: "Schema 1",
+              fileMatch: ["file1.json"],
+              location: "localschema.json",
+              url: "https://example.com/remoteschema.json",
+            },
+          ],
+        },
+      },
+      {
+        customCatalog: {
+          schemas: [
+            {
+              name: "Schema 1",
+              fileMatch: ["file1.json"],
+              location: "localschema.json",
+              parser: "invalid",
+            },
+          ],
+        },
+      },
+    ];
+    for (const config of invalidConfigs) {
+      expect(() => validateConfig(config)).to.throw(
+        Error,
+        "Malformed config file"
+      );
+    }
   });
 });
