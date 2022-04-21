@@ -15,7 +15,7 @@ const EXIT = {
   VALID: 0,
   ERROR: 1,
   INVALID_CONFIG: 97,
-  NOTFOUND: 98,
+  NOT_FOUND: 98,
   INVALID: 99,
 };
 
@@ -85,7 +85,7 @@ function Validator() {
       const matches = await getFiles(pattern);
       if (matches.length === 0) {
         logging.error(`Pattern '${pattern}' did not match any files`);
-        return EXIT.NOTFOUND;
+        return EXIT.NOT_FOUND;
       }
       filenames = filenames.concat(matches);
     }
