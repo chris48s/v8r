@@ -1,8 +1,7 @@
-import chai from "chai";
 import flatCache from "flat-cache";
 import { Cache } from "./cache.js";
 import { _ajvFactory } from "./ajv.js";
-import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+import { chai, testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 const expect = chai.expect;
 

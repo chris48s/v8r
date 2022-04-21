@@ -1,4 +1,8 @@
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
 import flatCache from "flat-cache";
+
+chai.use(chaiAsPromised);
 
 const originals = {};
 const consoleMethods = ["log", "error", "debug"];
@@ -43,6 +47,7 @@ function containsError(messages, expectedString, expectedCount = 1) {
 }
 
 export {
+  chai,
   testCacheName,
   setUp,
   tearDown,

@@ -1,7 +1,7 @@
-import chai from "chai";
 import nock from "nock";
 import { cli } from "./cli.js";
 import {
+  chai,
   setUp,
   tearDown,
   containsSuccess,

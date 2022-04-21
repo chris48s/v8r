@@ -1,6 +1,5 @@
-import chai from "chai";
 import { getConfig, parseArgs, validateConfig } from "./config.js";
-import { setUp, tearDown, containsInfo } from "./test-helpers.js";
+import { chai, setUp, tearDown, containsInfo } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;
