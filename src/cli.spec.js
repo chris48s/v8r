@@ -1,3 +1,8 @@
+import { randomUUID } from "crypto";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { mockCwd } from "mock-cwd";
 import nock from "nock";
 import { cli } from "./cli.js";
 import {
@@ -627,6 +632,21 @@ describe("CLI", function () {
           )
         );
         mock.done();
+      });
+    });
+
+    it("should return 97 if config file is found but invalid", async function () {
+      const tempDir = path.join(os.tmpdir(), randomUUID());
+      const tempFile = path.join(tempDir, ".v8rrc");
+      fs.mkdirSync(tempDir, { recursive: true });
+      fs.writeFileSync(tempFile, '{"foo":"bar"}');
+
+      const mock = mockCwd(tempDir);
+      return cli().then((result) => {
+        mock.restore();
+        fs.rmSync(tempDir, { recursive: true, force: true });
+        assert.equal(result, 97);
+        assert(containsError(messages, "Malformed config file"));
       });
     });
 
