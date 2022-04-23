@@ -135,6 +135,7 @@ customCatalog:
           # Unlike the SchemaStore.org format, which has a `url` key,
           # custom catalogs defined in v8r config files have a `location` key
           # which can refer to either a URL or local file.
+          # Relative paths are interpreted as relative to the config file location.
           location: foo/bar/geojson-schema.json
 
           # A custom parser to use for files matching fileMatch

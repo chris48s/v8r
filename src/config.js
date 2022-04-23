@@ -6,6 +6,7 @@ const require = createRequire(import.meta.url);
 import Ajv2019 from "ajv/dist/2019.js";
 import { cosmiconfig } from "cosmiconfig";
 import decamelize from "decamelize";
+import isUrl from "is-url";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -25,6 +26,20 @@ function validateConfig(config) {
   return valid;
 }
 
+function preProcessConfig(configFile) {
+  if (!configFile?.config?.customCatalog?.schemas) {
+    return;
+  }
+  for (const schema of configFile.config.customCatalog.schemas) {
+    if (!path.isAbsolute(schema.location) && !isUrl(schema.location)) {
+      schema.location = path.join(
+        path.dirname(configFile.filepath),
+        schema.location
+      );
+    }
+  }
+}
+
 async function getCosmiConfig(cosmiconfigOptions) {
   const configFile = (await cosmiconfig(
     "v8r",
@@ -36,6 +51,7 @@ async function getCosmiConfig(cosmiconfigOptions) {
     logging.info(`No config file found`);
   }
   validateConfig(configFile.config);
+  preProcessConfig(configFile);
   return configFile;
 }
 
@@ -142,4 +158,4 @@ async function getConfig(argv, cosmiconfigOptions = {}) {
   return mergeConfigs(args, config);
 }
 
-export { getConfig, parseArgs, validateConfig };
+export { getConfig, parseArgs, preProcessConfig, validateConfig };

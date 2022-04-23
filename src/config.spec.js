@@ -1,10 +1,16 @@
-import { getConfig, parseArgs, validateConfig } from "./config.js";
+import path from "path";
+import {
+  getConfig,
+  parseArgs,
+  preProcessConfig,
+  validateConfig,
+} from "./config.js";
 import { chai, setUp, tearDown, containsInfo } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;
 
-describe("Argument parser", function () {
+describe("parseArgs", function () {
   it("should populate default values when no args and no base config", function () {
     const args = parseArgs(["node", "index.js", "infile.json"], { config: {} });
     expect(args).to.have.property("ignoreErrors", false);
@@ -124,6 +130,54 @@ describe("Argument parser", function () {
   });
 });
 
+describe("preProcessConfig", function () {
+  it("passes through absolute paths", function () {
+    const configFile = {
+      config: {
+        customCatalog: { schemas: [{ location: "/foo/bar/schema.json" }] },
+      },
+      filepath: "/home/fred/.v8rrc",
+    };
+    preProcessConfig(configFile);
+    expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+      "/foo/bar/schema.json"
+    );
+  });
+
+  it("passes through URLs", function () {
+    const configFile = {
+      config: {
+        customCatalog: {
+          schemas: [{ location: "https://example.com/schema.json" }],
+        },
+      },
+      filepath: "/home/fred/.v8rrc",
+    };
+    preProcessConfig(configFile);
+    expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+      "https://example.com/schema.json"
+    );
+  });
+
+  it("converts relative paths to absolute", function () {
+    const testCases = [
+      ["schema.json", "/home/fred/schema.json"],
+      ["../../schema.json", "/schema.json"],
+      ["foo/bar/schema.json", "/home/fred/foo/bar/schema.json"],
+    ];
+    for (const testCase of testCases) {
+      const configFile = {
+        config: { customCatalog: { schemas: [{ location: testCase[0] }] } },
+        filepath: "/home/fred/.v8rrc",
+      };
+      preProcessConfig(configFile);
+      expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+        testCase[1]
+      );
+    }
+  });
+});
+
 describe("getConfig", function () {
   const messages = {};
 
@@ -165,7 +219,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: "./testfiles/schemas/schema.json",
+          location: path.resolve("./testfiles/schemas/schema.json"),
           parser: "json5",
         },
       ],
@@ -210,7 +264,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: "./testfiles/schemas/schema.json",
+          location: path.resolve("./testfiles/schemas/schema.json"),
           parser: "json5",
         },
       ],
