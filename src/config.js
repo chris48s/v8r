@@ -41,10 +41,10 @@ function preProcessConfig(configFile) {
 }
 
 async function getCosmiConfig(cosmiconfigOptions) {
-  const configFile = (await cosmiconfig(
-    "v8r",
-    cosmiconfigOptions
-  ).search()) || { config: {} };
+  cosmiconfigOptions.stopDir = process.cwd();
+  const configFile = (await cosmiconfig("v8r", cosmiconfigOptions).search(
+    process.cwd()
+  )) || { config: {} };
   if (configFile.filepath) {
     logging.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
   } else {

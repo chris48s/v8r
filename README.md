@@ -91,7 +91,7 @@ v8r uses CosmiConfig to search for a configuration. This means you can specify y
 - `v8r.config.js`
 - `v8r.config.cjs`
 
-More info on how and where CosmiConfig searches for configuration can be found at https://github.com/davidtheclark/cosmiconfig#cosmiconfig
+v8r only searches for a config file in the current working directory.
 
 Example yaml config file:
 
