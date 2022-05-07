@@ -144,7 +144,10 @@ customCatalog:
           parser: json5
 ```
 
-The config file format is specified more formally in a [JSON Schema](config-schema.json).
+The config file format is specified more formally in a JSON Schema:
+
+- [machine-readable JSON](config-schema.json)
+- [human-readable HTML](https://json-schema-viewer.vercel.app/view?url=https%3A%2F%2Fraw.githubusercontent.com%2Fchris48s%2Fv8r%2Fmain%2Fconfig-schema.json&show_breadcrumbs=on&template_name=flat)
 
 ## Exit codes
 
