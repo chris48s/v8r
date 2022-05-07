@@ -1,0 +1,84 @@
+{
+  "title": "JSON schema for v8r config files",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "cacheTtl": {
+      "description": "Remove cached HTTP responses older than cacheTtl seconds old. Specifying 0 clears and disables cache completely",
+      "type": "integer",
+      "minimum": 0
+    },
+    "customCatalog": {
+      "type": "object",
+      "description": "A custom schema catalog. This catalog will be searched ahead of any custom catalogs passed using --catalogs or SchemaStore.org",
+      "required": [
+        "schemas"
+      ],
+      "properties": {
+        "schemas": {
+          "type": "array",
+          "description": "A list of JSON schema references.",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "fileMatch",
+              "location"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "description": "A description of the schema",
+                "type": "string"
+              },
+              "fileMatch": {
+                "description": "A Minimatch glob expression for matching up file names with a schema.",
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "location": {
+                "description": "A URL or local file path for the schema location",
+                "type": "string"
+              },
+              "name": {
+                "description": "The name of the schema",
+                "type": "string"
+              },
+              "parser": {
+                "description": "A custom parser to use for files matching fileMatch instead of trying to infer the correct parser from the filename",
+                "type": "string",
+                "enum": [
+                  "json",
+                  "yaml",
+                  "json5"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "ignoreErrors": {
+      "description": "Exit with code 0 even if an error was encountered. True means a non-zero exit code is only issued if validation could be completed successfully and one or more files were invalid",
+      "type": "boolean"
+    },
+    "patterns": {
+      "type": "array",
+      "description": "One or more filenames or glob patterns describing local file or files to validate",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "verbose": {
+      "description": "Level of verbose logging. 0 is standard, higher numbers are more verbose",
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

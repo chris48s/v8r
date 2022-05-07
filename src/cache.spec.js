@@ -1,8 +1,7 @@
-import chai from "chai";
 import flatCache from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
-import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+import { chai, testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;

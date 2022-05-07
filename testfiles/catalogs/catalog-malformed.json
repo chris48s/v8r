@@ -9,7 +9,7 @@
         "valid.json",
         "valid.yml"
       ],
-      "url": "testfiles/schema.json"
+      "url": "testfiles/schemas/schema.json"
     }
   ]
 }

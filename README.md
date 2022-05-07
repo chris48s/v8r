@@ -77,6 +77,75 @@ $ v8r feature.geojson -c my-catalog.json
 
 This can be used to specify different custom schemas for multiple file patterns.
 
+## Configuration
+
+v8r uses CosmiConfig to search for a configuration. This means you can specify your configuration in any of the following places:
+
+- `package.json`
+- `.v8rrc`
+- `.v8rrc.json`
+- `.v8rrc.yaml`
+- `.v8rrc.yml`
+- `.v8rrc.js`
+- `.v8rrc.cjs`
+- `v8r.config.js`
+- `v8r.config.cjs`
+
+v8r only searches for a config file in the current working directory.
+
+Example yaml config file:
+
+```yaml
+# - One or more filenames or glob patterns describing local file or files to validate
+# - overridden by passing one or more positional arguments
+patterns: ['*json']
+
+# - Level of verbose logging. 0 is standard, higher numbers are more verbose
+# - overridden by passing --verbose / -v
+# - default = 0
+verbose: 2
+
+# - Exit with code 0 even if an error was encountered. True means a non-zero exit
+#   code is only issued if validation could be completed successfully and one or
+#   more files were invalid
+# - overridden by passing --ignore-errors
+# - default = false
+ignoreErrors: true
+
+# - Remove cached HTTP responses older than cacheTtl seconds old.
+#   Specifying 0 clears and disables cache completely
+# - overridden by passing --cache-ttl
+# - default = 600
+cacheTtl: 86400
+
+# - A custom schema catalog.
+#   This catalog will be searched ahead of any custom catalogs passed using
+#   --catalogs or SchemaStore.org
+#   The format of this is subtly different to the format of a catalog
+#   passed via --catalogs (which matches the SchemaStore.org format)
+customCatalog:
+    schemas:
+        - name: Custom Schema  # The name of the schema (required)
+          description: Custom Schema  # A description of the schema (optional)
+
+          # A Minimatch glob expression for matching up file names with a schema (required)
+          fileMatch: ["*.geojson"]
+
+          # A URL or local file path for the schema location (required)
+          # Unlike the SchemaStore.org format, which has a `url` key,
+          # custom catalogs defined in v8r config files have a `location` key
+          # which can refer to either a URL or local file.
+          # Relative paths are interpreted as relative to the config file location.
+          location: foo/bar/geojson-schema.json
+
+          # A custom parser to use for files matching fileMatch
+          # instead of trying to infer the correct parser from the filename (optional)
+          # This property is specific to custom catalogs defined in v8r config files
+          parser: json5
+```
+
+The config file format is specified more formally in a [JSON Schema](config-schema.json).
+
 ## Exit codes
 
 * v8r always exits with code `0` when:
@@ -90,6 +159,10 @@ This can be used to specify different custom schemas for multiple file patterns.
     * etc
 
     This behaviour can be modified using the `--ignore-errors` flag. When invoked with `--ignore-errors` v8r will exit with code `0` even if one of these errors was encountered while attempting validation. A non-zero exit code will only be issued if validation could be completed successfully and the file was invalid.
+
+* v8r always exits with code `97` when:
+    * There was an error loading a config file
+    * A config file was loaded but failed validation
 
 * v8r always exits with code `98` when:
     * An input glob pattern was invalid
@@ -127,4 +200,4 @@ This can be used to specify different custom schemas for multiple file patterns.
 
 ### ❓ Can `v8r` validate against a local schema?
 
-💡 Yes. The `--schema` flag can be either a path to a local file or a URL.
+💡 Yes. The `--schema` flag can be either a path to a local file or a URL. You can also use a [config file](#configuration) to include local schemas in a custom catalog.

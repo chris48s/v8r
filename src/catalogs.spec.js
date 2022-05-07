@@ -1,5 +1,5 @@
-import chai from "chai";
 import { getSchemaMatchesForFilename } from "./catalogs.js";
+import { chai } from "./test-helpers.js";
 
 const expect = chai.expect;
 
