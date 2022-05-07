@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.12.0](https://www.npmjs.com/package/v8r/v/0.12.0) - 2022-05-07
+
+* Add config file. See https://github.com/chris48s/v8r/blob/main/README.md#configuration for more details.
+
 ## 📦 [0.11.1](https://www.npmjs.com/package/v8r/v/0.11.1) - 2022-03-03
 
 * Fix: call minimatch with `{dot: true}`, fixes [#174](https://github.com/chris48s/v8r/issues/174)
