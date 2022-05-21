@@ -137,7 +137,15 @@ function parseArgs(argv, config) {
       describe:
         "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
         "Passing 0 clears and disables cache completely",
-    });
+    })
+    .example([
+      ["$0 file.json", "Validate a single file"],
+      ["$0 file1.json file2.json", "Validate multiple files"],
+      [
+        "$0 'dir/*.yml' 'dir/*.yaml'",
+        "Specify files to validate with glob patterns",
+      ],
+    ]);
 
   for (const [key, value] of Object.entries(config.config)) {
     if (["cacheTtl", "ignoreErrors", "verbose"].includes(key)) {
