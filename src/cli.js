@@ -34,12 +34,20 @@ function getFlatCache() {
 
 async function validateFile(filename, config, cache) {
   logging.info(`Processing ${filename}`);
+  let result = {
+    fileLocation: filename,
+    schemaLocation: null,
+    valid: null,
+    errors: [],
+    code: null,
+  };
   try {
     const catalogs = getCatalogs(config);
     const catalogMatch = config.schema
       ? {}
       : await getMatchForFilename(catalogs, filename, cache);
     const schemaLocation = config.schema || catalogMatch.location;
+    result.schemaLocation = schemaLocation;
     const schema = await getFromUrlOrFile(schemaLocation, cache);
     logging.info(
       `Validating ${filename} against schema from ${schemaLocation} ...`
@@ -50,25 +58,26 @@ async function validateFile(filename, config, cache) {
       catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename)
     );
 
-    const valid = await validate(data, schema, cache);
+    const { valid, errors } = await validate(data, schema, cache);
+    result.valid = valid;
+    result.errors = errors;
     if (valid) {
       logging.success(`${filename} is valid\n`);
     } else {
       logging.error(`${filename} is invalid\n`);
     }
 
-    if (valid) {
-      return EXIT.VALID;
-    }
-    return EXIT.INVALID;
+    result.code = valid ? EXIT.VALID : EXIT.INVALID;
+    return result;
   } catch (e) {
     logging.error(`${e.message}\n`);
-    return EXIT.ERROR;
+    result.code = EXIT.ERROR;
+    return result;
   }
 }
 
 function mergeResults(results, ignoreErrors) {
-  const codes = Object.values(results);
+  const codes = Object.values(results).map((result) => result.code);
   if (codes.includes(EXIT.INVALID)) {
     return EXIT.INVALID;
   }

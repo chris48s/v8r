@@ -52,7 +52,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
       );
 
       // Validate the catalog
-      const valid = await validate(catalog, catalogSchema, cache);
+      const { valid } = await validate(catalog, catalogSchema, cache);
       if (!valid || catalog.schemas === undefined) {
         throw new Error(`Malformed catalog at ${catalogLocation}`);
       }

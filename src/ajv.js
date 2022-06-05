@@ -63,7 +63,7 @@ async function validate(data, schema, cache) {
     console.log(validateFn.errors);
     console.log("");
   }
-  return valid;
+  return { valid, errors: validateFn.errors ? validateFn.errors : [] };
 }
 
 export { _ajvFactory, validate };
