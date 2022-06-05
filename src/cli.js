@@ -1,3 +1,4 @@
+import Ajv from "ajv";
 import flatCache from "flat-cache";
 import fs from "fs";
 import os from "os";
@@ -88,6 +89,17 @@ function resultsToStatusCode(results, ignoreErrors) {
   return EXIT.VALID;
 }
 
+function logErrors(filename, errors) {
+  const ajv = new Ajv();
+  logger.log(
+    ajv.errorsText(errors, {
+      separator: "\n",
+      dataVar: filename + "#",
+    })
+  );
+  logger.log("");
+}
+
 function Validator() {
   return async function (config) {
     let filenames = [];
@@ -106,8 +118,19 @@ function Validator() {
     const results = Object.fromEntries(filenames.map((key) => [key, null]));
     for (const [filename] of Object.entries(results)) {
       results[filename] = await validateFile(filename, config, cache);
+
+      if (!results[filename].valid && config.format === "text") {
+        logErrors(filename, results[filename].errors);
+      }
+      // else: silence is golden
+
       cache.resetCounters();
     }
+
+    if (config.format === "json") {
+      logger.log(JSON.stringify({ results }, null, 2));
+    }
+
     return resultsToStatusCode(results, config.ignoreErrors);
   };
 }

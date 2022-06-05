@@ -138,6 +138,12 @@ function parseArgs(argv, config) {
         "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
         "Passing 0 clears and disables cache completely",
     })
+    .option("format", {
+      type: "string",
+      choices: ["text", "json"],
+      default: "text",
+      describe: "Output format for validation results",
+    })
     .example([
       ["$0 file.json", "Validate a single file"],
       ["$0 file1.json file2.json", "Validate multiple files"],

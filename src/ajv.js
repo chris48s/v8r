@@ -8,7 +8,6 @@ import Ajv from "ajv";
 import Ajv2019 from "ajv/dist/2019.js";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
-import logger from "./logger.js";
 
 function _ajvFactory(schema, strictMode, cache) {
   const resolver = (url) => cache.fetch(url);
@@ -59,11 +58,6 @@ async function validate(data, schema, strictMode, cache) {
   addFormats(ajv);
   const validateFn = await ajv.compileAsync(schema);
   const valid = validateFn(data);
-  if (!valid) {
-    logger.log("\nErrors:");
-    logger.log(JSON.stringify(validateFn.errors, null, 2));
-    logger.log("");
-  }
   return { valid, errors: validateFn.errors ? validateFn.errors : [] };
 }
 
