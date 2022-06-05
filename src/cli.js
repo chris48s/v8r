@@ -77,7 +77,7 @@ async function validateFile(filename, config, cache) {
   }
 }
 
-function mergeResults(results, ignoreErrors) {
+function resultsToStatusCode(results, ignoreErrors) {
   const codes = Object.values(results).map((result) => result.code);
   if (codes.includes(EXIT.INVALID)) {
     return EXIT.INVALID;
@@ -108,7 +108,7 @@ function Validator() {
       results[filename] = await validateFile(filename, config, cache);
       cache.resetCounters();
     }
-    return mergeResults(results, config.ignoreErrors);
+    return resultsToStatusCode(results, config.ignoreErrors);
   };
 }
 
