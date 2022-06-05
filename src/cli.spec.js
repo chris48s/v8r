@@ -5,13 +5,14 @@ import path from "path";
 import { mockCwd } from "mock-cwd";
 import nock from "nock";
 import { cli } from "./cli.js";
+import logger from "./logger.js";
 import {
   chai,
   setUp,
   tearDown,
-  containsSuccess,
-  containsInfo,
-  containsError,
+  logContainsSuccess,
+  logContainsInfo,
+  logContainsError,
 } from "./test-helpers.js";
 
 const assert = chai.assert;
@@ -47,14 +48,13 @@ describe("CLI", function () {
   });
 
   describe("success behaviour, single file", function () {
-    const messages = {};
     const schema = {
       $schema: "http://json-schema.org/draft-07/schema#",
       type: "object",
       properties: { num: { type: "number" } },
     };
 
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => {
       tearDown();
       nock.cleanAll();
@@ -66,9 +66,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
       });
     });
 
@@ -78,9 +76,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
-        assert(
-          containsError(messages, "./testfiles/files/invalid.json is invalid")
-        );
+        assert(logContainsError("./testfiles/files/invalid.json is invalid"));
       });
     });
 
@@ -94,9 +90,7 @@ describe("CLI", function () {
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         mock.done();
       });
     });
@@ -111,9 +105,7 @@ describe("CLI", function () {
         schema: "https://example.com/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
-        assert(
-          containsError(messages, "./testfiles/files/invalid.json is invalid")
-        );
+        assert(logContainsError("./testfiles/files/invalid.json is invalid"));
         mock.done();
       });
     });
@@ -136,9 +128,7 @@ describe("CLI", function () {
       return cli({ patterns: ["./testfiles/files/valid.json"] }).then(
         (result) => {
           assert.equal(result, 0);
-          assert(
-            containsSuccess(messages, "./testfiles/files/valid.json is valid")
-          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
           catalogMock.done();
           schemaMock.done();
         }
@@ -163,9 +153,7 @@ describe("CLI", function () {
       return cli({ patterns: ["./testfiles/files/invalid.json"] }).then(
         (result) => {
           assert.equal(result, 99);
-          assert(
-            containsError(messages, "./testfiles/files/invalid.json is invalid")
-          );
+          assert(logContainsError("./testfiles/files/invalid.json is invalid"));
           catalogMock.done();
           schemaMock.done();
         }
@@ -191,16 +179,13 @@ describe("CLI", function () {
         patterns: ["./testfiles/files/valid.json"],
         catalogs: ["./testfiles/catalogs/catalog-url.json"],
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
+        assert.equal(result, 0, logger.stderr);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in ./testfiles/catalogs/catalog-url.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         expect(catalogMock.isDone()).to.be.false;
         schemaMock.done();
       });
@@ -237,14 +222,11 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in https://my-catalog.com/catalog.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         expect(storeCatalogMock.isDone()).to.be.false;
         customCatalogMock.done();
         customSchemaMock.done();
@@ -263,16 +245,13 @@ describe("CLI", function () {
           "./testfiles/catalogs/catalog-url.json",
         ],
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
+        assert.equal(result, 0, logger.stderr);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in ./testfiles/catalogs/catalog-url.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         mock.done();
       });
     });
@@ -296,16 +275,13 @@ describe("CLI", function () {
         patterns: ["./testfiles/files/valid.json"],
         catalogs: ["./testfiles/catalogs/catalog-nomatch.json"],
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
+        assert.equal(result, 0, logger.stderr);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in https://www.schemastore.org/api/json/catalog.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         storeCatalogMock.done();
         storeSchemaMock.done();
       });
@@ -326,11 +302,9 @@ describe("CLI", function () {
         },
         configFileRelativePath: "foobar.conf",
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
-        assert(containsInfo(messages, "Found schema in foobar.conf ..."));
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert.equal(result, 0, logger.stderr);
+        assert(logContainsInfo("Found schema in foobar.conf ..."));
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
       });
     });
 
@@ -353,16 +327,13 @@ describe("CLI", function () {
         },
         configFileRelativePath: "foobar.conf",
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
+        assert.equal(result, 0, logger.stderr);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in ./testfiles/catalogs/catalog-url.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         mock.done();
       });
     });
@@ -396,16 +367,13 @@ describe("CLI", function () {
         },
         configFileRelativePath: "foobar.conf",
       }).then((result) => {
-        assert.equal(result, 0, messages.error);
+        assert.equal(result, 0, logger.stderr);
         assert(
-          containsInfo(
-            messages,
+          logContainsInfo(
             "Found schema in https://www.schemastore.org/api/json/catalog.json ..."
           )
         );
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         storeCatalogMock.done();
         storeSchemaMock.done();
       });
@@ -441,9 +409,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.yaml is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.yaml is valid"));
       });
     });
 
@@ -453,9 +419,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json5 is valid")
-        );
+        assert(logContainsSuccess("./testfiles/files/valid.json5 is valid"));
       });
     });
 
@@ -476,18 +440,14 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(
-          containsSuccess(
-            messages,
-            "./testfiles/files/with-comments.json is valid"
-          )
+          logContainsSuccess("./testfiles/files/with-comments.json is valid")
         );
       });
     });
   });
 
   describe("error handling, single file", function () {
-    const messages = {};
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("should return 1 if invalid response from schemastore", async function () {
@@ -499,8 +459,7 @@ describe("CLI", function () {
         (result) => {
           assert.equal(result, 1);
           assert(
-            containsError(
-              messages,
+            logContainsError(
               "Failed fetching https://www.schemastore.org/api/json/catalog.json"
             )
           );
@@ -528,10 +487,7 @@ describe("CLI", function () {
         (result) => {
           assert.equal(result, 1);
           assert(
-            containsError(
-              messages,
-              "Failed fetching https://example.com/schema.json"
-            )
+            logContainsError("Failed fetching https://example.com/schema.json")
           );
           catalogMock.done();
           schemaMock.done();
@@ -555,8 +511,7 @@ describe("CLI", function () {
         (result) => {
           assert.equal(result, 1);
           assert(
-            containsError(
-              messages,
+            logContainsError(
               "Could not find a schema to validate ./testfiles/files/valid.json"
             )
           );
@@ -587,26 +542,22 @@ describe("CLI", function () {
         (result) => {
           assert.equal(result, 1);
           assert(
-            containsError(
-              messages,
+            logContainsError(
               "Could not find a schema to validate ./testfiles/files/valid.json"
             )
           );
           assert(
-            containsInfo(
-              messages,
+            logContainsInfo(
               "Found multiple possible schemas for ./testfiles/files/valid.json. Possible matches:"
             )
           );
           assert(
-            containsInfo(
-              messages,
+            logContainsInfo(
               "example schema 1\n  https://example.com/schema1.json"
             )
           );
           assert(
-            containsInfo(
-              messages,
+            logContainsInfo(
               "example schema 2\n  https://example.com/schema2.json"
             )
           );
@@ -626,10 +577,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          containsError(
-            messages,
-            "Failed fetching https://example.com/schema.json"
-          )
+          logContainsError("Failed fetching https://example.com/schema.json")
         );
         mock.done();
       });
@@ -646,7 +594,7 @@ describe("CLI", function () {
         mock.restore();
         fs.rmSync(tempDir, { recursive: true, force: true });
         assert.equal(result, 97);
-        assert(containsError(messages, "Malformed config file"));
+        assert(logContainsError("Malformed config file"));
       });
     });
 
@@ -659,8 +607,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 98);
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "Pattern './testfiles/does-not-exist.json' did not match any files"
           )
         );
@@ -670,7 +617,7 @@ describe("CLI", function () {
     it("should return 98 if glob pattern is invalid", async function () {
       return cli({ patterns: [""] }).then((result) => {
         assert.equal(result, 98);
-        assert(containsError(messages, "Pattern '' did not match any files"));
+        assert(logContainsError("Pattern '' did not match any files"));
       });
     });
 
@@ -680,7 +627,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
-        assert(containsError(messages, "Unsupported format .txt"));
+        assert(logContainsError("Unsupported format .txt"));
       });
     });
 
@@ -691,8 +638,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
           )
         );
@@ -706,8 +652,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
           )
         );
@@ -725,10 +670,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          containsError(
-            messages,
-            "Failed fetching https://example.com/catalog.json"
-          )
+          logContainsError("Failed fetching https://example.com/catalog.json")
         );
         mock.done();
       });
@@ -746,8 +688,7 @@ describe("CLI", function () {
         assert.equal(result, 1);
         mock.done();
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "Malformed catalog at https://example.com/catalog.json"
           )
         );
@@ -766,8 +707,7 @@ describe("CLI", function () {
         assert.equal(result, 1);
         mock.done();
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "Malformed catalog at https://example.com/catalog.json"
           )
         );
@@ -781,8 +721,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          containsError(
-            messages,
+          logContainsError(
             "Malformed catalog at ./testfiles/catalogs/catalog-malformed.json"
           )
         );
@@ -796,14 +735,13 @@ describe("CLI", function () {
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);
-        assert(containsError(messages, "Unsupported format .txt"));
+        assert(logContainsError("Unsupported format .txt"));
       });
     });
   });
 
   describe("multiple file processing", function () {
-    const messages = {};
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("should return 0 if all files are valid", async function () {
@@ -814,7 +752,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(containsSuccess(messages, "is valid", 2));
+        assert(logContainsSuccess("is valid", 2));
       });
     });
 
@@ -827,7 +765,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 0);
-        assert(containsSuccess(messages, "is valid", 2));
+        assert(logContainsSuccess("is valid", 2));
       });
     });
 
@@ -839,13 +777,9 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 99);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
-        assert(
-          containsError(messages, "./testfiles/files/invalid.json is invalid")
-        );
-        assert(containsError(messages, "Unsupported format .txt"));
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        assert(logContainsError("./testfiles/files/invalid.json is invalid"));
+        assert(logContainsError("Unsupported format .txt"));
       });
     });
 
@@ -857,10 +791,8 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
-        assert(containsError(messages, "Unsupported format .txt"));
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        assert(logContainsError("Unsupported format .txt"));
       });
     });
 
@@ -873,10 +805,8 @@ describe("CLI", function () {
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);
-        assert(
-          containsSuccess(messages, "./testfiles/files/valid.json is valid")
-        );
-        assert(containsError(messages, "Unsupported format .txt"));
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        assert(logContainsError("Unsupported format .txt"));
       });
     });
   });

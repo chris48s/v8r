@@ -5,7 +5,7 @@ import {
   preProcessConfig,
   validateConfig,
 } from "./config.js";
-import { chai, setUp, tearDown, containsInfo } from "./test-helpers.js";
+import { chai, setUp, tearDown, logContainsInfo } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;
@@ -179,9 +179,7 @@ describe("preProcessConfig", function () {
 });
 
 describe("getConfig", function () {
-  const messages = {};
-
-  beforeEach(() => setUp(messages));
+  beforeEach(() => setUp());
   afterEach(() => {
     tearDown();
   });
@@ -199,7 +197,7 @@ describe("getConfig", function () {
     expect(config).to.have.property("cacheName", undefined);
     expect(config).to.have.property("customCatalog", undefined);
     expect(config).to.have.property("configFileRelativePath", undefined);
-    assert(containsInfo(messages, "No config file found"));
+    assert(logContainsInfo("No config file found"));
   });
 
   it("should read options from config file if available", async function () {
@@ -229,10 +227,7 @@ describe("getConfig", function () {
       "testfiles/configs/config.json"
     );
     assert(
-      containsInfo(
-        messages,
-        "Loaded config file from testfiles/configs/config.json"
-      )
+      logContainsInfo("Loaded config file from testfiles/configs/config.json")
     );
   });
 
@@ -274,10 +269,7 @@ describe("getConfig", function () {
       "testfiles/configs/config.json"
     );
     assert(
-      containsInfo(
-        messages,
-        "Loaded config file from testfiles/configs/config.json"
-      )
+      logContainsInfo("Loaded config file from testfiles/configs/config.json")
     );
   });
 });

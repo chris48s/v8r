@@ -10,7 +10,7 @@ import isUrl from "is-url";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import logging from "./logging.js";
+import logger from "./logger.js";
 
 function validateConfig(config) {
   const ajv = new Ajv2019({ allErrors: true, strict: false });
@@ -18,9 +18,9 @@ function validateConfig(config) {
   const validateFn = ajv.compile(schema);
   const valid = validateFn(config);
   if (!valid) {
-    console.log("\nErrors:");
-    console.log(validateFn.errors);
-    console.log("");
+    logger.log("\nErrors:");
+    logger.log(JSON.stringify(validateFn.errors, null, 2));
+    logger.log("");
     throw new Error("Malformed config file");
   }
   return valid;
@@ -46,9 +46,9 @@ async function getCosmiConfig(cosmiconfigOptions) {
     process.cwd()
   )) || { config: {} };
   if (configFile.filepath) {
-    logging.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
+    logger.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
   } else {
-    logging.info(`No config file found`);
+    logger.info(`No config file found`);
   }
   validateConfig(configFile.config);
   preProcessConfig(configFile);

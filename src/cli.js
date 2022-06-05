@@ -8,7 +8,7 @@ import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getConfig } from "./config.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
-import logging from "./logging.js";
+import logger from "./logger.js";
 import { parseFile } from "./parser.js";
 
 const EXIT = {
@@ -33,7 +33,7 @@ function getFlatCache() {
 }
 
 async function validateFile(filename, config, cache) {
-  logging.info(`Processing ${filename}`);
+  logger.info(`Processing ${filename}`);
   let result = {
     fileLocation: filename,
     schemaLocation: null,
@@ -49,7 +49,7 @@ async function validateFile(filename, config, cache) {
     const schemaLocation = config.schema || catalogMatch.location;
     result.schemaLocation = schemaLocation;
     const schema = await getFromUrlOrFile(schemaLocation, cache);
-    logging.info(
+    logger.info(
       `Validating ${filename} against schema from ${schemaLocation} ...`
     );
 
@@ -58,19 +58,20 @@ async function validateFile(filename, config, cache) {
       catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename)
     );
 
-    const { valid, errors } = await validate(data, schema, cache);
+    const strictMode = config.verbose >= 2 ? "log" : false;
+    const { valid, errors } = await validate(data, schema, strictMode, cache);
     result.valid = valid;
     result.errors = errors;
     if (valid) {
-      logging.success(`${filename} is valid\n`);
+      logger.success(`${filename} is valid\n`);
     } else {
-      logging.error(`${filename} is invalid\n`);
+      logger.error(`${filename} is invalid\n`);
     }
 
     result.code = valid ? EXIT.VALID : EXIT.INVALID;
     return result;
   } catch (e) {
-    logging.error(`${e.message}\n`);
+    logger.error(`${e.message}\n`);
     result.code = EXIT.ERROR;
     return result;
   }
@@ -93,7 +94,7 @@ function Validator() {
     for (const pattern of config.patterns) {
       const matches = await getFiles(pattern);
       if (matches.length === 0) {
-        logging.error(`Pattern '${pattern}' did not match any files`);
+        logger.error(`Pattern '${pattern}' did not match any files`);
         return EXIT.NOT_FOUND;
       }
       filenames = filenames.concat(matches);
@@ -116,22 +117,20 @@ async function cli(config) {
     try {
       config = await getConfig(process.argv);
     } catch (e) {
-      logging.error(e.message);
+      logger.error(e.message);
       return EXIT.INVALID_CONFIG;
     }
   }
 
-  logging.init(config.verbose);
-  logging.debug(`Merged args/config: ${JSON.stringify(config, null, 2)}`);
+  logger.setVerbosity(config.verbose);
+  logger.debug(`Merged args/config: ${JSON.stringify(config, null, 2)}`);
 
   try {
     const validate = new Validator();
     return await validate(config);
   } catch (e) {
-    logging.error(e.message);
+    logger.error(e.message);
     return EXIT.ERROR;
-  } finally {
-    logging.cleanup();
   }
 }
 
