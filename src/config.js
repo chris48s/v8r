@@ -156,7 +156,7 @@ function parseArgs(argv, config) {
     ]);
 
   for (const [key, value] of Object.entries(config.config)) {
-    if (["cacheTtl", "ignoreErrors", "verbose"].includes(key)) {
+    if (["cacheTtl", "format", "ignoreErrors", "verbose"].includes(key)) {
       parser.default(
         decamelize(key, { separator: "-" }),
         value,

@@ -291,6 +291,7 @@ describe("validateConfig", function () {
           verbose: 0,
           patterns: ["foobar.js"],
           cacheTtl: 600,
+          format: "json",
           customCatalog: {
             schemas: [
               {
@@ -327,6 +328,7 @@ describe("validateConfig", function () {
       { config: { patterns: ["duplicate", "duplicate"] } },
       { config: { cacheTtl: "string" } },
       { config: { cacheTtl: -1 } },
+      { config: { format: "invalid" } },
       { config: { customCatalog: "string" } },
       { config: { customCatalog: {} } },
       { config: { customCatalog: { schemas: [{}] } } },
