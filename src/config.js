@@ -11,16 +11,18 @@ import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import logger from "./logger.js";
+import { logErrors } from "./output-formatters.js";
 
-function validateConfig(config) {
+function validateConfig(configFile) {
   const ajv = new Ajv2019({ allErrors: true, strict: false });
   const schema = require("../config-schema.json");
   const validateFn = ajv.compile(schema);
-  const valid = validateFn(config);
+  const valid = validateFn(configFile.config);
   if (!valid) {
-    logger.log("\nErrors:");
-    logger.log(JSON.stringify(validateFn.errors, null, 2));
-    logger.log("");
+    logErrors(
+      configFile.filepath ? configFile.filepath : "",
+      validateFn.errors
+    );
     throw new Error("Malformed config file");
   }
   return valid;
@@ -50,7 +52,7 @@ async function getCosmiConfig(cosmiconfigOptions) {
   } else {
     logger.info(`No config file found`);
   }
-  validateConfig(configFile.config);
+  validateConfig(configFile);
   preProcessConfig(configFile);
   return configFile;
 }

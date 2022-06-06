@@ -1,4 +1,3 @@
-import Ajv from "ajv";
 import flatCache from "flat-cache";
 import fs from "fs";
 import os from "os";
@@ -10,6 +9,7 @@ import { getConfig } from "./config.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
+import { logErrors, resultsToJson } from "./output-formatters.js";
 import { parseFile } from "./parser.js";
 
 const EXIT = {
@@ -89,17 +89,6 @@ function resultsToStatusCode(results, ignoreErrors) {
   return EXIT.VALID;
 }
 
-function logErrors(filename, errors) {
-  const ajv = new Ajv();
-  logger.log(
-    ajv.errorsText(errors, {
-      separator: "\n",
-      dataVar: filename + "#",
-    })
-  );
-  logger.log("");
-}
-
 function Validator() {
   return async function (config) {
     let filenames = [];
@@ -128,7 +117,7 @@ function Validator() {
     }
 
     if (config.format === "json") {
-      logger.log(JSON.stringify({ results }, null, 2));
+      resultsToJson(results);
     }
 
     return resultsToStatusCode(results, config.ignoreErrors);
