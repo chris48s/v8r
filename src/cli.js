@@ -108,7 +108,7 @@ function Validator() {
     for (const [filename] of Object.entries(results)) {
       results[filename] = await validateFile(filename, config, cache);
 
-      if (!results[filename].valid && config.format === "text") {
+      if (results[filename].valid === false && config.format === "text") {
         logErrors(filename, results[filename].errors);
       }
       // else: silence is golden

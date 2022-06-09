@@ -810,4 +810,72 @@ describe("CLI", function () {
       });
     });
   });
+
+  describe("output formats", function () {
+    beforeEach(() => setUp());
+    afterEach(() => tearDown());
+
+    it("should log errors in text format when format is text", async function () {
+      return cli({
+        patterns: [
+          "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
+        ],
+        schema: "./testfiles/schemas/schema.json",
+        format: "text",
+      }).then(() => {
+        assert(
+          logger.stdout.includes(
+            "./testfiles/files/invalid.json#/num must be number"
+          )
+        );
+      });
+    });
+
+    it("should output json report when format is json", async function () {
+      return cli({
+        patterns: [
+          "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
+        ],
+        schema: "./testfiles/schemas/schema.json",
+        format: "json",
+      }).then(() => {
+        const expected = {
+          results: {
+            "./testfiles/files/invalid.json": {
+              code: 99,
+              errors: [
+                {
+                  instancePath: "/num",
+                  keyword: "type",
+                  message: "must be number",
+                  params: {
+                    type: "number",
+                  },
+                  schemaPath: "#/properties/num/type",
+                },
+              ],
+              fileLocation: "./testfiles/files/invalid.json",
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: false,
+            },
+            "./testfiles/files/not-supported.txt": {
+              code: 1,
+              errors: [],
+              fileLocation: "./testfiles/files/not-supported.txt",
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: null,
+            },
+            "./testfiles/files/valid.json": {
+              code: 0,
+              errors: [],
+              fileLocation: "./testfiles/files/valid.json",
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: true,
+            },
+          },
+        };
+        expect(JSON.parse(logger.stdout[0])).to.deep.equal(expected);
+      });
+    });
+  });
 });
