@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [0.13.0](https://www.npmjs.com/package/v8r/v/0.13.0) - 2022-06-11
+
+* Overhaul of CLI output/machine-readable output. Validation results are sent to stdout. Log messages are now sent to stderr only. Pass `--format [text|json] (default: text)` to specify what is sent to stdout.
+
 ## 📦 [0.12.0](https://www.npmjs.com/package/v8r/v/0.12.0) - 2022-05-07
 
 * Add config file. See https://github.com/chris48s/v8r/blob/main/README.md#configuration for more details.
