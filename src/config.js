@@ -10,17 +10,19 @@ import isUrl from "is-url";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import logging from "./logging.js";
+import logger from "./logger.js";
+import { logErrors } from "./output-formatters.js";
 
-function validateConfig(config) {
+function validateConfig(configFile) {
   const ajv = new Ajv2019({ allErrors: true, strict: false });
   const schema = require("../config-schema.json");
   const validateFn = ajv.compile(schema);
-  const valid = validateFn(config);
+  const valid = validateFn(configFile.config);
   if (!valid) {
-    console.log("\nErrors:");
-    console.log(validateFn.errors);
-    console.log("");
+    logErrors(
+      configFile.filepath ? configFile.filepath : "",
+      validateFn.errors
+    );
     throw new Error("Malformed config file");
   }
   return valid;
@@ -46,11 +48,11 @@ async function getCosmiConfig(cosmiconfigOptions) {
     process.cwd()
   )) || { config: {} };
   if (configFile.filepath) {
-    logging.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
+    logger.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
   } else {
-    logging.info(`No config file found`);
+    logger.info(`No config file found`);
   }
-  validateConfig(configFile.config);
+  validateConfig(configFile);
   preProcessConfig(configFile);
   return configFile;
 }
@@ -138,6 +140,12 @@ function parseArgs(argv, config) {
         "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
         "Passing 0 clears and disables cache completely",
     })
+    .option("format", {
+      type: "string",
+      choices: ["text", "json"],
+      default: "text",
+      describe: "Output format for validation results",
+    })
     .example([
       ["$0 file.json", "Validate a single file"],
       ["$0 file1.json file2.json", "Validate multiple files"],
@@ -148,7 +156,7 @@ function parseArgs(argv, config) {
     ]);
 
   for (const [key, value] of Object.entries(config.config)) {
-    if (["cacheTtl", "ignoreErrors", "verbose"].includes(key)) {
+    if (["cacheTtl", "format", "ignoreErrors", "verbose"].includes(key)) {
       parser.default(
         decamelize(key, { separator: "-" }),
         value,

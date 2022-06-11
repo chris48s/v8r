@@ -118,6 +118,11 @@ ignoreErrors: true
 # - default = 600
 cacheTtl: 86400
 
+# - Output format for validation results
+# - overridden by passing --format
+# - default = text
+format: "json"
+
 # - A custom schema catalog.
 #   This catalog will be searched ahead of any custom catalogs passed using
 #   --catalogs or SchemaStore.org

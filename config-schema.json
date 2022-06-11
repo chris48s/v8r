@@ -62,6 +62,14 @@
         }
       }
     },
+    "format": {
+      "description": "Output format for validation results",
+      "type": "string",
+      "enum": [
+        "text",
+        "json"
+      ]
+    },
     "ignoreErrors": {
       "description": "Exit with code 0 even if an error was encountered. True means a non-zero exit code is only issued if validation could be completed successfully and one or more files were invalid",
       "type": "boolean"

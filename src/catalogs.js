@@ -2,7 +2,7 @@ import minimatch from "minimatch";
 import path from "path";
 import { validate } from "./ajv.js";
 import { getFromUrlOrFile } from "./io.js";
-import logging from "./logging.js";
+import logger from "./logger.js";
 
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
@@ -52,7 +52,13 @@ async function getMatchForFilename(catalogs, filename, cache) {
       );
 
       // Validate the catalog
-      const valid = await validate(catalog, catalogSchema, cache);
+      const strictMode = false;
+      const { valid } = await validate(
+        catalog,
+        catalogSchema,
+        strictMode,
+        cache
+      );
       if (!valid || catalog.schemas === undefined) {
         throw new Error(`Malformed catalog at ${catalogLocation}`);
       }
@@ -60,9 +66,9 @@ async function getMatchForFilename(catalogs, filename, cache) {
 
     const { schemas } = catalog;
     const matches = getSchemaMatchesForFilename(schemas, filename);
-    logging.debug(`Searching for schema in ${catalogLocation} ...`);
+    logger.debug(`Searching for schema in ${catalogLocation} ...`);
     if (matches.length === 1) {
-      logging.info(`Found schema in ${catalogLocation} ...`);
+      logger.info(`Found schema in ${catalogLocation} ...`);
       return coerceMatch(matches[0]); // Match found. We're done.
     }
     if (matches.length === 0 && i < catalogs.length - 1) {
@@ -81,7 +87,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
           return outStr;
         })
         .join("\n");
-      logging.info(
+      logger.info(
         `Found multiple possible schemas for ${filename}. Possible matches:\n${matchesLog}`
       );
     }

@@ -1,5 +1,5 @@
 import glob from "glob";
-import logging from "./logging.js";
+import logger from "./logger.js";
 
 const globPromise = function (pattern, options) {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ async function getFiles(pattern) {
   try {
     return await globPromise(pattern, { dot: true });
   } catch (e) {
-    logging.error(e.message);
+    logger.error(e.message);
     return [];
   }
 }

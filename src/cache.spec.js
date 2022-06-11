@@ -8,9 +8,8 @@ const expect = chai.expect;
 
 describe("Cache", function () {
   describe("fetch function", function () {
-    const messages = {};
     const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("should use cached response if valid", async function () {
@@ -41,9 +40,8 @@ describe("Cache", function () {
   });
 
   describe("cyclic detection", function () {
-    const messages = {};
     const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("throws if callLimit is exceeded", async function () {
@@ -68,9 +66,8 @@ describe("Cache", function () {
   });
 
   describe("expire function", function () {
-    const messages = {};
     const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("should delete expired and malformed cache objects", async function () {

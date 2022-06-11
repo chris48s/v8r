@@ -1,5 +1,5 @@
 import got from "got";
-import logging from "./logging.js";
+import logger from "./logger.js";
 
 class Cache {
   constructor(flatCache, ttl) {
@@ -13,10 +13,10 @@ class Cache {
     Object.entries(this.cache.all()).forEach(
       function ([url, cachedResponse]) {
         if (!("timestamp" in cachedResponse) || !("body" in cachedResponse)) {
-          logging.debug(`Cache error: deleting malformed response`);
+          logger.debug(`Cache error: deleting malformed response`);
           this.cache.removeKey(url);
         } else if (Date.now() > cachedResponse.timestamp + this.ttl) {
-          logging.debug(`Cache stale: deleting cached response from ${url}`);
+          logger.debug(`Cache stale: deleting cached response from ${url}`);
           this.cache.removeKey(url);
         }
         this.cache.save(true);
@@ -53,12 +53,12 @@ class Cache {
     this.expire();
     const cachedResponse = this.cache.getKey(url);
     if (cachedResponse !== undefined) {
-      logging.debug(`Cache hit: using cached response from ${url}`);
+      logger.debug(`Cache hit: using cached response from ${url}`);
       return cachedResponse.body;
     }
 
     try {
-      logging.debug(`Cache miss: calling ${url}`);
+      logger.debug(`Cache miss: calling ${url}`);
       const resp = await got(url);
       const parsedBody = JSON.parse(resp.body);
       if (this.ttl > 0) {

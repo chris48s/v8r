@@ -7,14 +7,14 @@ const expect = chai.expect;
 
 describe("_ajvFactory", function () {
   describe("schema drafts compatibility", function () {
-    const messages = {};
     const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp(messages));
+    beforeEach(() => setUp());
     afterEach(() => tearDown());
 
     it("should support draft-04", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-04/schema#" },
+        false,
         testCache
       );
       expect(ajv.schemas).to.have.own.property(
@@ -25,6 +25,7 @@ describe("_ajvFactory", function () {
     it("should support draft-06", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-06/schema#" },
+        false,
         testCache
       );
       expect(ajv.schemas).to.have.own.property(
@@ -35,6 +36,7 @@ describe("_ajvFactory", function () {
     it("should support draft-07", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-07/schema#" },
+        false,
         testCache
       );
       expect(ajv.schemas).to.have.own.property(
@@ -45,6 +47,7 @@ describe("_ajvFactory", function () {
     it("should support draft-2019-09", function () {
       const ajv = _ajvFactory(
         { $schema: "https://json-schema.org/draft/2019-09/schema" },
+        false,
         testCache
       );
       expect(ajv.schemas).to.have.own.property(
@@ -55,6 +58,7 @@ describe("_ajvFactory", function () {
     it("should support draft-2020-12", function () {
       const ajv = _ajvFactory(
         { $schema: "https://json-schema.org/draft/2020-12/schema" },
+        false,
         testCache
       );
       expect(ajv.schemas).to.have.own.property(
@@ -63,7 +67,7 @@ describe("_ajvFactory", function () {
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is missing", function () {
-      const ajv = _ajvFactory({}, testCache);
+      const ajv = _ajvFactory({}, false, testCache);
       expect(ajv.schemas).to.have.own.property(
         "http://json-schema.org/draft-06/schema"
       );
@@ -73,7 +77,7 @@ describe("_ajvFactory", function () {
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is invalid (str)", function () {
-      const ajv = _ajvFactory({ $schema: "foobar" }, testCache);
+      const ajv = _ajvFactory({ $schema: "foobar" }, false, testCache);
       expect(ajv.schemas).to.have.own.property(
         "http://json-schema.org/draft-06/schema"
       );
@@ -83,7 +87,7 @@ describe("_ajvFactory", function () {
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is invalid (not str)", function () {
-      const ajv = _ajvFactory({ $schema: true }, testCache);
+      const ajv = _ajvFactory({ $schema: true }, false, testCache);
       expect(ajv.schemas).to.have.own.property(
         "http://json-schema.org/draft-06/schema"
       );

@@ -5,7 +5,7 @@ import {
   preProcessConfig,
   validateConfig,
 } from "./config.js";
-import { chai, setUp, tearDown, containsInfo } from "./test-helpers.js";
+import { chai, setUp, tearDown, logContainsInfo } from "./test-helpers.js";
 
 const assert = chai.assert;
 const expect = chai.expect;
@@ -179,9 +179,7 @@ describe("preProcessConfig", function () {
 });
 
 describe("getConfig", function () {
-  const messages = {};
-
-  beforeEach(() => setUp(messages));
+  beforeEach(() => setUp());
   afterEach(() => {
     tearDown();
   });
@@ -199,7 +197,7 @@ describe("getConfig", function () {
     expect(config).to.have.property("cacheName", undefined);
     expect(config).to.have.property("customCatalog", undefined);
     expect(config).to.have.property("configFileRelativePath", undefined);
-    assert(containsInfo(messages, "No config file found"));
+    assert(logContainsInfo("No config file found"));
   });
 
   it("should read options from config file if available", async function () {
@@ -229,10 +227,7 @@ describe("getConfig", function () {
       "testfiles/configs/config.json"
     );
     assert(
-      containsInfo(
-        messages,
-        "Loaded config file from testfiles/configs/config.json"
-      )
+      logContainsInfo("Loaded config file from testfiles/configs/config.json")
     );
   });
 
@@ -274,10 +269,7 @@ describe("getConfig", function () {
       "testfiles/configs/config.json"
     );
     assert(
-      containsInfo(
-        messages,
-        "Loaded config file from testfiles/configs/config.json"
-      )
+      logContainsInfo("Loaded config file from testfiles/configs/config.json")
     );
   });
 });
@@ -292,27 +284,30 @@ describe("validateConfig", function () {
 
   it("should pass valid configs", function () {
     const validConfigs = [
-      {},
+      { config: {} },
       {
-        ignoreErrors: true,
-        verbose: 0,
-        patterns: ["foobar.js"],
-        cacheTtl: 600,
-        customCatalog: {
-          schemas: [
-            {
-              name: "Schema 1",
-              fileMatch: ["file1.json"],
-              location: "localschema.json",
-            },
-            {
-              name: "Schema 2",
-              description: "Long Description",
-              fileMatch: ["file2.json"],
-              location: "https://example.com/remoteschema.json",
-              parser: "json5",
-            },
-          ],
+        config: {
+          ignoreErrors: true,
+          verbose: 0,
+          patterns: ["foobar.js"],
+          cacheTtl: 600,
+          format: "json",
+          customCatalog: {
+            schemas: [
+              {
+                name: "Schema 1",
+                fileMatch: ["file1.json"],
+                location: "localschema.json",
+              },
+              {
+                name: "Schema 2",
+                description: "Long Description",
+                fileMatch: ["file2.json"],
+                location: "https://example.com/remoteschema.json",
+                parser: "json5",
+              },
+            ],
+          },
         },
       },
     ];
@@ -323,53 +318,60 @@ describe("validateConfig", function () {
 
   it("should reject invalid configs", function () {
     const invalidConfigs = [
-      { ignoreErrors: "string" },
-      { foo: "bar" },
-      { verbose: "string" },
-      { verbose: -1 },
-      { patterns: "string" },
-      { patterns: [] },
-      { patterns: ["valid", "ok", false] },
-      { patterns: ["duplicate", "duplicate"] },
-      { cacheTtl: "string" },
-      { cacheTtl: -1 },
-      { customCatalog: "string" },
-      { customCatalog: {} },
-      { customCatalog: { schemas: [{}] } },
+      { config: { ignoreErrors: "string" } },
+      { config: { foo: "bar" } },
+      { config: { verbose: "string" } },
+      { config: { verbose: -1 } },
+      { config: { patterns: "string" } },
+      { config: { patterns: [] } },
+      { config: { patterns: ["valid", "ok", false] } },
+      { config: { patterns: ["duplicate", "duplicate"] } },
+      { config: { cacheTtl: "string" } },
+      { config: { cacheTtl: -1 } },
+      { config: { format: "invalid" } },
+      { config: { customCatalog: "string" } },
+      { config: { customCatalog: {} } },
+      { config: { customCatalog: { schemas: [{}] } } },
       {
-        customCatalog: {
-          schemas: [
-            {
-              name: "Schema 1",
-              fileMatch: ["file1.json"],
-              location: "localschema.json",
-              foo: "bar",
-            },
-          ],
+        config: {
+          customCatalog: {
+            schemas: [
+              {
+                name: "Schema 1",
+                fileMatch: ["file1.json"],
+                location: "localschema.json",
+                foo: "bar",
+              },
+            ],
+          },
         },
       },
       {
-        customCatalog: {
-          schemas: [
-            {
-              name: "Schema 1",
-              fileMatch: ["file1.json"],
-              location: "localschema.json",
-              url: "https://example.com/remoteschema.json",
-            },
-          ],
+        config: {
+          customCatalog: {
+            schemas: [
+              {
+                name: "Schema 1",
+                fileMatch: ["file1.json"],
+                location: "localschema.json",
+                url: "https://example.com/remoteschema.json",
+              },
+            ],
+          },
         },
       },
       {
-        customCatalog: {
-          schemas: [
-            {
-              name: "Schema 1",
-              fileMatch: ["file1.json"],
-              location: "localschema.json",
-              parser: "invalid",
-            },
-          ],
+        config: {
+          customCatalog: {
+            schemas: [
+              {
+                name: "Schema 1",
+                fileMatch: ["file1.json"],
+                location: "localschema.json",
+                parser: "invalid",
+              },
+            ],
+          },
         },
       },
     ];
