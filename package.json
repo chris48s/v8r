@@ -36,6 +36,7 @@
     "js-yaml": "^4.0.0",
     "json5": "^2.2.0",
     "minimatch": "^5.0.1",
+    "node-sarif-builder": "^2.0.2",
     "yargs": "^17.0.1"
   },
   "devDependencies": {

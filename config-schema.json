@@ -67,7 +67,8 @@
       "type": "string",
       "enum": [
         "text",
-        "json"
+        "json",
+        "sarif"
       ]
     },
     "ignoreErrors": {

@@ -9,7 +9,11 @@ import { getConfig } from "./config.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
-import { logErrors, resultsToJson } from "./output-formatters.js";
+import {
+  logErrors,
+  resultsToJson,
+  resultsToSarif,
+} from "./output-formatters.js";
 import { parseFile } from "./parser.js";
 
 const EXIT = {
@@ -117,7 +121,10 @@ function Validator() {
     }
 
     if (config.format === "json") {
-      resultsToJson(results);
+      logger.log(resultsToJson(results));
+    }
+    if (config.format === "sarif") {
+      logger.log(resultsToSarif(results));
     }
 
     return resultsToStatusCode(results, config.ignoreErrors);
