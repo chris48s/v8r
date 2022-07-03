@@ -1,9 +1,0 @@
-.github/*
-
-**/*.spec.js
-src/test-helpers.js
-testfiles/*
-
-.eslintrc.json
-.c8rc
-coverage/*
