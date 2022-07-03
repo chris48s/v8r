@@ -6,7 +6,7 @@
 ![license](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/package-license.svg)
 ![node](https://raw.githubusercontent.com/chris48s/v8r/badges/.badges/main/package-node-version.svg)
 
-A command-line JSON and YAML validator that's on your wavelength.
+v8r is a command-line JSON and YAML validator that uses [Schema Store](https://www.schemastore.org/) to detect a suitable schema for your input files based on the filename.
 
 ## Getting Started
 
