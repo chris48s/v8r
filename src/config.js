@@ -142,7 +142,7 @@ function parseArgs(argv, config) {
     })
     .option("format", {
       type: "string",
-      choices: ["text", "json"],
+      choices: ["text", "json", "sarif"],
       default: "text",
       describe: "Output format for validation results",
     })
