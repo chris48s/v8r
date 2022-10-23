@@ -9,13 +9,13 @@ jobs:
         node: ['14', '16', '18']
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - run: echo "build_status_message=failing" >> $GITHUB_ENV
       - run: echo "build_status_color=red" >> $GITHUB_ENV
 
       - name: Install Node JS ${{ matrix.node }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
@@ -44,7 +44,7 @@ jobs:
       - run: echo "build_status_color=brightgreen" >> $GITHUB_ENV
 
       - name: Upload coverage report to codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           file: ./coverage/cobertura-coverage.xml
 
@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Write License badge
         uses: action-badges/package-json-badges@main
