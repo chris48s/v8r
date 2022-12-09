@@ -9,8 +9,12 @@ import Ajv2019 from "ajv/dist/2019.js";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
-function _ajvFactory(schema, strictMode, cache) {
-  const resolver = (url) => cache.fetch(url);
+function _ajvFactory(
+  schema,
+  strictMode,
+  cache,
+  resolver = (url) => cache.fetch(url)
+) {
   const opts = { allErrors: true, loadSchema: resolver, strict: strictMode };
 
   if (
@@ -53,8 +57,8 @@ function _ajvFactory(schema, strictMode, cache) {
   */
 }
 
-async function validate(data, schema, strictMode, cache) {
-  const ajv = _ajvFactory(schema, strictMode, cache);
+async function validate(data, schema, strictMode, cache, resolver) {
+  const ajv = _ajvFactory(schema, strictMode, cache, resolver);
   addFormats(ajv);
   const validateFn = await ajv.compileAsync(schema);
   const valid = validateFn(data);

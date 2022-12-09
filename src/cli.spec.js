@@ -878,4 +878,70 @@ describe("CLI", function () {
       });
     });
   });
+
+  describe("external reference resolver", function () {
+    beforeEach(() => setUp());
+    afterEach(() => {
+      tearDown();
+      nock.cleanAll();
+    });
+
+    it("resolves remote $refs", function () {
+      const fragment = {
+        type: "object",
+        properties: {
+          num: {
+            type: "number",
+          },
+        },
+        required: ["num"],
+      };
+      const refMock = nock("https://example.com/foobar")
+        .get("/fragment.json")
+        .reply(200, fragment);
+
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/remote_external_ref.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        refMock.done();
+      });
+    });
+
+    it("resolves local $refs (with $id)", async function () {
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/local_external_ref_with_id.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+      });
+    });
+
+    it("resolves local $refs (without $id)", async function () {
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/local_external_ref_without_id.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+      });
+    });
+
+    it("fails on invalid $ref", async function () {
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/invalid_external_ref.json",
+      }).then((result) => {
+        assert.equal(result, 1);
+        assert(
+          logContainsError(
+            "no such file or directory, open 'testfiles/schemas/does-not-exist.json'"
+          )
+        );
+      });
+    });
+  });
 });
