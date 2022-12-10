@@ -2,6 +2,7 @@ import flatCache from "flat-cache";
 import fs from "fs";
 import os from "os";
 import path from "path";
+import isUrl from "is-url";
 import { validate } from "./ajv.js";
 import { Cache } from "./cache.js";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
@@ -60,7 +61,17 @@ async function validateFile(filename, config, cache) {
     );
 
     const strictMode = config.verbose >= 2 ? "log" : false;
-    const { valid, errors } = await validate(data, schema, strictMode, cache);
+    const resolver = isUrl(schemaLocation)
+      ? (location) => getFromUrlOrFile(location, cache)
+      : (location) =>
+          getFromUrlOrFile(location, cache, path.dirname(schemaLocation));
+    const { valid, errors } = await validate(
+      data,
+      schema,
+      strictMode,
+      cache,
+      resolver
+    );
     result.valid = valid;
     result.errors = errors;
     if (valid) {
