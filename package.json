@@ -40,7 +40,7 @@
     "is-url": "^1.2.4",
     "js-yaml": "^4.0.0",
     "json5": "^2.2.0",
-    "minimatch": "^5.0.1",
+    "minimatch": "^6.1.5",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
