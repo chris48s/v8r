@@ -543,12 +543,12 @@ describe("CLI", function () {
           assert.equal(result, 1);
           assert(
             logContainsError(
-              "Could not find a schema to validate ./testfiles/files/valid.json"
+              "Found multiple possible schemas to validate ./testfiles/files/valid.json"
             )
           );
           assert(
             logContainsInfo(
-              "Found multiple possible schemas for ./testfiles/files/valid.json. Possible matches:"
+              "Found multiple possible matches for ./testfiles/files/valid.json. Possible matches:"
             )
           );
           assert(
