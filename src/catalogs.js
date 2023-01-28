@@ -39,6 +39,41 @@ function getCatalogs(config) {
   return catalogs;
 }
 
+function getMatchLogMessage(match) {
+  let outStr = "";
+  outStr += `  ${match.name}\n`;
+  if (match.description) {
+    outStr += `  ${match.description}\n`;
+  }
+  outStr += `  ${match.url || match.location}\n`;
+  return outStr;
+}
+
+function getVersionLogMessage(match, versionId, versionSchemaUrl) {
+  let outStr = "";
+  outStr += `  ${match.name} (${versionId})\n`;
+  if (match.description) {
+    outStr += `  ${match.description}\n`;
+  }
+  outStr += `  ${versionSchemaUrl}\n`;
+  return outStr;
+}
+
+function getMultipleMatchesLogMessage(matches) {
+  return matches
+    .map(function (match) {
+      if (Object.keys(match.versions || {}).length > 1) {
+        return Object.entries(match.versions)
+          .map(function ([versionId, versionSchemaUrl]) {
+            return getVersionLogMessage(match, versionId, versionSchemaUrl);
+          })
+          .join("\n");
+      }
+      return getMatchLogMessage(match);
+    })
+    .join("\n");
+}
+
 async function getMatchForFilename(catalogs, filename, cache) {
   for (const [i, rec] of catalogs.entries()) {
     const catalogLocation = rec.location;
@@ -67,32 +102,36 @@ async function getMatchForFilename(catalogs, filename, cache) {
     const { schemas } = catalog;
     const matches = getSchemaMatchesForFilename(schemas, filename);
     logger.debug(`Searching for schema in ${catalogLocation} ...`);
-    if (matches.length === 1) {
+
+    if (
+      (matches.length === 1 && matches[0].versions == null) ||
+      (matches.length === 1 && Object.keys(matches[0].versions).length === 1)
+    ) {
       logger.info(`Found schema in ${catalogLocation} ...`);
-      return coerceMatch(matches[0]); // Match found. We're done.
+      return coerceMatch(matches[0]); // Exactly one match found. We're done.
     }
+
     if (matches.length === 0 && i < catalogs.length - 1) {
-      continue; // No match found. Try the next catalog in the array.
+      continue; // No matches found. Try the next catalog in the array.
     }
-    if (matches.length > 1) {
+
+    if (
+      matches.length > 1 ||
+      (matches.length === 1 &&
+        Object.keys(matches[0].versions || {}).length > 1)
+    ) {
       // We found >1 matches in the same catalog. This is always a hard error.
-      const matchesLog = matches
-        .map(function (match) {
-          let outStr = "";
-          outStr += `  ${match.name}\n`;
-          if (match.description) {
-            outStr += `  ${match.description}\n`;
-          }
-          outStr += `  ${match.url || match.location}\n`;
-          return outStr;
-        })
-        .join("\n");
+      const matchesLog = getMultipleMatchesLogMessage(matches);
       logger.info(
-        `Found multiple possible schemas for ${filename}. Possible matches:\n${matchesLog}`
+        `Found multiple possible matches for ${filename}. Possible matches:\n\n${matchesLog}`
+      );
+      throw new Error(
+        `Found multiple possible schemas to validate ${filename}`
       );
     }
-    // Either we found >1 matches in the same catalog or we found 0 matches
-    // in the last catalog and there are no more catalogs left to try.
+
+    // We found 0 matches in the last catalog
+    // and there are no more catalogs left to try
     throw new Error(`Could not find a schema to validate ${filename}`);
   }
 }
