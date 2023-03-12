@@ -1,5 +1,11 @@
 # Changelog
 
+## 📦 [1.0.0](https://www.npmjs.com/package/v8r/v/1.0.0) - 2023-03-12
+
+Version 1.0.0 contains no new features and no bug fixes.
+The one change in this release is that the project now publishes a
+[SemVer compatibility statement](https://github.com/chris48s/v8r/blob/main/README.md#versioning).
+
 ## 📦 [0.14.0](https://www.npmjs.com/package/v8r/v/0.14.0) - 2023-01-28
 
 * Throw an error if multiple versions of a schema are found in the catalog,
