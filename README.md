@@ -179,6 +179,20 @@ The config file format is specified more formally in a JSON Schema:
 * v8r always exits with code `99` when:
     * The input glob pattern matched one or more files, one or more input files were validated against a schema and the input file was **invalid**
 
+## Versioning
+
+v8r follows [semantic versioning](https://semver.org/). For this project, the "API" is defined as:
+
+- CLI flags and options
+- CLI exit codes
+- The configuration file format
+- The native JSON output format
+
+A "breaking change" also includes:
+
+- Dropping compatibility with a major Node JS version
+- Dropping support for a JSON Schema draft
+
 ## FAQ
 
 ### ❓ How does `v8r` decide what schema to validate against if I don't supply one?
