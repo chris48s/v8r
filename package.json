@@ -57,7 +57,7 @@
     "prettier": "^2.1.2"
   },
   "engines": {
-    "node": ">=14.13.1"
+    "node": ">=16"
   },
   "type": "module",
   "keywords": [
