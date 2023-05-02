@@ -1,5 +1,11 @@
 # Changelog
 
+## 📦 [2.0.0](https://www.npmjs.com/package/v8r/v/2.0.0) - 2023-05-02
+
+* Drop compatibility with node 14
+* Upgrade glob and minimatch to latest versions
+* Tested on node 20
+
 ## 📦 [1.0.0](https://www.npmjs.com/package/v8r/v/1.0.0) - 2023-03-12
 
 Version 1.0.0 contains no new features and no bug fixes.
