@@ -35,12 +35,12 @@
     "cosmiconfig": "^8.0.0",
     "decamelize": "^6.0.0",
     "flat-cache": "^3.0.4",
-    "glob": "^8.0.1",
+    "glob": "^10.1.0",
     "got": "^12.0.1",
     "is-url": "^1.2.4",
     "js-yaml": "^4.0.0",
     "json5": "^2.2.0",
-    "minimatch": "^6.1.6",
+    "minimatch": "^9.0.0",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
