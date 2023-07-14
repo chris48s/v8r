@@ -15,10 +15,10 @@ describe("_ajvFactory", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-04/schema#" },
         false,
-        testCache
+        testCache,
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-04/schema"
+        "http://json-schema.org/draft-04/schema",
       );
     });
 
@@ -26,10 +26,10 @@ describe("_ajvFactory", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-06/schema#" },
         false,
-        testCache
+        testCache,
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-06/schema"
+        "http://json-schema.org/draft-06/schema",
       );
     });
 
@@ -37,10 +37,10 @@ describe("_ajvFactory", function () {
       const ajv = _ajvFactory(
         { $schema: "http://json-schema.org/draft-07/schema#" },
         false,
-        testCache
+        testCache,
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-07/schema"
+        "http://json-schema.org/draft-07/schema",
       );
     });
 
@@ -48,10 +48,10 @@ describe("_ajvFactory", function () {
       const ajv = _ajvFactory(
         { $schema: "https://json-schema.org/draft/2019-09/schema" },
         false,
-        testCache
+        testCache,
       );
       expect(ajv.schemas).to.have.own.property(
-        "https://json-schema.org/draft/2019-09/schema"
+        "https://json-schema.org/draft/2019-09/schema",
       );
     });
 
@@ -59,40 +59,40 @@ describe("_ajvFactory", function () {
       const ajv = _ajvFactory(
         { $schema: "https://json-schema.org/draft/2020-12/schema" },
         false,
-        testCache
+        testCache,
       );
       expect(ajv.schemas).to.have.own.property(
-        "https://json-schema.org/draft/2020-12/schema"
+        "https://json-schema.org/draft/2020-12/schema",
       );
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is missing", function () {
       const ajv = _ajvFactory({}, false, testCache);
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-06/schema"
+        "http://json-schema.org/draft-06/schema",
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-07/schema"
+        "http://json-schema.org/draft-07/schema",
       );
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is invalid (str)", function () {
       const ajv = _ajvFactory({ $schema: "foobar" }, false, testCache);
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-06/schema"
+        "http://json-schema.org/draft-06/schema",
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-07/schema"
+        "http://json-schema.org/draft-07/schema",
       );
     });
 
     it("should fall back to draft-06/draft-07 mode if $schema key is invalid (not str)", function () {
       const ajv = _ajvFactory({ $schema: true }, false, testCache);
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-06/schema"
+        "http://json-schema.org/draft-06/schema",
       );
       expect(ajv.schemas).to.have.own.property(
-        "http://json-schema.org/draft-07/schema"
+        "http://json-schema.org/draft-07/schema",
       );
     });
   });

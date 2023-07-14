@@ -32,7 +32,7 @@ function getCatalogs(config) {
     catalogs = catalogs.concat(
       config.catalogs.map(function (loc) {
         return { location: loc };
-      })
+      }),
     );
   }
   catalogs.push({ location: SCHEMASTORE_CATALOG_URL });
@@ -83,7 +83,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
     if (!rec.catalog) {
       const catalogSchema = await getFromUrlOrFile(
         SCHEMASTORE_CATALOG_SCHEMA_URL,
-        cache
+        cache,
       );
 
       // Validate the catalog
@@ -92,7 +92,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
         catalog,
         catalogSchema,
         strictMode,
-        cache
+        cache,
       );
       if (!valid || catalog.schemas === undefined) {
         throw new Error(`Malformed catalog at ${catalogLocation}`);
@@ -123,10 +123,10 @@ async function getMatchForFilename(catalogs, filename, cache) {
       // We found >1 matches in the same catalog. This is always a hard error.
       const matchesLog = getMultipleMatchesLogMessage(matches);
       logger.info(
-        `Found multiple possible matches for ${filename}. Possible matches:\n\n${matchesLog}`
+        `Found multiple possible matches for ${filename}. Possible matches:\n\n${matchesLog}`,
       );
       throw new Error(
-        `Found multiple possible schemas to validate ${filename}`
+        `Found multiple possible schemas to validate ${filename}`,
       );
     }
 

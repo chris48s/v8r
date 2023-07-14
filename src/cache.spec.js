@@ -56,10 +56,10 @@ describe("Cache", function () {
 
       //..and then the third one should fail
       await expect(
-        testCache.fetch("https://www.foobar.com/baz")
+        testCache.fetch("https://www.foobar.com/baz"),
       ).to.be.rejectedWith(
         Error,
-        "Called https://www.foobar.com/baz >2 times. Possible circular reference."
+        "Called https://www.foobar.com/baz >2 times. Possible circular reference.",
       );
       mock.done();
     });

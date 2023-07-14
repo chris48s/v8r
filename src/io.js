@@ -8,7 +8,7 @@ async function getFromUrlOrFile(location, cache, base = null) {
   } else {
     if (base != null) {
       return JSON.parse(
-        await fs.promises.readFile(path.join(base, location), "utf8")
+        await fs.promises.readFile(path.join(base, location), "utf8"),
       );
     }
   }

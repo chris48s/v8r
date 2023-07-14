@@ -13,7 +13,7 @@ function _ajvFactory(
   schema,
   strictMode,
   cache,
-  resolver = (url) => cache.fetch(url)
+  resolver = (url) => cache.fetch(url),
 ) {
   const opts = { allErrors: true, loadSchema: resolver, strict: strictMode };
 
@@ -27,7 +27,7 @@ function _ajvFactory(
     } else if (schema["$schema"].includes("json-schema.org/draft-06/schema")) {
       const ajvDraft06 = new Ajv(opts);
       ajvDraft06.addMetaSchema(
-        require("ajv/lib/refs/json-schema-draft-06.json")
+        require("ajv/lib/refs/json-schema-draft-06.json"),
       );
       return ajvDraft06;
     } else if (schema["$schema"].includes("json-schema.org/draft-07/schema")) {

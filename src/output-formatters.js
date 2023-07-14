@@ -7,7 +7,7 @@ function logErrors(filename, errors) {
     ajv.errorsText(errors, {
       separator: "\n",
       dataVar: filename + "#",
-    })
+    }),
   );
   logger.log("");
 }

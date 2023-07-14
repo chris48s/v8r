@@ -20,7 +20,7 @@ class Cache {
           this.cache.removeKey(url);
         }
         this.cache.save(true);
-      }.bind(this)
+      }.bind(this),
     );
   }
 
@@ -39,7 +39,7 @@ class Cache {
     }
     if (this.callCounter[url] > this.callLimit) {
       throw new Error(
-        `Called ${url} >${this.callLimit} times. Possible circular reference.`
+        `Called ${url} >${this.callLimit} times. Possible circular reference.`,
       );
     }
   }

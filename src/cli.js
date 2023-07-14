@@ -52,12 +52,12 @@ async function validateFile(filename, config, cache) {
     result.schemaLocation = schemaLocation;
     const schema = await getFromUrlOrFile(schemaLocation, cache);
     logger.info(
-      `Validating ${filename} against schema from ${schemaLocation} ...`
+      `Validating ${filename} against schema from ${schemaLocation} ...`,
     );
 
     const data = parseFile(
       await fs.promises.readFile(filename, "utf8"),
-      catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename)
+      catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename),
     );
 
     const strictMode = config.verbose >= 2 ? "log" : false;
@@ -70,7 +70,7 @@ async function validateFile(filename, config, cache) {
       schema,
       strictMode,
       cache,
-      resolver
+      resolver,
     );
     result.valid = valid;
     result.errors = errors;
