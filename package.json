@@ -50,11 +50,11 @@
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-mocha": "^10.0.3",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "mocha": "^10.0.0",
     "mock-cwd": "^1.0.0",
     "nock": "^13.0.4",
-    "prettier": "^2.1.2"
+    "prettier": "^3.0.0"
   },
   "engines": {
     "node": ">=16"

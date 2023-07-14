@@ -21,7 +21,7 @@ function validateConfig(configFile) {
   if (!valid) {
     logErrors(
       configFile.filepath ? configFile.filepath : "",
-      validateFn.errors
+      validateFn.errors,
     );
     throw new Error("Malformed config file");
   }
@@ -36,7 +36,7 @@ function preProcessConfig(configFile) {
     if (!path.isAbsolute(schema.location) && !isUrl(schema.location)) {
       schema.location = path.join(
         path.dirname(configFile.filepath),
-        schema.location
+        schema.location,
       );
     }
   }
@@ -45,7 +45,7 @@ function preProcessConfig(configFile) {
 async function getCosmiConfig(cosmiconfigOptions) {
   cosmiconfigOptions.stopDir = process.cwd();
   const configFile = (await cosmiconfig("v8r", cosmiconfigOptions).search(
-    process.cwd()
+    process.cwd(),
   )) || { config: {} };
   if (configFile.filepath) {
     logger.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
@@ -84,7 +84,7 @@ function parseArgs(argv, config) {
     command = "$0 [patterns..]";
     patternsOpts.default = config.config.patterns;
     patternsOpts.defaultDescription = `${JSON.stringify(
-      config.config.patterns
+      config.config.patterns,
     )} (from config file ${getRelativeFilePath(config)})`;
   }
 
@@ -94,12 +94,12 @@ function parseArgs(argv, config) {
       "Validate local json/yaml files against schema(s)",
       (yargs) => {
         yargs.positional("patterns", patternsOpts);
-      }
+      },
     )
     .version(
       // Workaround for https://github.com/yargs/yargs/issues/1934
       // TODO: remove once fixed
-      require("../package.json").version
+      require("../package.json").version,
     )
     .option("verbose", {
       alias: "v",
@@ -160,7 +160,7 @@ function parseArgs(argv, config) {
       parser.default(
         decamelize(key, { separator: "-" }),
         value,
-        `${value} (from config file ${getRelativeFilePath(config)})`
+        `${value} (from config file ${getRelativeFilePath(config)})`,
       );
     }
   }

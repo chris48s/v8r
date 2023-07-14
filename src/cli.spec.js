@@ -131,7 +131,7 @@ describe("CLI", function () {
           assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
           catalogMock.done();
           schemaMock.done();
-        }
+        },
       );
     });
 
@@ -156,7 +156,7 @@ describe("CLI", function () {
           assert(logContainsError("./testfiles/files/invalid.json is invalid"));
           catalogMock.done();
           schemaMock.done();
-        }
+        },
       );
     });
 
@@ -182,8 +182,8 @@ describe("CLI", function () {
         assert.equal(result, 0, logger.stderr);
         assert(
           logContainsInfo(
-            "Found schema in ./testfiles/catalogs/catalog-url.json ..."
-          )
+            "Found schema in ./testfiles/catalogs/catalog-url.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         expect(catalogMock.isDone()).to.be.false;
@@ -223,8 +223,8 @@ describe("CLI", function () {
         assert.equal(result, 0);
         assert(
           logContainsInfo(
-            "Found schema in https://my-catalog.com/catalog.json ..."
-          )
+            "Found schema in https://my-catalog.com/catalog.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         expect(storeCatalogMock.isDone()).to.be.false;
@@ -248,8 +248,8 @@ describe("CLI", function () {
         assert.equal(result, 0, logger.stderr);
         assert(
           logContainsInfo(
-            "Found schema in ./testfiles/catalogs/catalog-url.json ..."
-          )
+            "Found schema in ./testfiles/catalogs/catalog-url.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         mock.done();
@@ -278,8 +278,8 @@ describe("CLI", function () {
         assert.equal(result, 0, logger.stderr);
         assert(
           logContainsInfo(
-            "Found schema in https://www.schemastore.org/api/json/catalog.json ..."
-          )
+            "Found schema in https://www.schemastore.org/api/json/catalog.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         storeCatalogMock.done();
@@ -330,8 +330,8 @@ describe("CLI", function () {
         assert.equal(result, 0, logger.stderr);
         assert(
           logContainsInfo(
-            "Found schema in ./testfiles/catalogs/catalog-url.json ..."
-          )
+            "Found schema in ./testfiles/catalogs/catalog-url.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         mock.done();
@@ -370,8 +370,8 @@ describe("CLI", function () {
         assert.equal(result, 0, logger.stderr);
         assert(
           logContainsInfo(
-            "Found schema in https://www.schemastore.org/api/json/catalog.json ..."
-          )
+            "Found schema in https://www.schemastore.org/api/json/catalog.json ...",
+          ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         storeCatalogMock.done();
@@ -399,7 +399,7 @@ describe("CLI", function () {
           assert.equal(result, 0);
           catalogMock.done();
           schemaMock.done();
-        }
+        },
       );
     });
 
@@ -440,7 +440,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(
-          logContainsSuccess("./testfiles/files/with-comments.json is valid")
+          logContainsSuccess("./testfiles/files/with-comments.json is valid"),
         );
       });
     });
@@ -460,11 +460,11 @@ describe("CLI", function () {
           assert.equal(result, 1);
           assert(
             logContainsError(
-              "Failed fetching https://www.schemastore.org/api/json/catalog.json"
-            )
+              "Failed fetching https://www.schemastore.org/api/json/catalog.json",
+            ),
           );
           mock.done();
-        }
+        },
       );
     });
 
@@ -487,11 +487,11 @@ describe("CLI", function () {
         (result) => {
           assert.equal(result, 1);
           assert(
-            logContainsError("Failed fetching https://example.com/schema.json")
+            logContainsError("Failed fetching https://example.com/schema.json"),
           );
           catalogMock.done();
           schemaMock.done();
-        }
+        },
       );
     });
 
@@ -512,11 +512,11 @@ describe("CLI", function () {
           assert.equal(result, 1);
           assert(
             logContainsError(
-              "Could not find a schema to validate ./testfiles/files/valid.json"
-            )
+              "Could not find a schema to validate ./testfiles/files/valid.json",
+            ),
           );
           mock.done();
-        }
+        },
       );
     });
 
@@ -543,26 +543,26 @@ describe("CLI", function () {
           assert.equal(result, 1);
           assert(
             logContainsError(
-              "Found multiple possible schemas to validate ./testfiles/files/valid.json"
-            )
+              "Found multiple possible schemas to validate ./testfiles/files/valid.json",
+            ),
           );
           assert(
             logContainsInfo(
-              "Found multiple possible matches for ./testfiles/files/valid.json. Possible matches:"
-            )
+              "Found multiple possible matches for ./testfiles/files/valid.json. Possible matches:",
+            ),
           );
           assert(
             logContainsInfo(
-              "example schema 1\n  https://example.com/schema1.json"
-            )
+              "example schema 1\n  https://example.com/schema1.json",
+            ),
           );
           assert(
             logContainsInfo(
-              "example schema 2\n  https://example.com/schema2.json"
-            )
+              "example schema 2\n  https://example.com/schema2.json",
+            ),
           );
           mock.done();
-        }
+        },
       );
     });
 
@@ -577,7 +577,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          logContainsError("Failed fetching https://example.com/schema.json")
+          logContainsError("Failed fetching https://example.com/schema.json"),
         );
         mock.done();
       });
@@ -608,8 +608,8 @@ describe("CLI", function () {
         assert.equal(result, 98);
         assert(
           logContainsError(
-            "Pattern './testfiles/does-not-exist.json' did not match any files"
-          )
+            "Pattern './testfiles/does-not-exist.json' did not match any files",
+          ),
         );
       });
     });
@@ -639,8 +639,8 @@ describe("CLI", function () {
         assert.equal(result, 1);
         assert(
           logContainsError(
-            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
-          )
+            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'",
+          ),
         );
       });
     });
@@ -653,8 +653,8 @@ describe("CLI", function () {
         assert.equal(result, 1);
         assert(
           logContainsError(
-            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'"
-          )
+            "ENOENT: no such file or directory, open './testfiles/does-not-exist.json'",
+          ),
         );
       });
     });
@@ -670,7 +670,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(
-          logContainsError("Failed fetching https://example.com/catalog.json")
+          logContainsError("Failed fetching https://example.com/catalog.json"),
         );
         mock.done();
       });
@@ -689,8 +689,8 @@ describe("CLI", function () {
         mock.done();
         assert(
           logContainsError(
-            "Malformed catalog at https://example.com/catalog.json"
-          )
+            "Malformed catalog at https://example.com/catalog.json",
+          ),
         );
       });
     });
@@ -708,8 +708,8 @@ describe("CLI", function () {
         mock.done();
         assert(
           logContainsError(
-            "Malformed catalog at https://example.com/catalog.json"
-          )
+            "Malformed catalog at https://example.com/catalog.json",
+          ),
         );
       });
     });
@@ -722,8 +722,8 @@ describe("CLI", function () {
         assert.equal(result, 1);
         assert(
           logContainsError(
-            "Malformed catalog at ./testfiles/catalogs/catalog-malformed.json"
-          )
+            "Malformed catalog at ./testfiles/catalogs/catalog-malformed.json",
+          ),
         );
       });
     });
@@ -825,8 +825,8 @@ describe("CLI", function () {
       }).then(() => {
         assert(
           logger.stdout.includes(
-            "./testfiles/files/invalid.json#/num must be number"
-          )
+            "./testfiles/files/invalid.json#/num must be number",
+          ),
         );
       });
     });
@@ -938,8 +938,8 @@ describe("CLI", function () {
         assert.equal(result, 1);
         assert(
           logContainsError(
-            "no such file or directory, open 'testfiles/schemas/does-not-exist.json'"
-          )
+            "no such file or directory, open 'testfiles/schemas/does-not-exist.json'",
+          ),
         );
       });
     });

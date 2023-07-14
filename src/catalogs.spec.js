@@ -37,13 +37,13 @@ describe("getSchemaMatchesForFilename", function () {
 
   it("returns [] when no matches found", function () {
     expect(
-      getSchemaMatchesForFilename(schemas, "doesnt-match-anything.json")
+      getSchemaMatchesForFilename(schemas, "doesnt-match-anything.json"),
     ).to.deep.equal([]);
   });
 
   it("returns a match using globstar pattern", function () {
     expect(
-      getSchemaMatchesForFilename(schemas, "subdir/one/two/three/file.json")
+      getSchemaMatchesForFilename(schemas, "subdir/one/two/three/file.json"),
     ).to.deep.equal([
       {
         url: "https://example.com/subdir-schema.json",
@@ -76,7 +76,7 @@ describe("getSchemaMatchesForFilename", function () {
 
   it("returns a match if filename starts with a dot", function () {
     expect(
-      getSchemaMatchesForFilename(schemas, ".starts-with-a-dot.json")
+      getSchemaMatchesForFilename(schemas, ".starts-with-a-dot.json"),
     ).to.deep.equal([
       {
         url: "https://example.com/starts-with-a-dot-schema.json",
@@ -124,7 +124,7 @@ describe("getMatchForFilename", function () {
 
   it("returns a schema when one match found", async function () {
     expect(
-      await getMatchForFilename(catalogs, "file1.json", testCache)
+      await getMatchForFilename(catalogs, "file1.json", testCache),
     ).to.deep.equal({
       location: "https://example.com/files-schema-schema.json",
       fileMatch: ["file1.json", "file2.json"],
@@ -133,7 +133,7 @@ describe("getMatchForFilename", function () {
 
   it("returns a schema when match has only one version", async function () {
     expect(
-      await getMatchForFilename(catalogs, "one-version.json", testCache)
+      await getMatchForFilename(catalogs, "one-version.json", testCache),
     ).to.deep.equal({
       location: "https://example.com/v1.json",
       fileMatch: ["one-version.json"],
@@ -145,10 +145,10 @@ describe("getMatchForFilename", function () {
 
   it("throws an exception when no matches found", async function () {
     await expect(
-      getMatchForFilename(catalogs, "doesnt-match-anything.json", testCache)
+      getMatchForFilename(catalogs, "doesnt-match-anything.json", testCache),
     ).to.be.rejectedWith(
       Error,
-      "Could not find a schema to validate doesnt-match-anything.json"
+      "Could not find a schema to validate doesnt-match-anything.json",
     );
   });
 
@@ -156,11 +156,11 @@ describe("getMatchForFilename", function () {
     await expect(getMatchForFilename(catalogs, "file2.json", testCache))
       .to.be.rejectedWith(
         Error,
-        "Found multiple possible schemas to validate file2.json"
+        "Found multiple possible schemas to validate file2.json",
       )
       .then(() => {
         assert(
-          logContainsInfo("Found multiple possible matches for file2.json")
+          logContainsInfo("Found multiple possible matches for file2.json"),
         );
         assert(logContainsInfo("https://example.com/files-schema-schema.json"));
         assert(logContainsInfo("https://example.com/duplicate.json"));
@@ -171,11 +171,11 @@ describe("getMatchForFilename", function () {
     await expect(getMatchForFilename(catalogs, "versions.json", testCache))
       .to.be.rejectedWith(
         Error,
-        "Found multiple possible schemas to validate versions.json"
+        "Found multiple possible schemas to validate versions.json",
       )
       .then(() => {
         assert(
-          logContainsInfo("Found multiple possible matches for versions.json")
+          logContainsInfo("Found multiple possible matches for versions.json"),
         );
         assert(logContainsInfo("https://example.com/versions-v1.json"));
         assert(logContainsInfo("https://example.com/versions-v2.json"));

@@ -52,7 +52,7 @@ describe("parseArgs", function () {
         "86400",
         "-vv",
       ],
-      { config: {} }
+      { config: {} },
     );
     expect(args).to.have.deep.property("patterns", ["infile.json"]);
     expect(args).to.have.property("ignoreErrors", true);
@@ -81,7 +81,7 @@ describe("parseArgs", function () {
           verbose: 1,
         },
         filepath: "/foo/bar.yml",
-      }
+      },
     );
     expect(args).to.have.deep.property("patterns", ["infile.json"]);
     expect(args).to.have.property("ignoreErrors", true);
@@ -94,7 +94,7 @@ describe("parseArgs", function () {
   it("should accept schema param", function () {
     const args = parseArgs(
       ["node", "index.js", "infile.json", "--schema", "http://foo.bar/baz"],
-      { config: {} }
+      { config: {} },
     );
     expect(args).to.have.property("schema", "http://foo.bar/baz");
   });
@@ -109,7 +109,7 @@ describe("parseArgs", function () {
         "catalog1.json",
         "catalog2.json",
       ],
-      { config: {} }
+      { config: {} },
     );
     expect(args).to.have.property("catalogs");
     expect(args.catalogs).to.be.an("Array");
@@ -119,7 +119,7 @@ describe("parseArgs", function () {
   it("should accept multiple patterns", function () {
     const args = parseArgs(
       ["node", "index.js", "file1.json", "dir/*", "file2.json", "*.yaml"],
-      { config: {} }
+      { config: {} },
     );
     expect(args).to.have.deep.property("patterns", [
       "file1.json",
@@ -140,7 +140,7 @@ describe("preProcessConfig", function () {
     };
     preProcessConfig(configFile);
     expect(configFile.config.customCatalog.schemas[0].location).to.equal(
-      "/foo/bar/schema.json"
+      "/foo/bar/schema.json",
     );
   });
 
@@ -155,7 +155,7 @@ describe("preProcessConfig", function () {
     };
     preProcessConfig(configFile);
     expect(configFile.config.customCatalog.schemas[0].location).to.equal(
-      "https://example.com/schema.json"
+      "https://example.com/schema.json",
     );
   });
 
@@ -172,7 +172,7 @@ describe("preProcessConfig", function () {
       };
       preProcessConfig(configFile);
       expect(configFile.config.customCatalog.schemas[0].location).to.equal(
-        testCase[1]
+        testCase[1],
       );
     }
   });
@@ -224,10 +224,10 @@ describe("getConfig", function () {
     });
     expect(config).to.have.property(
       "configFileRelativePath",
-      "testfiles/configs/config.json"
+      "testfiles/configs/config.json",
     );
     assert(
-      logContainsInfo("Loaded config file from testfiles/configs/config.json")
+      logContainsInfo("Loaded config file from testfiles/configs/config.json"),
     );
   });
 
@@ -245,7 +245,7 @@ describe("getConfig", function () {
       {
         searchPlaces: ["./testfiles/configs/config.json"],
         cache: false,
-      }
+      },
     );
     expect(config).to.have.deep.property("patterns", ["infile.json"]);
     expect(config).to.have.property("ignoreErrors", true);
@@ -266,10 +266,10 @@ describe("getConfig", function () {
     });
     expect(config).to.have.property(
       "configFileRelativePath",
-      "testfiles/configs/config.json"
+      "testfiles/configs/config.json",
     );
     assert(
-      logContainsInfo("Loaded config file from testfiles/configs/config.json")
+      logContainsInfo("Loaded config file from testfiles/configs/config.json"),
     );
   });
 });
@@ -378,7 +378,7 @@ describe("validateConfig", function () {
     for (const config of invalidConfigs) {
       expect(() => validateConfig(config)).to.throw(
         Error,
-        "Malformed config file"
+        "Malformed config file",
       );
     }
   });
