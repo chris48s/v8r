@@ -19,9 +19,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Update NPM
-        run: npm install -g npm
-
       - name: Show Node/NPM versions
         run: |
           node --version
