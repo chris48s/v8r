@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import isUrl from "is-url";
-import { parseFile } from "./parser";
+import { parseFile } from "./parser.js";
 
 async function getFromUrlOrFile(location, cache, base = null) {
   if (isUrl(location)) {
