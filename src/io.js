@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import isUrl from "is-url";
-import { parseFile } from "./parser.js";
+import yaml from "js-yaml";
 
 async function getFromUrlOrFile(location, cache, base = null) {
   if (isUrl(location)) {
@@ -9,9 +9,8 @@ async function getFromUrlOrFile(location, cache, base = null) {
   } else {
     if (base != null) {
       if (location.endsWith(".yml") || location.endsWith(".yaml"))
-        return parseFile(
+        return yaml.load(
           await fs.promises.readFile(path.join(base, location), "utf8"),
-          ".yaml",
         );
       else
         return JSON.parse(
@@ -20,7 +19,7 @@ async function getFromUrlOrFile(location, cache, base = null) {
     }
   }
   if (location.endsWith(".yml") || location.endsWith(".yaml"))
-    return parseFile(await fs.promises.readFile(location, "utf8"), ".yaml");
+    return yaml.load(await fs.promises.readFile(location, "utf8"));
   else return JSON.parse(await fs.promises.readFile(location, "utf8"));
 }
 
