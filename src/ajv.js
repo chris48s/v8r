@@ -60,7 +60,7 @@ function _ajvFactory(
 async function validate(data, schema, strictMode, cache, resolver) {
   const ajv = _ajvFactory(schema, strictMode, cache, resolver);
   addFormats(ajv);
-  const validateFn = await ajv.compileAsync(schema);
+  const validateFn = await ajv.compileAsync(schema, true);
   const valid = validateFn(data);
   return { valid, errors: validateFn.errors ? validateFn.errors : [] };
 }
