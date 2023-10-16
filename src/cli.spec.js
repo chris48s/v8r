@@ -1141,7 +1141,6 @@ describe("CLI", function () {
       });
     });
     it("should return 1 on multi-document as schema", function () {
-      //TODO: Add a multi schema document as test file.
       return cli({
         patterns: ["./testfiles/files/valid.json"],
         schema: "./testfiles/schemas/schema.multi-doc.yaml",
