@@ -1141,7 +1141,18 @@ describe("CLI", function () {
       });
     });
     it("should return 1 on multi-document as schema", function () {
-      //TBA: Add a multi schema document as test file.
+      //TODO: Add a multi schema document as test file.
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/schema.multi-doc.yaml",
+      }).then((result) => {
+        assert.equal(result, 1);
+        assert(
+          logContainsError(
+            "expected a single document in the stream, but found more",
+          ),
+        );
+      });
     });
   });
 
