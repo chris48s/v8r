@@ -486,7 +486,7 @@ describe("CLI", function () {
 
         return cli({
           patterns: ["./testfiles/files/valid.json"],
-          schema: "https://example.com/schema.yaml", //TODO: MOCK a YAML Schema
+          schema: "https://example.com/schema.yaml",
         }).then((result) => {
           assert.equal(result, 0);
           assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
@@ -711,9 +711,6 @@ describe("CLI", function () {
 
       it("should fall back to custom catalog if match not found in config file", function () {
         const mock = nock("https://example.com")
-          .get("/schema.json")
-          .reply(200, schema);
-        const yamlMock = nock("https://example.com")
           .get("/schema.yaml")
           .reply(200, yamlSchema);
 
@@ -739,7 +736,6 @@ describe("CLI", function () {
           );
           assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
           mock.done();
-          yamlMock.done();
         });
       });
 
