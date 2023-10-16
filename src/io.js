@@ -10,7 +10,7 @@ async function getFromUrlOrFile(location, cache, base = null) {
     if (base != null) {
       return readSchemaFromFileContents(
         path.join(base, location),
-        await fs.promises.readFile(location, "utf8"),
+        await fs.promises.readFile(path.join(base, location), "utf8"),
       );
     }
   }
