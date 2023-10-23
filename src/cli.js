@@ -11,7 +11,7 @@ import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
 import { logErrors, resultsToJson } from "./output-formatters.js";
-import { parseFile } from "./parser.js";
+import { parseDocument } from "./parser.js";
 
 const EXIT = {
   VALID: 0,
@@ -55,7 +55,7 @@ async function validateFile(filename, config, cache) {
       `Validating ${filename} against schema from ${schemaLocation} ...`,
     );
 
-    const data = parseFile(
+    const data = parseDocument(
       await fs.promises.readFile(filename, "utf8"),
       catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename),
     );

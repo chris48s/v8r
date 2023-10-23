@@ -1,6 +1,6 @@
 import got from "got";
 import logger from "./logger.js";
-import { readSchemaFromFileContents } from "./io.js";
+import { parseSchema } from "./parser.js";
 
 class Cache {
   constructor(flatCache, ttl) {
@@ -61,7 +61,7 @@ class Cache {
     try {
       logger.debug(`Cache miss: calling ${url}`);
       const resp = await got(url);
-      const parsedBody = readSchemaFromFileContents(url, resp.body);
+      const parsedBody = parseSchema(resp.body, url);
       if (this.ttl > 0) {
         this.cache.setKey(url, { timestamp: Date.now(), body: parsedBody });
         this.cache.save(true);

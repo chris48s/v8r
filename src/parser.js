@@ -1,7 +1,7 @@
 import JSON5 from "json5";
 import yaml from "js-yaml";
 
-function parseFile(contents, format) {
+function parseDocument(contents, format) {
   switch (format) {
     case ".json":
     case ".geojson":
@@ -18,4 +18,16 @@ function parseFile(contents, format) {
   }
 }
 
-export { parseFile };
+function parseSchema(contents, location) {
+  if (location.endsWith(".yml") || location.endsWith(".yaml")) {
+    return yaml.load(contents);
+  }
+  /*
+  Always fall back and assume json even if no .json extension
+  Sometimes a JSON schema is served from a URL like
+  https://json-stat.org/format/schema/2.0/
+  */
+  return JSON.parse(contents);
+}
+
+export { parseDocument, parseSchema };
