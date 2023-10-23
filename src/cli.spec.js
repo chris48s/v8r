@@ -14,6 +14,7 @@ import {
   logContainsInfo,
   logContainsError,
 } from "./test-helpers.js";
+import { dump as dumpToYaml } from "js-yaml";
 
 const assert = chai.assert;
 const expect = chai.expect;
@@ -444,6 +445,407 @@ describe("CLI", function () {
         );
       });
     });
+    describe("success behaviour, single file with YAML as JSON schema", function () {
+      const schema = {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        properties: { num: { type: "number" } },
+      };
+      const yamlSchema = dumpToYaml(schema);
+
+      beforeEach(() => setUp());
+      afterEach(() => {
+        tearDown();
+        nock.cleanAll();
+      });
+
+      it("should return 0 when file is valid (with user-supplied local schema)", function () {
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          schema: "./testfiles/schemas/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        });
+      });
+
+      it("should return 99 when file is invalid (with user-supplied local schema)", function () {
+        return cli({
+          patterns: ["./testfiles/files/invalid.json"],
+          schema: "./testfiles/schemas/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 99);
+          assert(logContainsError("./testfiles/files/invalid.json is invalid"));
+        });
+      });
+
+      it("should return 0 when file is valid (with user-supplied remote schema)", function () {
+        const mock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          schema: "https://example.com/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          mock.done();
+        });
+      });
+
+      it("should return 99 when file is invalid (with user-supplied remote schema)", function () {
+        const mock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/invalid.json"],
+          schema: "https://example.com/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 99);
+          assert(logContainsError("./testfiles/files/invalid.json is invalid"));
+          mock.done();
+        });
+      });
+
+      it("should return 0 when file is valid (with auto-detected schema)", function () {
+        const catalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const schemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({ patterns: ["./testfiles/files/valid.json"] }).then(
+          (result) => {
+            assert.equal(result, 0);
+            assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+            catalogMock.done();
+            schemaMock.done();
+          },
+        );
+      });
+
+      it("should return 99 when file is invalid (with auto-detected schema)", function () {
+        const catalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const schemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({ patterns: ["./testfiles/files/invalid.json"] }).then(
+          (result) => {
+            assert.equal(result, 99);
+            assert(
+              logContainsError("./testfiles/files/invalid.json is invalid"),
+            );
+            catalogMock.done();
+            schemaMock.done();
+          },
+        );
+      });
+
+      it("should use schema from custom local catalog if match found", function () {
+        const catalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/not-used-schema.json",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const schemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["./testfiles/catalogs/catalog-url-with-yaml-schema.json"],
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(
+            logContainsInfo(
+              "Found schema in ./testfiles/catalogs/catalog-url-with-yaml-schema.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          expect(catalogMock.isDone()).to.be.false;
+          schemaMock.done();
+        });
+      });
+
+      it("should use schema from custom remote catalog if match found", function () {
+        const storeCatalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/not-used-schema.json",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const customCatalogMock = nock("https://my-catalog.com")
+          .get("/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const customSchemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["https://my-catalog.com/catalog.json"],
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(
+            logContainsInfo(
+              "Found schema in https://my-catalog.com/catalog.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          expect(storeCatalogMock.isDone()).to.be.false;
+          customCatalogMock.done();
+          customSchemaMock.done();
+        });
+      });
+
+      it("should fall back to next custom catalog if match not found in first", function () {
+        const mock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: [
+            "./testfiles/catalogs/catalog-nomatch.json",
+            "./testfiles/catalogs/catalog-url-with-yaml-schema.json",
+          ],
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(
+            logContainsInfo(
+              "Found schema in ./testfiles/catalogs/catalog-url-with-yaml-schema.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          mock.done();
+        });
+      });
+
+      it("should fall back to schemastore.org if match not found in custom catalogs", function () {
+        const storeCatalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const storeSchemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["./testfiles/catalogs/catalog-nomatch.json"],
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(
+            logContainsInfo(
+              "Found schema in https://www.schemastore.org/api/json/catalog.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          storeCatalogMock.done();
+          storeSchemaMock.done();
+        });
+      });
+
+      it("should use schema from config file if match found", function () {
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["./testfiles/catalogs/catalog-url-with-yaml-schema.json"],
+          customCatalog: {
+            schemas: [
+              {
+                name: "custom schema",
+                fileMatch: ["valid.json", "valid.yml"],
+                location: "./testfiles/schemas/schema.yaml",
+              },
+            ],
+          },
+          configFileRelativePath: "foobar.conf",
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(logContainsInfo("Found schema in foobar.conf ..."));
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+        });
+      });
+
+      it("should fall back to custom catalog if match not found in config file", function () {
+        const mock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["./testfiles/catalogs/catalog-url-with-yaml-schema.json"],
+          customCatalog: {
+            schemas: [
+              {
+                name: "custom schema",
+                fileMatch: ["does-not-match.json"],
+                location: "./testfiles/schemas/schema.json",
+              },
+            ],
+          },
+          configFileRelativePath: "foobar.conf",
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(
+            logContainsInfo(
+              "Found schema in ./testfiles/catalogs/catalog-url-with-yaml-schema.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          mock.done();
+        });
+      });
+
+      it("should fall back to schemastore.org if match not found in config file or custom catalogs", function () {
+        const storeCatalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["valid.json", "invalid.json"],
+              },
+            ],
+          });
+        const storeSchemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({
+          patterns: ["./testfiles/files/valid.json"],
+          catalogs: ["./testfiles/catalogs/catalog-nomatch.json"],
+          customCatalog: {
+            schemas: [
+              {
+                name: "custom schema",
+                fileMatch: ["does-not-match.json"],
+                location: "./testfiles/schemas/schema.json",
+              },
+            ],
+          },
+          configFileRelativePath: "foobar.conf",
+        }).then((result) => {
+          assert.equal(result, 0, logger.stderr);
+          assert(
+            logContainsInfo(
+              "Found schema in https://www.schemastore.org/api/json/catalog.json ...",
+            ),
+          );
+          assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
+          storeCatalogMock.done();
+          storeSchemaMock.done();
+        });
+      });
+
+      it("should find a schema using glob patterns", function () {
+        const catalogMock = nock("https://www.schemastore.org")
+          .get("/api/json/catalog.json")
+          .reply(200, {
+            schemas: [
+              {
+                url: "https://example.com/schema.yaml",
+                fileMatch: ["testfiles/files/*.json"],
+              },
+            ],
+          });
+        const schemaMock = nock("https://example.com")
+          .get("/schema.yaml")
+          .reply(200, yamlSchema);
+
+        return cli({ patterns: ["./testfiles/files/valid.json"] }).then(
+          (result) => {
+            assert.equal(result, 0);
+            catalogMock.done();
+            schemaMock.done();
+          },
+        );
+      });
+
+      it("should validate yaml files", function () {
+        return cli({
+          patterns: ["./testfiles/files/valid.yaml"],
+          schema: "./testfiles/schemas/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(logContainsSuccess("./testfiles/files/valid.yaml is valid"));
+        });
+      });
+
+      it("should validate json5 files", function () {
+        return cli({
+          patterns: ["./testfiles/files/valid.json5"],
+          schema: "./testfiles/schemas/schema.yaml",
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(logContainsSuccess("./testfiles/files/valid.json5 is valid"));
+        });
+      });
+
+      it("should use custom parser in preference to file extension if specified", function () {
+        return cli({
+          patterns: ["./testfiles/files/with-comments.json"],
+          customCatalog: {
+            schemas: [
+              {
+                name: "custom schema",
+                fileMatch: ["with-comments.json"],
+                location: "./testfiles/schemas/schema.yaml",
+                parser: "json5",
+              },
+            ],
+          },
+          configFileRelativePath: "foobar.conf",
+        }).then((result) => {
+          assert.equal(result, 0);
+          assert(
+            logContainsSuccess("./testfiles/files/with-comments.json is valid"),
+          );
+        });
+      });
+    });
   });
 
   describe("error handling, single file", function () {
@@ -736,6 +1138,19 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(logContainsError("Unsupported format .txt"));
+      });
+    });
+    it("should return 1 on multi-document as schema", function () {
+      return cli({
+        patterns: ["./testfiles/files/valid.json"],
+        schema: "./testfiles/schemas/schema.multi-doc.yaml",
+      }).then((result) => {
+        assert.equal(result, 1);
+        assert(
+          logContainsError(
+            "expected a single document in the stream, but found more",
+          ),
+        );
       });
     });
   });

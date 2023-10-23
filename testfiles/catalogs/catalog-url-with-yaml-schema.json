@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/schema-catalog.json",
+  "version": 1.0,
+  "schemas": [
+    {
+      "name": "Valid custom schema",
+      "description": "",
+      "fileMatch": [
+        "valid.json",
+        "valid.yml"
+      ],
+      "url": "https://example.com/schema.yaml"
+    }
+  ]
+}
