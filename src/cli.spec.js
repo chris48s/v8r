@@ -856,6 +856,8 @@ describe("CLI", function () {
     });
 
     it("should return 1 on multi-document as schema", function () {
+      // In principle, it is possible to serialize multiple yaml documents
+      // into a single file, but js-yaml does not support this.
       return cli({
         patterns: ["./testfiles/files/valid.json"],
         schema: "./testfiles/schemas/schema.multi-doc.yaml",
