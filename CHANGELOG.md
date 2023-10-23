@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [2.1.0](https://www.npmjs.com/package/v8r/v/2.1.0) - 2023-10-23
+
+* Add compatibility with JSON schemas serialized as Yaml
+
 ## 📦 [2.0.0](https://www.npmjs.com/package/v8r/v/2.0.0) - 2023-05-02
 
 * Drop compatibility with node 14
