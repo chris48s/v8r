@@ -15,7 +15,7 @@ jobs:
       - run: echo "build_status_color=red" >> $GITHUB_ENV
 
       - name: Install Node JS ${{ matrix.node }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
 
