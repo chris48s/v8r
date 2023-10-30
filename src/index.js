@@ -2,7 +2,5 @@
 
 import { cli } from "./cli.js";
 
-(async () => {
-  const exitCode = await cli();
-  process.exit(exitCode);
-})();
+const exitCode = await cli();
+process.exit(exitCode);
