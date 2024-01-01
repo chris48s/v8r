@@ -1,10 +1,8 @@
+import assert from "assert";
 import flatCache from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
-import { chai, testCacheName, setUp, tearDown } from "./test-helpers.js";
-
-const assert = chai.assert;
-const expect = chai.expect;
+import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 describe("Cache", function () {
   describe("fetch function", function () {
@@ -55,12 +53,11 @@ describe("Cache", function () {
       await testCache.fetch("https://www.foobar.com/baz");
 
       //..and then the third one should fail
-      await expect(
-        testCache.fetch("https://www.foobar.com/baz"),
-      ).to.be.rejectedWith(
-        Error,
-        "Called https://www.foobar.com/baz >2 times. Possible circular reference.",
-      );
+      await assert.rejects(testCache.fetch("https://www.foobar.com/baz"), {
+        name: "Error",
+        message:
+          "Called https://www.foobar.com/baz >2 times. Possible circular reference.",
+      });
       mock.done();
     });
   });

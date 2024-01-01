@@ -1,9 +1,5 @@
-import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import flatCache from "flat-cache";
 import logger from "./logger.js";
-
-chai.use(chaiAsPromised);
 
 const origWriteOut = logger.writeOut;
 const origWriteErr = logger.writeErr;
@@ -48,7 +44,6 @@ function logContainsError(expectedString, expectedCount = 1) {
 }
 
 export {
-  chai,
   testCacheName,
   setUp,
   tearDown,

@@ -1,3 +1,4 @@
+import assert from "assert";
 import { randomUUID } from "crypto";
 import fs from "fs";
 import os from "os";
@@ -7,7 +8,6 @@ import nock from "nock";
 import { cli } from "./cli.js";
 import logger from "./logger.js";
 import {
-  chai,
   setUp,
   tearDown,
   logContainsSuccess,
@@ -15,9 +15,6 @@ import {
   logContainsError,
 } from "./test-helpers.js";
 import { dump as dumpToYaml } from "js-yaml";
-
-const assert = chai.assert;
-const expect = chai.expect;
 
 describe("CLI", function () {
   // Mock the catalog validation schema
@@ -187,7 +184,7 @@ describe("CLI", function () {
           ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
-        expect(catalogMock.isDone()).to.be.false;
+        assert.equal(catalogMock.isDone(), false);
         schemaMock.done();
       });
     });
@@ -228,7 +225,7 @@ describe("CLI", function () {
           ),
         );
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
-        expect(storeCatalogMock.isDone()).to.be.false;
+        assert.equal(storeCatalogMock.isDone(), false);
         customCatalogMock.done();
         customSchemaMock.done();
       });
@@ -1006,7 +1003,7 @@ describe("CLI", function () {
             },
           },
         };
-        expect(JSON.parse(logger.stdout[0])).to.deep.equal(expected);
+        assert.deepStrictEqual(JSON.parse(logger.stdout[0]), expected);
       });
     });
   });

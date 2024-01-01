@@ -1,3 +1,4 @@
+import assert from "assert";
 import path from "path";
 import {
   getConfig,
@@ -5,19 +6,16 @@ import {
   preProcessConfig,
   validateConfig,
 } from "./config.js";
-import { chai, setUp, tearDown, logContainsInfo } from "./test-helpers.js";
-
-const assert = chai.assert;
-const expect = chai.expect;
+import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
 
 describe("parseArgs", function () {
   it("should populate default values when no args and no base config", function () {
     const args = parseArgs(["node", "index.js", "infile.json"], { config: {} });
-    expect(args).to.have.property("ignoreErrors", false);
-    expect(args).to.have.property("cacheTtl", 600);
-    expect(args).to.have.property("verbose", 0);
-    expect(args).to.not.have.property("catalogs");
-    expect(args).to.not.have.property("schema");
+    assert.equal(args.ignoreErrors, false);
+    assert.equal(args.cacheTtl, 600);
+    assert.equal(args.verbose, false);
+    assert.equal(args.catalogs, undefined);
+    assert.equal(args.schema, undefined);
   });
 
   it("should populate default values from base config when no args", function () {
@@ -30,15 +28,12 @@ describe("parseArgs", function () {
       },
       filepath: "/foo/bar.yml",
     });
-    expect(args).to.have.deep.property("patterns", [
-      "file1.json",
-      "file2.json",
-    ]);
-    expect(args).to.have.property("ignoreErrors", true);
-    expect(args).to.have.property("cacheTtl", 300);
-    expect(args).to.have.property("verbose", 1);
-    expect(args).to.not.have.property("catalogs");
-    expect(args).to.not.have.property("schema");
+    assert.deepStrictEqual(args.patterns, ["file1.json", "file2.json"]);
+    assert.equal(args.ignoreErrors, true);
+    assert.equal(args.cacheTtl, 300);
+    assert.equal(args.verbose, 1);
+    assert.equal(args.catalogs, undefined);
+    assert.equal(args.schema, undefined);
   });
 
   it("should override default values when args specified and no base config", function () {
@@ -54,12 +49,12 @@ describe("parseArgs", function () {
       ],
       { config: {} },
     );
-    expect(args).to.have.deep.property("patterns", ["infile.json"]);
-    expect(args).to.have.property("ignoreErrors", true);
-    expect(args).to.have.property("cacheTtl", 86400);
-    expect(args).to.have.property("verbose", 2);
-    expect(args).to.not.have.property("catalogs");
-    expect(args).to.not.have.property("schema");
+    assert.deepStrictEqual(args.patterns, ["infile.json"]);
+    assert.equal(args.ignoreErrors, true);
+    assert.equal(args.cacheTtl, 86400);
+    assert.equal(args.verbose, 2);
+    assert.equal(args.catalogs, undefined);
+    assert.equal(args.schema, undefined);
   });
 
   it("should override default values from base config when args specified", function () {
@@ -83,12 +78,12 @@ describe("parseArgs", function () {
         filepath: "/foo/bar.yml",
       },
     );
-    expect(args).to.have.deep.property("patterns", ["infile.json"]);
-    expect(args).to.have.property("ignoreErrors", true);
-    expect(args).to.have.property("cacheTtl", 86400);
-    expect(args).to.have.property("verbose", 2);
-    expect(args).to.not.have.property("catalogs");
-    expect(args).to.not.have.property("schema");
+    assert.deepStrictEqual(args.patterns, ["infile.json"]);
+    assert.equal(args.ignoreErrors, true);
+    assert.equal(args.cacheTtl, 86400);
+    assert.equal(args.verbose, 2);
+    assert.equal(args.catalogs, undefined);
+    assert.equal(args.schema, undefined);
   });
 
   it("should accept schema param", function () {
@@ -96,7 +91,7 @@ describe("parseArgs", function () {
       ["node", "index.js", "infile.json", "--schema", "http://foo.bar/baz"],
       { config: {} },
     );
-    expect(args).to.have.property("schema", "http://foo.bar/baz");
+    assert.equal(args.schema, "http://foo.bar/baz");
   });
 
   it("should accept catalogs param", function () {
@@ -111,9 +106,7 @@ describe("parseArgs", function () {
       ],
       { config: {} },
     );
-    expect(args).to.have.property("catalogs");
-    expect(args.catalogs).to.be.an("Array");
-    expect(args.catalogs).to.have.lengthOf(2);
+    assert.deepStrictEqual(args.catalogs, ["catalog1.json", "catalog2.json"]);
   });
 
   it("should accept multiple patterns", function () {
@@ -121,7 +114,7 @@ describe("parseArgs", function () {
       ["node", "index.js", "file1.json", "dir/*", "file2.json", "*.yaml"],
       { config: {} },
     );
-    expect(args).to.have.deep.property("patterns", [
+    assert.deepStrictEqual(args.patterns, [
       "file1.json",
       "dir/*",
       "file2.json",
@@ -139,7 +132,8 @@ describe("preProcessConfig", function () {
       filepath: "/home/fred/.v8rrc",
     };
     preProcessConfig(configFile);
-    expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+    assert.equal(
+      configFile.config.customCatalog.schemas[0].location,
       "/foo/bar/schema.json",
     );
   });
@@ -154,7 +148,8 @@ describe("preProcessConfig", function () {
       filepath: "/home/fred/.v8rrc",
     };
     preProcessConfig(configFile);
-    expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+    assert.equal(
+      configFile.config.customCatalog.schemas[0].location,
       "https://example.com/schema.json",
     );
   });
@@ -171,7 +166,8 @@ describe("preProcessConfig", function () {
         filepath: "/home/fred/.v8rrc",
       };
       preProcessConfig(configFile);
-      expect(configFile.config.customCatalog.schemas[0].location).to.equal(
+      assert.equal(
+        configFile.config.customCatalog.schemas[0].location,
         testCase[1],
       );
     }
@@ -189,14 +185,14 @@ describe("getConfig", function () {
       searchPlaces: ["./testfiles/does-not-exist.json"],
       cache: false,
     });
-    expect(config).to.have.property("ignoreErrors", false);
-    expect(config).to.have.property("cacheTtl", 600);
-    expect(config).to.have.property("verbose", 0);
-    expect(config).to.not.have.property("catalogs");
-    expect(config).to.not.have.property("schema");
-    expect(config).to.have.property("cacheName", undefined);
-    expect(config).to.have.property("customCatalog", undefined);
-    expect(config).to.have.property("configFileRelativePath", undefined);
+    assert.equal(config.ignoreErrors, false);
+    assert.equal(config.cacheTtl, 600);
+    assert.equal(config.verbose, 0);
+    assert.equal(config.catalogs, undefined);
+    assert.equal(config.schema, undefined);
+    assert.equal(config.cacheName, undefined);
+    assert.equal(config.customCatalog, undefined);
+    assert.equal(config.configFileRelativePath, undefined);
     assert(logContainsInfo("No config file found"));
   });
 
@@ -205,14 +201,14 @@ describe("getConfig", function () {
       searchPlaces: ["./testfiles/configs/config.json"],
       cache: false,
     });
-    expect(config).to.have.property("ignoreErrors", true);
-    expect(config).to.have.property("cacheTtl", 300);
-    expect(config).to.have.property("verbose", 1);
-    expect(config).to.have.deep.property("patterns", ["./foobar/*.json"]);
-    expect(config).to.not.have.property("catalogs");
-    expect(config).to.not.have.property("schema");
-    expect(config).to.have.property("cacheName", undefined);
-    expect(config).to.have.deep.property("customCatalog", {
+    assert.equal(config.ignoreErrors, true);
+    assert.equal(config.cacheTtl, 300);
+    assert.equal(config.verbose, 1);
+    assert.deepStrictEqual(config.patterns, ["./foobar/*.json"]);
+    assert.equal(config.catalogs, undefined);
+    assert.equal(config.schema, undefined);
+    assert.equal(config.cacheName, undefined);
+    assert.deepStrictEqual(config.customCatalog, {
       schemas: [
         {
           name: "custom schema",
@@ -222,8 +218,8 @@ describe("getConfig", function () {
         },
       ],
     });
-    expect(config).to.have.property(
-      "configFileRelativePath",
+    assert.equal(
+      config.configFileRelativePath,
       "testfiles/configs/config.json",
     );
     assert(
@@ -247,14 +243,14 @@ describe("getConfig", function () {
         cache: false,
       },
     );
-    expect(config).to.have.deep.property("patterns", ["infile.json"]);
-    expect(config).to.have.property("ignoreErrors", true);
-    expect(config).to.have.property("cacheTtl", 86400);
-    expect(config).to.have.property("verbose", 2);
-    expect(config).to.not.have.property("catalogs");
-    expect(config).to.not.have.property("schema");
-    expect(config).to.have.property("cacheName", undefined);
-    expect(config).to.have.deep.property("customCatalog", {
+    assert.deepStrictEqual(config.patterns, ["infile.json"]);
+    assert.equal(config.ignoreErrors, true);
+    assert.equal(config.cacheTtl, 86400);
+    assert.equal(config.verbose, 2);
+    assert.equal(config.catalogs, undefined);
+    assert.equal(config.schema, undefined);
+    assert.equal(config.cacheName, undefined);
+    assert.deepStrictEqual(config.customCatalog, {
       schemas: [
         {
           name: "custom schema",
@@ -264,8 +260,8 @@ describe("getConfig", function () {
         },
       ],
     });
-    expect(config).to.have.property(
-      "configFileRelativePath",
+    assert.equal(
+      config.configFileRelativePath,
       "testfiles/configs/config.json",
     );
     assert(
@@ -312,7 +308,7 @@ describe("validateConfig", function () {
       },
     ];
     for (const config of validConfigs) {
-      expect(validateConfig(config)).to.be.true;
+      assert(validateConfig(config));
     }
   });
 
@@ -376,10 +372,10 @@ describe("validateConfig", function () {
       },
     ];
     for (const config of invalidConfigs) {
-      expect(() => validateConfig(config)).to.throw(
-        Error,
-        "Malformed config file",
-      );
+      assert.throws(() => validateConfig(config), {
+        name: "Error",
+        message: "Malformed config file",
+      });
     }
   });
 });
