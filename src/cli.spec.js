@@ -421,6 +421,16 @@ describe("CLI", function () {
       });
     });
 
+    it("should validate toml files", function () {
+      return cli({
+        patterns: ["./testfiles/files/valid.toml"],
+        schema: "./testfiles/schemas/schema.json",
+      }).then((result) => {
+        assert.equal(result, 0);
+        assert(logContainsSuccess("./testfiles/files/valid.toml is valid"));
+      });
+    });
+
     it("should use custom parser in preference to file extension if specified", function () {
       return cli({
         patterns: ["./testfiles/files/with-comments.json"],
