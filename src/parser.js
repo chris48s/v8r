@@ -1,5 +1,6 @@
 import JSON5 from "json5";
 import yaml from "js-yaml";
+import { parse } from "smol-toml";
 
 function parseDocument(contents, format) {
   switch (format) {
@@ -13,6 +14,8 @@ function parseDocument(contents, format) {
     case ".yml":
     case ".yaml":
       return yaml.load(contents);
+    case ".toml":
+      return parse(contents);
     default:
       throw new Error(`Unsupported format ${format}`);
   }
