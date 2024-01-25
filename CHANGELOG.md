@@ -1,5 +1,10 @@
 # Changelog
 
+## 📦 [3.0.0](https://www.npmjs.com/package/v8r/v/3.0.0) - 2024-01-25
+
+* Drop compatibility with node 16
+* Add ability to validate Toml documents
+
 ## 📦 [2.1.0](https://www.npmjs.com/package/v8r/v/2.1.0) - 2023-10-23
 
 * Add compatibility with JSON schemas serialized as Yaml
