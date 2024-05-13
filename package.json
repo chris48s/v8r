@@ -4,10 +4,10 @@
   "description": "A command-line JSON and YAML validator that's on your wavelength",
   "scripts": {
     "test": "V8R_CACHE_NAME=v8r-test c8 --reporter=text mocha \"src/**/*.spec.js\"",
-    "lint": "eslint \"src/**/*.js\"",
+    "lint": "eslint \"**/*.{js,cjs}\"",
     "coverage": "c8 report --reporter=cobertura",
-    "prettier": "prettier --write \"**/*.js\"",
-    "prettier:check": "prettier --check \"**/*.js\"",
+    "prettier": "prettier --write \"**/*.{js,cjs}\"",
+    "prettier:check": "prettier --check \"**/*.{js,cjs}\"",
     "v8r": "src/index.js"
   },
   "bin": {
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "c8": "^9.1.0",
-    "eslint": "^8.0.1",
+    "eslint": "^9.2.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-mocha": "^10.0.3",
     "eslint-plugin-prettier": "^5.0.0",
