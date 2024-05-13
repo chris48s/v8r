@@ -6,9 +6,19 @@ import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 describe("_ajvFactory", function () {
   describe("schema drafts compatibility", function () {
-    const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    let testCache;
+
+    before(function () {
+      testCache = new Cache(flatCache.load(testCacheName), 3000);
+    });
+
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should support draft-04", function () {
       const ajv = _ajvFactory(

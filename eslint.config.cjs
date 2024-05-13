@@ -25,6 +25,7 @@ module.exports = [
       "prettier/prettier": ["error"],
       "mocha/no-skipped-tests": ["error"],
       "mocha/no-exclusive-tests": ["error"],
+      "mocha/max-top-level-suites": ["off"],
     },
   },
 ];

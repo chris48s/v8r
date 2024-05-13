@@ -175,8 +175,11 @@ describe("preProcessConfig", function () {
 });
 
 describe("getConfig", function () {
-  beforeEach(() => setUp());
-  afterEach(() => {
+  beforeEach(function () {
+    setUp();
+  });
+
+  afterEach(function () {
     tearDown();
   });
 
@@ -273,8 +276,11 @@ describe("getConfig", function () {
 describe("validateConfig", function () {
   const messages = {};
 
-  beforeEach(() => setUp(messages));
-  afterEach(() => {
+  beforeEach(function () {
+    setUp(messages);
+  });
+
+  afterEach(function () {
     tearDown();
   });
 

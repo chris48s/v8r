@@ -18,7 +18,7 @@ import { dump as dumpToYaml } from "js-yaml";
 
 describe("CLI", function () {
   // Mock the catalog validation schema
-  beforeEach(() => {
+  beforeEach(function () {
     nock.disableNetConnect();
     nock("https://json.schemastore.org")
       .persist()
@@ -52,8 +52,11 @@ describe("CLI", function () {
       properties: { num: { type: "number" } },
     };
 
-    beforeEach(() => setUp());
-    afterEach(() => {
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
       tearDown();
       nock.cleanAll();
     });
@@ -460,10 +463,18 @@ describe("CLI", function () {
       type: "object",
       properties: { num: { type: "number" } },
     };
-    const yamlSchema = dumpToYaml(schema);
 
-    beforeEach(() => setUp());
-    afterEach(() => {
+    let yamlSchema;
+
+    before(function () {
+      yamlSchema = dumpToYaml(schema);
+    });
+
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
       tearDown();
       nock.cleanAll();
     });
@@ -570,8 +581,13 @@ describe("CLI", function () {
   });
 
   describe("error handling, single file", function () {
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should return 1 if invalid response from schemastore", async function () {
       const mock = nock("https://www.schemastore.org")
@@ -880,8 +896,13 @@ describe("CLI", function () {
   });
 
   describe("multiple file processing", function () {
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should return 0 if all files are valid", async function () {
       return cli({
@@ -951,8 +972,13 @@ describe("CLI", function () {
   });
 
   describe("output formats", function () {
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should log errors in text format when format is text", async function () {
       return cli({
@@ -1019,8 +1045,11 @@ describe("CLI", function () {
   });
 
   describe("external reference resolver", function () {
-    beforeEach(() => setUp());
-    afterEach(() => {
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
       tearDown();
       nock.cleanAll();
     });

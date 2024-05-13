@@ -118,9 +118,20 @@ describe("getMatchForFilename", function () {
       },
     },
   ];
-  const testCache = new Cache(flatCache.load(testCacheName), 3000);
-  beforeEach(() => setUp());
-  afterEach(() => tearDown());
+
+  let testCache;
+
+  before(function () {
+    testCache = new Cache(flatCache.load(testCacheName), 3000);
+  });
+
+  beforeEach(function () {
+    setUp();
+  });
+
+  afterEach(function () {
+    tearDown();
+  });
 
   it("returns a schema when one match found", async function () {
     assert.deepStrictEqual(

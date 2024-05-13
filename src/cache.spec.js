@@ -6,9 +6,19 @@ import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
 describe("Cache", function () {
   describe("fetch function", function () {
-    const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    let testCache;
+
+    before(function () {
+      testCache = new Cache(flatCache.load(testCacheName), 3000);
+    });
+
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should use cached response if valid", async function () {
       nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
@@ -38,9 +48,19 @@ describe("Cache", function () {
   });
 
   describe("cyclic detection", function () {
-    const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    let testCache;
+
+    before(function () {
+      testCache = new Cache(flatCache.load(testCacheName), 3000);
+    });
+
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("throws if callLimit is exceeded", async function () {
       const mock = nock("https://www.foobar.com")
@@ -63,9 +83,19 @@ describe("Cache", function () {
   });
 
   describe("expire function", function () {
-    const testCache = new Cache(flatCache.load(testCacheName), 3000);
-    beforeEach(() => setUp());
-    afterEach(() => tearDown());
+    let testCache;
+
+    before(function () {
+      testCache = new Cache(flatCache.load(testCacheName), 3000);
+    });
+
+    beforeEach(function () {
+      setUp();
+    });
+
+    afterEach(function () {
+      tearDown();
+    });
 
     it("should delete expired and malformed cache objects", async function () {
       const now = Date.now();
