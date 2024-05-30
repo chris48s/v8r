@@ -154,6 +154,14 @@ The config file format is specified more formally in a JSON Schema:
 - [machine-readable JSON](config-schema.json)
 - [human-readable HTML](https://json-schema-viewer.vercel.app/view?url=https%3A%2F%2Fraw.githubusercontent.com%2Fchris48s%2Fv8r%2Fmain%2Fconfig-schema.json&show_breadcrumbs=on&template_name=flat)
 
+## Proxy support
+`v8r` supports proxies via [global-agent](https://www.npmjs.com/package/global-agent). 
+
+Just define the appropriate environment variable:
+```shell
+export GLOBAL_AGENT_HTTP_PROXY=http://myproxy:8888
+```
+
 ## Exit codes
 
 * v8r always exits with code `0` when:
