@@ -191,7 +191,7 @@ v8r follows [semantic versioning](https://semver.org/). For this project, the "A
 A "breaking change" also includes:
 
 - Dropping compatibility with a major Node JS version
-- Dropping support for a JSON Schema draft
+- Dropping compatibility with a JSON Schema draft
 
 ## FAQ
 
@@ -206,7 +206,7 @@ A "breaking change" also includes:
 * Schema store issue tracker: https://github.com/SchemaStore/schemastore/issues
 * Ajv issue tracker: https://github.com/ajv-validator/ajv/issues
 
-### ❓ What JSON schema versions are supported?
+### ❓ What JSON schema versions are compatible?
 
 💡 `v8r` works with JSON schema drafts:
 
