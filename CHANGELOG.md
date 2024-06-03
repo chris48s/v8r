@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [3.1.0](https://www.npmjs.com/package/v8r/v/3.1.0) - 2024-06-03
+
+* Add ability to configure a proxy using global-agent
+
 ## 📦 [3.0.0](https://www.npmjs.com/package/v8r/v/3.0.0) - 2024-01-25
 
 * Drop compatibility with node 16
