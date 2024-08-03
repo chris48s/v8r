@@ -15,12 +15,12 @@ class BasePlugin {
   }
 
   // eslint-disable-next-line no-unused-vars
-  logSingleResult(result, filename, format) {
+  getSingleResultLogMessage(result, filename, format) {
     return undefined;
   }
 
   // eslint-disable-next-line no-unused-vars
-  logAllResults(results, format) {
+  getAllResultsLogMessage(results, format) {
     return undefined;
   }
 }

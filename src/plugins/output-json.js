@@ -7,7 +7,7 @@ class JsonOutput extends BasePlugin {
     return ["json"];
   }
 
-  logAllResults(results, format) {
+  getAllResultsLogMessage(results, format) {
     if (format === "json") {
       return JSON.stringify({ results }, null, 2);
     }
