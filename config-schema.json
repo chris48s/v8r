@@ -53,8 +53,9 @@
                 "type": "string",
                 "enum": [
                   "json",
-                  "yaml",
-                  "json5"
+                  "json5",
+                  "toml",
+                  "yaml"
                 ]
               }
             }
