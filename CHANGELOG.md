@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [3.1.1](https://www.npmjs.com/package/v8r/v/3.1.1) - 2024-08-03
+
+* Allow 'toml' as an allowed value for parser in custom catalog
+
 ## 📦 [3.1.0](https://www.npmjs.com/package/v8r/v/3.1.0) - 2024-06-03
 
 * Add ability to configure a proxy using global-agent
