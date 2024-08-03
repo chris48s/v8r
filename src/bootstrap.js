@@ -3,30 +3,19 @@ import { createRequire } from "module";
 // https://nodejs.org/api/esm.html#esm_experimental_json_modules
 const require = createRequire(import.meta.url);
 
-import Ajv2019 from "ajv/dist/2019.js";
 import { cosmiconfig } from "cosmiconfig";
 import decamelize from "decamelize";
 import isUrl from "is-url";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import {
+  validateConfigAgainstSchema,
+  validateConfigDocumentParsers,
+  validateConfigOutputFormats,
+} from "./config-validators.js";
 import logger from "./logger.js";
-import { logErrors } from "./output-formatters.js";
-
-function validateConfig(configFile) {
-  const ajv = new Ajv2019({ allErrors: true, strict: false });
-  const schema = require("../config-schema.json");
-  const validateFn = ajv.compile(schema);
-  const valid = validateFn(configFile.config);
-  if (!valid) {
-    logErrors(
-      configFile.filepath ? configFile.filepath : "",
-      validateFn.errors,
-    );
-    throw new Error("Malformed config file");
-  }
-  return valid;
-}
+import { loadAllPlugins } from "./plugins.js";
 
 function preProcessConfig(configFile) {
   if (!configFile?.config?.customCatalog?.schemas) {
@@ -52,8 +41,6 @@ async function getCosmiConfig(cosmiconfigOptions) {
   } else {
     logger.info(`No config file found`);
   }
-  validateConfig(configFile);
-  preProcessConfig(configFile);
   return configFile;
 }
 
@@ -72,7 +59,7 @@ function getRelativeFilePath(config) {
   return path.relative(process.cwd(), config.filepath);
 }
 
-function parseArgs(argv, config) {
+function parseArgs(argv, config, documentFormats, outputFormats) {
   const parser = yargs(hideBin(argv));
 
   let command = "$0 <patterns..>";
@@ -91,7 +78,7 @@ function parseArgs(argv, config) {
   parser
     .command(
       command,
-      "Validate local json/yaml files against schema(s)",
+      `Validate local ${documentFormats.join("/")} files against schema(s)`,
       (yargs) => {
         yargs.positional("patterns", patternsOpts);
       },
@@ -142,7 +129,7 @@ function parseArgs(argv, config) {
     })
     .option("format", {
       type: "string",
-      choices: ["text", "json"],
+      choices: outputFormats,
       default: "text",
       describe: "Output format for validation results",
     })
@@ -168,10 +155,69 @@ function parseArgs(argv, config) {
   return parser.argv;
 }
 
-async function getConfig(argv, cosmiconfigOptions = {}) {
-  const config = await getCosmiConfig(cosmiconfigOptions);
-  const args = parseArgs(argv, config);
-  return mergeConfigs(args, config);
+function getDocumentFormats(loadedPlugins) {
+  let documentFormats = [];
+  for (const plugin of loadedPlugins) {
+    documentFormats = documentFormats.concat(plugin.registerDocumentFormats());
+  }
+  return documentFormats;
 }
 
-export { getConfig, parseArgs, preProcessConfig, validateConfig };
+function getOutputFormats(loadedPlugins) {
+  let outputFormats = [];
+  for (const plugin of loadedPlugins) {
+    outputFormats = outputFormats.concat(plugin.registerOutputFormats());
+  }
+  return outputFormats;
+}
+
+async function bootstrap(argv, config, cosmiconfigOptions = {}) {
+  if (config) {
+    // special case for unit testing purposes
+    // this allows us to inject an incomplete config and bypass the validation
+    const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
+      await loadAllPlugins(config.plugins || []);
+    return {
+      config,
+      allLoadedPlugins,
+      loadedCorePlugins,
+      loadedUserPlugins,
+    };
+  }
+
+  // load the configfile and validate it against the schema
+  const configFile = await getCosmiConfig(cosmiconfigOptions);
+  validateConfigAgainstSchema(configFile);
+
+  // load both core and user plugins
+  // TODO: expand config file format to allow the user to supply an array of plugins here
+  const plugins = [];
+  const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
+    await loadAllPlugins(plugins);
+  const documentFormats = getDocumentFormats(allLoadedPlugins);
+  const outputFormats = getOutputFormats(allLoadedPlugins);
+
+  // now we have documentFormats and outputFormats
+  // we can finish validating and processing the config
+  validateConfigDocumentParsers(configFile, documentFormats);
+  validateConfigOutputFormats(configFile, outputFormats);
+  preProcessConfig(configFile);
+
+  // parse command line arguments
+  const args = parseArgs(argv, configFile, documentFormats, outputFormats);
+
+  return {
+    config: mergeConfigs(args, configFile),
+    allLoadedPlugins,
+    loadedCorePlugins,
+    loadedUserPlugins,
+  };
+}
+
+export {
+  bootstrap,
+  getDocumentFormats,
+  getOutputFormats,
+  parseArgs,
+  preProcessConfig,
+};

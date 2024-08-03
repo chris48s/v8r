@@ -179,6 +179,7 @@ export GLOBAL_AGENT_HTTP_PROXY=http://myproxy:8888
 * v8r always exits with code `97` when:
     * There was an error loading a config file
     * A config file was loaded but failed validation
+    * An error was encountered when loading plugins
 
 * v8r always exits with code `98` when:
     * An input glob pattern was invalid

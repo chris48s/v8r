@@ -4,19 +4,18 @@ import os from "os";
 import path from "path";
 import isUrl from "is-url";
 import { validate } from "./ajv.js";
+import { bootstrap } from "./bootstrap.js";
 import { Cache } from "./cache.js";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
-import { getConfig } from "./config.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
-import { logErrors, resultsToJson } from "./output-formatters.js";
 import { parseDocument } from "./parser.js";
 
 const EXIT = {
   VALID: 0,
   ERROR: 1,
-  INVALID_CONFIG: 97,
+  INVALID_CONFIG_OR_PLUGIN: 97,
   NOT_FOUND: 98,
   INVALID: 99,
 };
@@ -34,7 +33,7 @@ function getFlatCache() {
   return flatCache.load("v8r", CACHE_DIR);
 }
 
-async function validateFile(filename, config, cache) {
+async function validateFile(filename, config, plugins, cache) {
   logger.info(`Processing ${filename}`);
   let result = {
     fileLocation: filename,
@@ -56,8 +55,10 @@ async function validateFile(filename, config, cache) {
     );
 
     const data = parseDocument(
+      plugins,
       await fs.promises.readFile(filename, "utf8"),
-      catalogMatch.parser ? `.${catalogMatch.parser}` : path.extname(filename),
+      filename,
+      catalogMatch.parser,
     );
 
     const strictMode = config.verbose >= 2 ? "log" : false;
@@ -101,7 +102,7 @@ function resultsToStatusCode(results, ignoreErrors) {
 }
 
 function Validator() {
-  return async function (config) {
+  return async function (config, plugins) {
     let filenames = [];
     for (const pattern of config.patterns) {
       const matches = await getFiles(pattern);
@@ -117,18 +118,29 @@ function Validator() {
 
     const results = Object.fromEntries(filenames.map((key) => [key, null]));
     for (const [filename] of Object.entries(results)) {
-      results[filename] = await validateFile(filename, config, cache);
+      results[filename] = await validateFile(filename, config, plugins, cache);
 
-      if (results[filename].valid === false && config.format === "text") {
-        logErrors(filename, results[filename].errors);
+      for (const plugin of plugins) {
+        const message = plugin.logSingleResult(
+          results[filename],
+          filename,
+          config.format,
+        );
+        if (message != null) {
+          logger.log(message);
+          break;
+        }
       }
-      // else: silence is golden
 
       cache.resetCounters();
     }
 
-    if (config.format === "json") {
-      resultsToJson(results);
+    for (const plugin of plugins) {
+      const message = plugin.logAllResults(results, config.format);
+      if (message != null) {
+        logger.log(message);
+        break;
+      }
     }
 
     return resultsToStatusCode(results, config.ignoreErrors);
@@ -136,21 +148,41 @@ function Validator() {
 }
 
 async function cli(config) {
-  if (!config) {
-    try {
-      config = await getConfig(process.argv);
-    } catch (e) {
-      logger.error(e.message);
-      return EXIT.INVALID_CONFIG;
-    }
+  let allLoadedPlugins, loadedCorePlugins, loadedUserPlugins;
+  try {
+    ({ config, allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
+      await bootstrap(process.argv, config));
+  } catch (e) {
+    logger.error(e.message);
+    return EXIT.INVALID_CONFIG_OR_PLUGIN;
   }
 
   logger.setVerbosity(config.verbose);
   logger.debug(`Merged args/config: ${JSON.stringify(config, null, 2)}`);
 
+  /*
+  Note there is a bit of a chicken and egg problem here.
+  We have to load the plugins before we can load the config
+  but this logger.debug() needs to happen AFTER we call logger.setVerbosity().
+  */
+  logger.debug(
+    `Loaded user plugins: ${JSON.stringify(
+      loadedUserPlugins.map((plugin) => plugin.constructor.name),
+      null,
+      2,
+    )}`,
+  );
+  logger.debug(
+    `Loaded core plugins: ${JSON.stringify(
+      loadedCorePlugins.map((plugin) => plugin.constructor.name),
+      null,
+      2,
+    )}`,
+  );
+
   try {
     const validate = new Validator();
-    return await validate(config);
+    return await validate(config, allLoadedPlugins);
   } catch (e) {
     logger.error(e.message);
     return EXIT.ERROR;
