@@ -5,6 +5,9 @@ const prettierPlugin = require("eslint-plugin-prettier");
 const mochaPlugin = require("eslint-plugin-mocha");
 
 module.exports = [
+  {
+    ignores: ["docs/.docusaurus/**/*", "docs/build/**/*"],
+  },
   js.configs.recommended,
   mochaPlugin.configs.flat.recommended,
   prettierConfig,
