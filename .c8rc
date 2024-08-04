@@ -6,6 +6,7 @@
   "exclude": [
     "**/*.spec.js",
     "src/test-helpers.js",
-    "testfiles/plugins/**"
+    "testfiles/plugins/**",
+    "docs/**"
   ]
 }
