@@ -185,7 +185,7 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
     };
   }
 
-  // load the configfile and validate it against the schema
+  // load the config file and validate it against the schema
   const configFile = await getCosmiConfig(cosmiconfigOptions);
   validateConfigAgainstSchema(configFile);
 
