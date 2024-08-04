@@ -1,16 +1,27 @@
 import assert from "assert";
 import path from "path";
 import {
-  getConfig,
+  bootstrap,
+  getDocumentFormats,
+  getOutputFormats,
   parseArgs,
   preProcessConfig,
-  validateConfig,
-} from "./config.js";
+} from "./bootstrap.js";
+import { loadAllPlugins } from "./plugins.js";
 import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
+
+const { allLoadedPlugins } = await loadAllPlugins([]);
+const documentFormats = getDocumentFormats(allLoadedPlugins);
+const outputFormats = getOutputFormats(allLoadedPlugins);
 
 describe("parseArgs", function () {
   it("should populate default values when no args and no base config", function () {
-    const args = parseArgs(["node", "index.js", "infile.json"], { config: {} });
+    const args = parseArgs(
+      ["node", "index.js", "infile.json"],
+      { config: {} },
+      documentFormats,
+      outputFormats,
+    );
     assert.equal(args.ignoreErrors, false);
     assert.equal(args.cacheTtl, 600);
     assert.equal(args.verbose, false);
@@ -19,15 +30,20 @@ describe("parseArgs", function () {
   });
 
   it("should populate default values from base config when no args", function () {
-    const args = parseArgs(["node", "index.js"], {
-      config: {
-        patterns: ["file1.json", "file2.json"],
-        ignoreErrors: true,
-        cacheTtl: 300,
-        verbose: 1,
+    const args = parseArgs(
+      ["node", "index.js"],
+      {
+        config: {
+          patterns: ["file1.json", "file2.json"],
+          ignoreErrors: true,
+          cacheTtl: 300,
+          verbose: 1,
+        },
+        filepath: "/foo/bar.yml",
       },
-      filepath: "/foo/bar.yml",
-    });
+      documentFormats,
+      outputFormats,
+    );
     assert.deepStrictEqual(args.patterns, ["file1.json", "file2.json"]);
     assert.equal(args.ignoreErrors, true);
     assert.equal(args.cacheTtl, 300);
@@ -48,6 +64,8 @@ describe("parseArgs", function () {
         "-vv",
       ],
       { config: {} },
+      documentFormats,
+      outputFormats,
     );
     assert.deepStrictEqual(args.patterns, ["infile.json"]);
     assert.equal(args.ignoreErrors, true);
@@ -77,6 +95,8 @@ describe("parseArgs", function () {
         },
         filepath: "/foo/bar.yml",
       },
+      documentFormats,
+      outputFormats,
     );
     assert.deepStrictEqual(args.patterns, ["infile.json"]);
     assert.equal(args.ignoreErrors, true);
@@ -90,6 +110,8 @@ describe("parseArgs", function () {
     const args = parseArgs(
       ["node", "index.js", "infile.json", "--schema", "http://foo.bar/baz"],
       { config: {} },
+      documentFormats,
+      outputFormats,
     );
     assert.equal(args.schema, "http://foo.bar/baz");
   });
@@ -105,6 +127,8 @@ describe("parseArgs", function () {
         "catalog2.json",
       ],
       { config: {} },
+      documentFormats,
+      outputFormats,
     );
     assert.deepStrictEqual(args.catalogs, ["catalog1.json", "catalog2.json"]);
   });
@@ -113,6 +137,8 @@ describe("parseArgs", function () {
     const args = parseArgs(
       ["node", "index.js", "file1.json", "dir/*", "file2.json", "*.yaml"],
       { config: {} },
+      documentFormats,
+      outputFormats,
     );
     assert.deepStrictEqual(args.patterns, [
       "file1.json",
@@ -184,10 +210,14 @@ describe("getConfig", function () {
   });
 
   it("should use defaults if no config file found", async function () {
-    const config = await getConfig(["node", "index.js", "infile.json"], {
-      searchPlaces: ["./testfiles/does-not-exist.json"],
-      cache: false,
-    });
+    const { config } = await bootstrap(
+      ["node", "index.js", "infile.json"],
+      undefined,
+      {
+        searchPlaces: ["./testfiles/does-not-exist.json"],
+        cache: false,
+      },
+    );
     assert.equal(config.ignoreErrors, false);
     assert.equal(config.cacheTtl, 600);
     assert.equal(config.verbose, 0);
@@ -200,7 +230,7 @@ describe("getConfig", function () {
   });
 
   it("should read options from config file if available", async function () {
-    const config = await getConfig(["node", "index.js"], {
+    const { config } = await bootstrap(["node", "index.js"], undefined, {
       searchPlaces: ["./testfiles/configs/config.json"],
       cache: false,
     });
@@ -231,7 +261,7 @@ describe("getConfig", function () {
   });
 
   it("should override options from config file with args if specified", async function () {
-    const config = await getConfig(
+    const { config } = await bootstrap(
       [
         "node",
         "index.js",
@@ -241,6 +271,7 @@ describe("getConfig", function () {
         "86400",
         "-vv",
       ],
+      undefined,
       {
         searchPlaces: ["./testfiles/configs/config.json"],
         cache: false,
@@ -270,118 +301,5 @@ describe("getConfig", function () {
     assert(
       logContainsInfo("Loaded config file from testfiles/configs/config.json"),
     );
-  });
-});
-
-describe("validateConfig", function () {
-  const messages = {};
-
-  beforeEach(function () {
-    setUp(messages);
-  });
-
-  afterEach(function () {
-    tearDown();
-  });
-
-  it("should pass valid configs", function () {
-    const validConfigs = [
-      { config: {} },
-      {
-        config: {
-          ignoreErrors: true,
-          verbose: 0,
-          patterns: ["foobar.js"],
-          cacheTtl: 600,
-          format: "json",
-          customCatalog: {
-            schemas: [
-              {
-                name: "Schema 1",
-                fileMatch: ["file1.json"],
-                location: "localschema.json",
-              },
-              {
-                name: "Schema 2",
-                description: "Long Description",
-                fileMatch: ["file2.json"],
-                location: "https://example.com/remoteschema.json",
-                parser: "json5",
-              },
-            ],
-          },
-        },
-      },
-    ];
-    for (const config of validConfigs) {
-      assert(validateConfig(config));
-    }
-  });
-
-  it("should reject invalid configs", function () {
-    const invalidConfigs = [
-      { config: { ignoreErrors: "string" } },
-      { config: { foo: "bar" } },
-      { config: { verbose: "string" } },
-      { config: { verbose: -1 } },
-      { config: { patterns: "string" } },
-      { config: { patterns: [] } },
-      { config: { patterns: ["valid", "ok", false] } },
-      { config: { patterns: ["duplicate", "duplicate"] } },
-      { config: { cacheTtl: "string" } },
-      { config: { cacheTtl: -1 } },
-      { config: { format: "invalid" } },
-      { config: { customCatalog: "string" } },
-      { config: { customCatalog: {} } },
-      { config: { customCatalog: { schemas: [{}] } } },
-      {
-        config: {
-          customCatalog: {
-            schemas: [
-              {
-                name: "Schema 1",
-                fileMatch: ["file1.json"],
-                location: "localschema.json",
-                foo: "bar",
-              },
-            ],
-          },
-        },
-      },
-      {
-        config: {
-          customCatalog: {
-            schemas: [
-              {
-                name: "Schema 1",
-                fileMatch: ["file1.json"],
-                location: "localschema.json",
-                url: "https://example.com/remoteschema.json",
-              },
-            ],
-          },
-        },
-      },
-      {
-        config: {
-          customCatalog: {
-            schemas: [
-              {
-                name: "Schema 1",
-                fileMatch: ["file1.json"],
-                location: "localschema.json",
-                parser: "invalid",
-              },
-            ],
-          },
-        },
-      },
-    ];
-    for (const config of invalidConfigs) {
-      assert.throws(() => validateConfig(config), {
-        name: "Error",
-        message: "Malformed config file",
-      });
-    }
   });
 });

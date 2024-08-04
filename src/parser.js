@@ -1,24 +1,18 @@
-import JSON5 from "json5";
+import path from "path";
 import yaml from "js-yaml";
-import { parse } from "smol-toml";
 
-function parseDocument(contents, format) {
-  switch (format) {
-    case ".json":
-    case ".geojson":
-    case ".jsonld":
-      return JSON.parse(contents);
-    case ".jsonc":
-    case ".json5":
-      return JSON5.parse(contents);
-    case ".yml":
-    case ".yaml":
-      return yaml.load(contents);
-    case ".toml":
-      return parse(contents);
-    default:
-      throw new Error(`Unsupported format ${format}`);
+function parseDocument(plugins, contents, filename, format) {
+  for (const plugin of plugins) {
+    const result = plugin.parseDocument(contents, filename, format);
+    if (result != null) {
+      return result;
+    }
   }
+
+  const errorMessage = format
+    ? `Unsupported format ${format}`
+    : `Unsupported format ${path.extname(filename).slice(1)}`;
+  throw new Error(errorMessage);
 }
 
 function parseSchema(contents, location) {

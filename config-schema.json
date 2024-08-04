@@ -49,14 +49,8 @@
                 "type": "string"
               },
               "parser": {
-                "description": "A custom parser to use for files matching fileMatch instead of trying to infer the correct parser from the filename",
-                "type": "string",
-                "enum": [
-                  "json",
-                  "json5",
-                  "toml",
-                  "yaml"
-                ]
+                "description": "A custom parser to use for files matching fileMatch instead of trying to infer the correct parser from the filename. 'json', 'json5', 'toml' and 'yaml' are always valid. Plugins may define additional values which are valid here.",
+                "type": "string"
               }
             }
           }
@@ -64,12 +58,8 @@
       }
     },
     "format": {
-      "description": "Output format for validation results",
-      "type": "string",
-      "enum": [
-        "text",
-        "json"
-      ]
+      "description": "Output format for validation results. 'text' and 'json' are always valid. Plugins may define additional values which are valid here.",
+      "type": "string"
     },
     "ignoreErrors": {
       "description": "Exit with code 0 even if an error was encountered. True means a non-zero exit code is only issued if validation could be completed successfully and one or more files were invalid",

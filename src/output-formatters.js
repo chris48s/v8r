@@ -1,19 +1,13 @@
 import Ajv from "ajv";
-import logger from "./logger.js";
 
-function logErrors(filename, errors) {
+function formatErrors(filename, errors) {
   const ajv = new Ajv();
-  logger.log(
+  return (
     ajv.errorsText(errors, {
       separator: "\n",
       dataVar: filename + "#",
-    }),
+    }) + "\n"
   );
-  logger.log("");
 }
 
-function resultsToJson(results) {
-  logger.log(JSON.stringify({ results }, null, 2));
-}
-
-export { logErrors, resultsToJson };
+export { formatErrors };

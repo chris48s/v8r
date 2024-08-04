@@ -766,7 +766,7 @@ describe("CLI", function () {
         schema: "./testfiles/schemas/schema.json",
       }).then((result) => {
         assert.equal(result, 1);
-        assert(logContainsError("Unsupported format .txt"));
+        assert(logContainsError("Unsupported format txt"));
       });
     });
 
@@ -874,7 +874,7 @@ describe("CLI", function () {
         ignoreErrors: true,
       }).then((result) => {
         assert.equal(result, 0);
-        assert(logContainsError("Unsupported format .txt"));
+        assert(logContainsError("Unsupported format txt"));
       });
     });
 
@@ -939,7 +939,7 @@ describe("CLI", function () {
         assert.equal(result, 99);
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
         assert(logContainsError("./testfiles/files/invalid.json is invalid"));
-        assert(logContainsError("Unsupported format .txt"));
+        assert(logContainsError("Unsupported format txt"));
       });
     });
 
@@ -952,7 +952,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 1);
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
-        assert(logContainsError("Unsupported format .txt"));
+        assert(logContainsError("Unsupported format txt"));
       });
     });
 
@@ -966,7 +966,7 @@ describe("CLI", function () {
       }).then((result) => {
         assert.equal(result, 0);
         assert(logContainsSuccess("./testfiles/files/valid.json is valid"));
-        assert(logContainsError("Unsupported format .txt"));
+        assert(logContainsError("Unsupported format txt"));
       });
     });
   });
@@ -990,7 +990,7 @@ describe("CLI", function () {
       }).then(() => {
         assert(
           logger.stdout.includes(
-            "./testfiles/files/invalid.json#/num must be number",
+            "./testfiles/files/invalid.json#/num must be number\n",
           ),
         );
       });
