@@ -15,7 +15,7 @@ import {
   validateConfigOutputFormats,
 } from "./config-validators.js";
 import logger from "./logger.js";
-import { loadAllPlugins } from "./plugins.js";
+import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
 
 function preProcessConfig(configFile) {
   if (!configFile?.config?.customCatalog?.schemas) {
@@ -190,8 +190,7 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   validateConfigAgainstSchema(configFile);
 
   // load both core and user plugins
-  // TODO: expand config file format to allow the user to supply an array of plugins here
-  const plugins = [];
+  let plugins = resolveUserPlugins(configFile.config.plugins || []);
   const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
     await loadAllPlugins(plugins);
   const documentFormats = getDocumentFormats(allLoadedPlugins);

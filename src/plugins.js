@@ -1,3 +1,5 @@
+import path from "path";
+
 class BasePlugin {
   static name = "untitled plugin";
 
@@ -53,6 +55,19 @@ function validatePlugin(plugin) {
   }
 }
 
+function resolveUserPlugins(userPlugins) {
+  let plugins = [];
+  for (let plugin of userPlugins) {
+    if (plugin.startsWith("package:")) {
+      plugins.push(plugin.slice(8));
+    }
+    if (plugin.startsWith("local:")) {
+      plugins.push(path.resolve(process.cwd(), plugin.slice(6)));
+    }
+  }
+  return plugins;
+}
+
 async function loadPlugins(plugins) {
   let loadedPlugins = [];
   for (const plugin of plugins) {
@@ -84,4 +99,4 @@ async function loadAllPlugins(userPlugins) {
   };
 }
 
-export { BasePlugin, loadAllPlugins };
+export { BasePlugin, loadAllPlugins, resolveUserPlugins };

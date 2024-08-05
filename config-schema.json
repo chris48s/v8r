@@ -78,6 +78,15 @@
       "description": "Level of verbose logging. 0 is standard, higher numbers are more verbose",
       "type": "integer",
       "minimum": 0
+    },
+    "plugins": {
+      "type": "array",
+      "description": "An array of strings describing v8r plugins to load",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(package:|local:)"
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 import assert from "assert";
-import { loadAllPlugins } from "./plugins.js";
+import path from "path";
+
+import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
 
 describe("loadAllPlugins", function () {
   it("should load the core plugins", async function () {
@@ -63,5 +65,21 @@ describe("loadAllPlugins", function () {
           "Error loading plugin v8r-plugin-test-invalid-params: registerDocumentFormats must take exactly 1 arguments",
       },
     );
+  });
+});
+
+describe("resolveUserPlugins", function () {
+  it("should resolve both local: and package: plugins", async function () {
+    const resolvedPlugins = resolveUserPlugins([
+      "package:v8r-plugin-emoji-output",
+      "local:./testfiles/plugins/valid.js",
+    ]);
+
+    assert.equal(resolvedPlugins.length, 2);
+
+    assert.equal(resolvedPlugins[0], "v8r-plugin-emoji-output");
+
+    assert(path.isAbsolute(resolvedPlugins[1]));
+    assert(resolvedPlugins[1].endsWith("/testfiles/plugins/valid.js"));
   });
 });

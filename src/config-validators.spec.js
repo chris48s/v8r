@@ -18,6 +18,10 @@ const validConfigs = [
       patterns: ["foobar.js"],
       cacheTtl: 600,
       format: "json",
+      plugins: [
+        "package:v8r-plugin-emoji-output",
+        "local:./testfiles/plugins/valid.js",
+      ],
       customCatalog: {
         schemas: [
           {
@@ -71,6 +75,9 @@ describe("validateConfigAgainstSchema", function () {
       { config: { patterns: ["duplicate", "duplicate"] } },
       { config: { cacheTtl: "string" } },
       { config: { cacheTtl: -1 } },
+      { config: { plugins: ["invalid"] } },
+      { config: { plugins: ["./invalid.js"] } },
+      { config: { plugins: ["invalid-prefix:invalid"] } },
       { config: { customCatalog: "string" } },
       { config: { customCatalog: {} } },
       { config: { customCatalog: { schemas: [{}] } } },
