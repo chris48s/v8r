@@ -31,4 +31,4 @@ sidebar_position: 7
 
 ### ❓ Can `v8r` validate against a local schema?
 
-💡 Yes. The `--schema` flag can be either a path to a local file or a URL. You can also use a [config file](./configuration) to include local schemas in a custom catalog.
+💡 Yes. The `--schema` flag can be either a path to a local file or a URL. You can also use a [config file](./configuration.md) to include local schemas in a custom catalog.

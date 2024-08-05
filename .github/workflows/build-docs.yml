@@ -22,3 +22,11 @@ jobs:
         run: |
           cd docs
           npm run build
+
+      - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs/build
+          clean: true
