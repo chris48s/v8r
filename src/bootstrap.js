@@ -190,8 +190,16 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   validateConfigAgainstSchema(configFile);
 
   // load both core and user plugins
-  // TODO: expand config file format to allow the user to supply an array of plugins here
-  const plugins = [];
+  const userPlugins = configFile.config.plugins || [];
+  let plugins = [];
+  for (let plugin of userPlugins) {
+    if (plugin.startsWith("npm:")) {
+      plugins.push(plugin.slice(4));
+    }
+    if (plugin.startsWith("local:")) {
+      plugins.push(path.resolve(process.cwd(), plugin.slice(6)));
+    }
+  }
   const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
     await loadAllPlugins(plugins);
   const documentFormats = getDocumentFormats(allLoadedPlugins);
