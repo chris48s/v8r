@@ -15,7 +15,7 @@ import {
   validateConfigOutputFormats,
 } from "./config-validators.js";
 import logger from "./logger.js";
-import { loadAllPlugins } from "./plugins.js";
+import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
 
 function preProcessConfig(configFile) {
   if (!configFile?.config?.customCatalog?.schemas) {
@@ -190,16 +190,7 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   validateConfigAgainstSchema(configFile);
 
   // load both core and user plugins
-  const userPlugins = configFile.config.plugins || [];
-  let plugins = [];
-  for (let plugin of userPlugins) {
-    if (plugin.startsWith("package:")) {
-      plugins.push(plugin.slice(8));
-    }
-    if (plugin.startsWith("local:")) {
-      plugins.push(path.resolve(process.cwd(), plugin.slice(6)));
-    }
-  }
+  let plugins = resolveUserPlugins(configFile.config.plugins || []);
   const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
     await loadAllPlugins(plugins);
   const documentFormats = getDocumentFormats(allLoadedPlugins);
