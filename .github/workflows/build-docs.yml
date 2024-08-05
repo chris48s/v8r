@@ -1,0 +1,24 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node JS 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: |
+          cd docs
+          npm ci --engine-strict --strict-peer-deps
+
+      - name: Build
+        run: |
+          cd docs
+          npm run build
