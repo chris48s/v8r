@@ -72,6 +72,15 @@ customCatalog:
           # instead of trying to infer the correct parser from the filename (optional)
           # This property is specific to custom catalogs defined in v8r config files
           parser: json5
+
+# - An array of v8r plugins to load
+# - Plugins can only be specified in the config file.
+#   They can't be loaded using command line arguments
+plugins:
+    # Plugins installed from NPM (or JSR) must be prefixed by "package:"
+    - "package:v8r-plugin-emoji-output"
+    # Local plugins must be prefixed by "local:"
+    - "local:./subdir/my-local-plugin.mjs"
 ```
 
 The config file format is specified more formally in a JSON Schema:

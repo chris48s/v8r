@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 # Versioning
@@ -10,6 +10,7 @@ v8r follows [semantic versioning](https://semver.org/). For this project, the "A
 - CLI exit codes
 - The configuration file format
 - The native JSON output format
+- The `BasePlugin` class and `ValidationResult` type
 
 A "breaking change" also includes:
 
