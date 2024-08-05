@@ -193,8 +193,8 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   const userPlugins = configFile.config.plugins || [];
   let plugins = [];
   for (let plugin of userPlugins) {
-    if (plugin.startsWith("npm:")) {
-      plugins.push(plugin.slice(4));
+    if (plugin.startsWith("package:")) {
+      plugins.push(plugin.slice(8));
     }
     if (plugin.startsWith("local:")) {
       plugins.push(path.resolve(process.cwd(), plugin.slice(6)));
