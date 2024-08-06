@@ -33,11 +33,11 @@ class BasePlugin {
    * will be used and no further plugins will be invoked. If `parseDocument`
    * returns undefined, v8r will move on to the next plugin in the stack.
    *
-   * @param {string} contents - The document file content
-   * @param {string} filename - The document filename
+   * @param {string} contents - The document file content.
+   * @param {string} filename - The document filename.
    * @param {string|undefined} format - If this filename matched a document
    *    parser the user has specified in a custom schema, this will be passed
-   *    to `parseDocument` in the `format` param
+   *    to `parseDocument` in the `format` param.
    * @returns {object|undefined}
    */
   // eslint-disable-next-line no-unused-vars
@@ -69,10 +69,10 @@ class BasePlugin {
    * Any mesage returned from this function will be written to stdout.
    *
    * @param {ValidationResult} result - Result of attempting to validate
-   *    this document
-   * @param {string} filename - The document filename
+   *    this document.
+   * @param {string} filename - The document filename.
    * @param {string} format - The user's requested output format as specified
-   *    in the config file or via the `--format` command line argument
+   *    in the config file or via the `--format` command line argument.
    * @returns {string|undefined}
    */
   // eslint-disable-next-line no-unused-vars
@@ -92,9 +92,9 @@ class BasePlugin {
    * Any mesage returned from this function will be written to stdout.
    *
    * @param {Object.<string, ValidationResult>} results - Results of attempting
-   *    to validate these documents
+   *    to validate these documents.
    * @param {string} format - The user's requested output format as specified
-   *    in the config file or via the `--format` command line argument
+   *    in the config file or via the `--format` command line argument.
    * @returns {string|undefined}
    */
   // eslint-disable-next-line no-unused-vars
@@ -105,7 +105,7 @@ class BasePlugin {
 
 /**
  * @typedef {object} ValidationResult
- * @property {string} fileLocation - Filename of the document that was validated
+ * @property {string} fileLocation - Filename of the document that was validated.
  * @property {string|null} schemaLocation - Location of the schema used to
  *    validate this file if one could be found. `null` if no schema was found.
  * @property {boolean|null} valid - Result of the validation (true/false)
@@ -113,7 +113,7 @@ class BasePlugin {
  *    could be performed.
  * @property {ErrorObject[]} errors - An array of
  *    [AJV Error Objects](https://ajv.js.org/api.html#error-objects)
- *    describing any errors encountered when validating this document
+ *    describing any errors encountered when validating this document.
  */
 
 function validatePlugin(plugin) {
