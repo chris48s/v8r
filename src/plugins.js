@@ -103,19 +103,6 @@ class BasePlugin {
   }
 }
 
-/**
- * @typedef {object} ValidationResult
- * @property {string} fileLocation - Filename of the document that was validated.
- * @property {string|null} schemaLocation - Location of the schema used to
- *    validate this file if one could be found. `null` if no schema was found.
- * @property {boolean|null} valid - Result of the validation (true/false)
- *    if a schema was found. `null` if no schema was found and no validation
- *    could be performed.
- * @property {ErrorObject[]} errors - An array of
- *    [AJV Error Objects](https://ajv.js.org/api.html#error-objects)
- *    describing any errors encountered when validating this document.
- */
-
 function validatePlugin(plugin) {
   if (
     typeof plugin.name !== "string" ||
@@ -187,5 +174,18 @@ async function loadAllPlugins(userPlugins) {
     loadedUserPlugins,
   };
 }
+
+/**
+ * @typedef {object} ValidationResult
+ * @property {string} fileLocation - Filename of the document that was validated.
+ * @property {string|null} schemaLocation - Location of the schema used to
+ *    validate this file if one could be found. `null` if no schema was found.
+ * @property {boolean|null} valid - Result of the validation (true/false)
+ *    if a schema was found. `null` if no schema was found and no validation
+ *    could be performed.
+ * @property {ErrorObject[]} errors - An array of
+ *    [AJV Error Objects](https://ajv.js.org/api.html#error-objects)
+ *    describing any errors encountered when validating this document.
+ */
 
 export { BasePlugin, loadAllPlugins, resolveUserPlugins };
