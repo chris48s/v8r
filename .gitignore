@@ -10,3 +10,5 @@ docs/build/
 # docs: generated files
 docs/.docusaurus/
 docs/.cache-loader/
+docs/docs/plugins/reference.mdx
+docs/.tempdocs/
