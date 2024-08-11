@@ -50,7 +50,10 @@ tempFiles.forEach((file) => {
       )
       .replace(/<br \/>/g, " ")
       .replace(/:---:/g, "---")
-      .replace(/\[ValidationResult\]\(ValidationResult\)/g, "ValidationResult");
+      .replace(
+        /\[ValidationResult\]\(ValidationResult\)/g,
+        "[ValidationResult](#ValidationResult)",
+      );
     combinedContent += content;
   }
 });

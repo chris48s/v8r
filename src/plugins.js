@@ -93,7 +93,7 @@ class BasePlugin {
    *
    * @param {Object.<string, ValidationResult>} results - Results of attempting
    *    to validate these documents. This object is a key/value map of
-   *    (string) filename to ValidationResult object.
+   *    (string) filename to [ValidationResult](#ValidationResult) object.
    * @param {string} format - The user's requested output format as specified
    *    in the config file or via the `--format` command line argument.
    * @returns {string|undefined}
