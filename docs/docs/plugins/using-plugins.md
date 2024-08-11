@@ -10,4 +10,12 @@ Plugins can be packages installed from a registry like [npm](https://www.npmjs.c
 
 Plugins must be specified in a [config file](../configuration.md). They can't be loaded using command line arguments.
 
-Plugins are run one at a time in the order they are specified in your config file.
+```yaml title=".v8rrc.yml"
+plugins:
+    # Plugins installed from NPM (or JSR) must be prefixed by "package:"
+    - "package:v8r-plugin-emoji-output"
+    # Local plugins must be prefixed by "local:"
+    - "local:./subdir/my-local-plugin.mjs"
+```
+
+Plugins are invoked one at a time in the order they are specified in your config file.

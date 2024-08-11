@@ -37,9 +37,9 @@ These hooks may optionally return or not return a value. Each plugin is run in s
 
 ## Worked Example
 
-Lets build a simple example plugin. Our plugin is going to register an output format called "emoji". If the user passes `--format emoji` the plugin will output a 👍 when the file is valid and a 👎 when the file is invalid instead of the default text log message.
+Lets build a simple example plugin. Our plugin is going to register an output format called "emoji". If the user passes `--format emoji` (or sets `format: emoji` in their config file) the plugin will output a 👍 when the file is valid and a 👎 when the file is invalid instead of the default text log message.
 
-```js
+```js title="./plugins/v8r-plugin-emoji-output.js"
 // Our plugin extends the BasePlugin class
 import { BasePlugin } from "v8r";
 
@@ -83,4 +83,11 @@ class EmojiOutput extends BasePlugin {
 // Our plugin must be an ESM module
 // and the plugin class must be the default export
 export default EmojiOutput;
+```
+
+We can now register the plugin in our config file:
+
+```yaml title=".v8rrc.yml"
+plugins:
+    - "local:./plugins/v8r-plugin-emoji-output.js"
 ```

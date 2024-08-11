@@ -20,7 +20,7 @@ v8r only searches for a config file in the current working directory.
 
 Example yaml config file:
 
-```yaml
+```yaml title=".v8rrc.yml"
 # - One or more filenames or glob patterns describing local file or files to validate
 # - overridden by passing one or more positional arguments
 patterns: ['*json']

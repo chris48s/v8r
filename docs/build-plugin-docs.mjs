@@ -38,6 +38,8 @@ custom_edit_url: null
 
 # Plugin API Reference
 
+v8r plugins extend the [BasePlugin](#BasePlugin) class. Validating a document yields a [ValidationResult](#ValidationResult) object.
+
 `;
 tempFiles.forEach((file) => {
   if (fs.existsSync(file.filename)) {
