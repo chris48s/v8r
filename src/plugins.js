@@ -127,9 +127,10 @@ function validatePlugin(plugin) {
         `Error loading plugin ${plugin.name}: must have a method called ${method}`,
       );
     }
-    if (BasePlugin.prototype[prop].length !== argCount) {
+    const expectedArgs = BasePlugin.prototype[prop].length;
+    if (expectedArgs !== argCount) {
       throw new Error(
-        `Error loading plugin ${plugin.name}: ${prop} must take exactly ${argCount} arguments`,
+        `Error loading plugin ${plugin.name}: ${prop} must take exactly ${expectedArgs} arguments`,
       );
     }
   }
