@@ -88,9 +88,6 @@ class BasePlugin {
     return undefined;
   }
 
-  // the recommended syntax here would be { [filename: string]: ValidationResult }
-  // however jsdoc-to-mdx does not render this as expected
-  /* eslint-disable jsdoc/check-types */
   /**
    * Use the `getAllResultsLogMessage` hook to provide a log message for v8r to
    * output after processing all files.
@@ -102,9 +99,8 @@ class BasePlugin {
    *
    * Any mesage returned from this function will be written to stdout.
    *
-   * @param {Object<string, ValidationResult>} results - Results of attempting
-   *   to validate these documents. This object is a key/value map of (string)
-   *   filename to [ValidationResult](#ValidationResult) object.
+   * @param {ValidationResult[]} results - Results of attempting to validate
+   *   these documents.
    * @param {string} format - The user's requested output format as specified in
    *   the config file or via the `--format` command line argument.
    * @returns {string | undefined} Log message

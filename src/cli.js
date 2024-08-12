@@ -116,13 +116,14 @@ function Validator() {
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(), ttl);
 
-    const results = Object.fromEntries(filenames.map((key) => [key, null]));
-    for (const [filename] of Object.entries(results)) {
-      results[filename] = await validateFile(filename, config, plugins, cache);
+    let results = [];
+    for (const filename of filenames) {
+      const result = await validateFile(filename, config, plugins, cache);
+      results.push(result);
 
       for (const plugin of plugins) {
         const message = plugin.getSingleResultLogMessage(
-          results[filename],
+          result,
           filename,
           config.format,
         );
