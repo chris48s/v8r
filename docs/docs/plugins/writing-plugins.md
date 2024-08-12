@@ -6,7 +6,7 @@ sidebar_position: 2
 
 We can extend the functionality of v8r by writing a plugin. A plugin can be a local file contained within your project or package published to a registry like [npm](https://www.npmjs.com/) or [jsr](https://jsr.io/).
 
-Plugins extend the [BasePlugin](../reference) class which exposes hooks that allow us customise the parsing of documents and output of results. Internally, v8r's [core parsers and output formats](https://github.com/chris48s/v8r/tree/main/src/plugins) are implemented as plugins. You can use these as a reference.
+Plugins extend the [BasePlugin](../reference) class which exposes hooks that allow us customise the parsing of files and output of results. Internally, v8r's [core parsers and output formats](https://github.com/chris48s/v8r/tree/main/src/plugins) are implemented as plugins. You can use these as a reference.
 
 ## Plugin Execution
 
@@ -22,14 +22,14 @@ There are two patterns used by v8r plugin hooks.
 
 ### Register Hooks
 
-- `registerDocumentParsers`
+- `registerFileParsers`
 - `registerOutputFormats`
 
 These hooks return an array of strings. Any values returned by these hooks are added to the list of formats v8r can work with.
 
 ### Early Return Hooks
 
-- `parseDocument`
+- `parseFile`
 - `getSingleResultLogMessage`
 - `getAllResultsLogMessage`
 

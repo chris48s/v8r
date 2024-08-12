@@ -158,7 +158,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
 function getDocumentFormats(loadedPlugins) {
   let documentFormats = [];
   for (const plugin of loadedPlugins) {
-    documentFormats = documentFormats.concat(plugin.registerDocumentParsers());
+    documentFormats = documentFormats.concat(plugin.registerFileParsers());
   }
   return documentFormats;
 }

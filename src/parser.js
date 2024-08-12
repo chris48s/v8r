@@ -1,9 +1,9 @@
 import path from "path";
 import yaml from "js-yaml";
 
-function parseDocument(plugins, contents, filename, parser) {
+function parseFile(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
-    const result = plugin.parseDocument(contents, filename, parser);
+    const result = plugin.parseFile(contents, filename, parser);
     if (result != null) {
       return result;
     }
@@ -27,4 +27,4 @@ function parseSchema(contents, location) {
   return JSON.parse(contents);
 }
 
-export { parseDocument, parseSchema };
+export { parseFile, parseSchema };

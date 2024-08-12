@@ -16,36 +16,36 @@ class BasePlugin {
   static name = "untitled plugin";
 
   /**
-   * Use the `registerDocumentParsers` hook to tell v8r about additional
-   * document formats that can be parsed. Any parsers registered with this hook
-   * become valid values for the `parser` property in custom schemas.
+   * Use the `registerFileParsers` hook to tell v8r about additional file
+   * formats that can be parsed. Any parsers registered with this hook become
+   * valid values for the `parser` property in custom schemas.
    *
-   * @returns {string[]} Document parsers to register
+   * @returns {string[]} File parsers to register
    */
-  registerDocumentParsers() {
+  registerFileParsers() {
     return [];
   }
 
   /**
-   * Use the `parseDocument` hook to tell v8r how to parse documents.
+   * Use the `parseFile` hook to tell v8r how to parse files.
    *
-   * If `parseDocument` returns anything other than undefined, that return value
-   * will be used and no further plugins will be invoked. If `parseDocument`
-   * returns undefined, v8r will move on to the next plugin in the stack.
+   * If `parseFile` returns anything other than undefined, that return value
+   * will be used and no further plugins will be invoked. If `parseFile` returns
+   * undefined, v8r will move on to the next plugin in the stack.
    *
-   * @param {string} contents - The unparsed document file content.
-   * @param {string} fileLocation - The document filename. Filenames are
-   *   resolved and normalised by [glob](https://www.npmjs.com/package/glob)
-   *   using the `dotRelative` option. This means relative paths in the current
-   *   directory will be prefixed with `./` (or `.\` on Windows) even if this
-   *   was not present in the input filename or pattern.
-   * @param {string | undefined} parser - If this filename matched a document
-   *   parser the user has specified in a custom schema, this will be passed to
-   *   `parseDocument` in the `parser` param.
+   * @param {string} contents - The unparsed file content.
+   * @param {string} fileLocation - The file path. Filenames are resolved and
+   *   normalised by [glob](https://www.npmjs.com/package/glob) using the
+   *   `dotRelative` option. This means relative paths in the current directory
+   *   will be prefixed with `./` (or `.\` on Windows) even if this was not
+   *   present in the input filename or pattern.
+   * @param {string | undefined} parser - If this filename matched a file parser
+   *   the user has specified in a custom schema, this will be passed to
+   *   `parseFile` in the `parser` param.
    * @returns {object | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
-  parseDocument(contents, fileLocation, parser) {
+  parseFile(contents, fileLocation, parser) {
     return undefined;
   }
 
@@ -74,7 +74,7 @@ class BasePlugin {
    *
    * @param {ValidationResult} result - Result of attempting to validate this
    *   document.
-   * @param {string} fileLocation - The document filename. Filenames are
+   * @param {string} fileLocation - The document file path. Filenames are
    *   resolved and normalised by [glob](https://www.npmjs.com/package/glob)
    *   using the `dotRelative` option. This means relative paths in the current
    *   directory will be prefixed with `./` (or `.\` on Windows) even if this

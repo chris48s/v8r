@@ -10,7 +10,7 @@ import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
-import { parseDocument } from "./parser.js";
+import { parseFile } from "./parser.js";
 
 const EXIT = {
   VALID: 0,
@@ -54,7 +54,7 @@ async function validateFile(filename, config, plugins, cache) {
       `Validating ${filename} against schema from ${schemaLocation} ...`,
     );
 
-    const data = parseDocument(
+    const data = parseFile(
       plugins,
       await fs.promises.readFile(filename, "utf8"),
       filename,
