@@ -62,7 +62,7 @@ describe("loadAllPlugins", function () {
       {
         name: "Error",
         message:
-          "Error loading plugin v8r-plugin-test-invalid-params: registerDocumentFormats must take exactly 1 arguments",
+          "Error loading plugin v8r-plugin-test-invalid-params: registerDocumentParsers must take exactly 1 arguments",
       },
     );
   });

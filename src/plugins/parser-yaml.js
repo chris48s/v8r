@@ -4,14 +4,14 @@ import { BasePlugin } from "../plugins.js";
 class YamlParser extends BasePlugin {
   static name = "v8r-plugin-yaml-parser";
 
-  registerDocumentFormats() {
+  registerDocumentParsers() {
     return ["yaml"];
   }
 
-  parseDocument(contents, filename, format) {
-    if (format === "yaml") {
+  parseDocument(contents, filename, parser) {
+    if (parser === "yaml") {
       return yaml.load(contents);
-    } else if (format == null) {
+    } else if (parser == null) {
       if (filename.endsWith(".yaml") || filename.endsWith(".yml")) {
         return yaml.load(contents);
       }

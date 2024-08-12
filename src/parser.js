@@ -1,16 +1,16 @@
 import path from "path";
 import yaml from "js-yaml";
 
-function parseDocument(plugins, contents, filename, format) {
+function parseDocument(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
-    const result = plugin.parseDocument(contents, filename, format);
+    const result = plugin.parseDocument(contents, filename, parser);
     if (result != null) {
       return result;
     }
   }
 
-  const errorMessage = format
-    ? `Unsupported format ${format}`
+  const errorMessage = parser
+    ? `Unsupported format ${parser}`
     : `Unsupported format ${path.extname(filename).slice(1)}`;
   throw new Error(errorMessage);
 }

@@ -16,13 +16,13 @@ class BasePlugin {
   static name = "untitled plugin";
 
   /**
-   * Use the `registerDocumentFormats` hook to tell v8r about additional
-   * document formats that can be parsed. Any formats registered with this hook
+   * Use the `registerDocumentParsers` hook to tell v8r about additional
+   * document formats that can be parsed. Any parsers registered with this hook
    * become valid values for the `parser` property in custom schemas.
    *
-   * @returns {string[]} Document formats to register
+   * @returns {string[]} Document parsers to register
    */
-  registerDocumentFormats() {
+  registerDocumentParsers() {
     return [];
   }
 
@@ -35,13 +35,13 @@ class BasePlugin {
    *
    * @param {string} contents - The unparsed document file content.
    * @param {string} filename - The document filename.
-   * @param {string | undefined} format - If this filename matched a document
+   * @param {string | undefined} parser - If this filename matched a document
    *   parser the user has specified in a custom schema, this will be passed to
-   *   `parseDocument` in the `format` param.
+   *   `parseDocument` in the `parser` param.
    * @returns {object | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
-  parseDocument(contents, filename, format) {
+  parseDocument(contents, filename, parser) {
     return undefined;
   }
 

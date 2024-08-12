@@ -3,14 +3,14 @@ import { BasePlugin } from "../plugins.js";
 class JsonParser extends BasePlugin {
   static name = "v8r-plugin-json-parser";
 
-  registerDocumentFormats() {
+  registerDocumentParsers() {
     return ["json"];
   }
 
-  parseDocument(contents, filename, format) {
-    if (format === "json") {
+  parseDocument(contents, filename, parser) {
+    if (parser === "json") {
       return JSON.parse(contents);
-    } else if (format == null) {
+    } else if (parser == null) {
       if (
         filename.endsWith(".json") ||
         filename.endsWith(".geojson") ||
