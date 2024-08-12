@@ -34,18 +34,18 @@ class BasePlugin {
    * returns undefined, v8r will move on to the next plugin in the stack.
    *
    * @param {string} contents - The unparsed document file content.
-   * @param {string} filename - The document filename. Filenames are resolved
-   *   and normalised by [glob](https://www.npmjs.com/package/glob) using the
-   *   `dotRelative` option. This means relative paths in the current directory
-   *   will be prefixed with `./` (or `.\` on Windows) even if this was not
-   *   present in the input filename or pattern.
+   * @param {string} fileLocation - The document filename. Filenames are
+   *   resolved and normalised by [glob](https://www.npmjs.com/package/glob)
+   *   using the `dotRelative` option. This means relative paths in the current
+   *   directory will be prefixed with `./` (or `.\` on Windows) even if this
+   *   was not present in the input filename or pattern.
    * @param {string | undefined} parser - If this filename matched a document
    *   parser the user has specified in a custom schema, this will be passed to
    *   `parseDocument` in the `parser` param.
    * @returns {object | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
-  parseDocument(contents, filename, parser) {
+  parseDocument(contents, fileLocation, parser) {
     return undefined;
   }
 
@@ -74,17 +74,17 @@ class BasePlugin {
    *
    * @param {ValidationResult} result - Result of attempting to validate this
    *   document.
-   * @param {string} filename - The document filename. Filenames are resolved
-   *   and normalised by [glob](https://www.npmjs.com/package/glob) using the
-   *   `dotRelative` option. This means relative paths in the current directory
-   *   will be prefixed with `./` (or `.\` on Windows) even if this was not
-   *   present in the input filename or pattern.
+   * @param {string} fileLocation - The document filename. Filenames are
+   *   resolved and normalised by [glob](https://www.npmjs.com/package/glob)
+   *   using the `dotRelative` option. This means relative paths in the current
+   *   directory will be prefixed with `./` (or `.\` on Windows) even if this
+   *   was not present in the input filename or pattern.
    * @param {string} format - The user's requested output format as specified in
    *   the config file or via the `--format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
-  getSingleResultLogMessage(result, filename, format) {
+  getSingleResultLogMessage(result, fileLocation, format) {
     return undefined;
   }
 
