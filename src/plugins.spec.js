@@ -2,6 +2,7 @@ import assert from "assert";
 import path from "path";
 
 import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
+import { parseFile } from "./parser.js";
 
 describe("loadAllPlugins", function () {
   it("should load the core plugins", async function () {
@@ -81,5 +82,21 @@ describe("resolveUserPlugins", function () {
 
     assert(path.isAbsolute(resolvedPlugins[1]));
     assert(resolvedPlugins[1].endsWith("/testfiles/plugins/valid.js"));
+  });
+});
+
+describe("parseFile", function () {
+  it("throws when parseFile returns unexpected type", async function () {
+    const plugins = await loadAllPlugins([
+      "../testfiles/plugins/bad-parse-method.js",
+    ]);
+    assert.throws(
+      () => parseFile(plugins.allLoadedPlugins, "{}", "foo.json", null),
+      {
+        name: "Error",
+        message:
+          "Plugin v8r-plugin-test-bad-parse-method returned an unexpcted type from parseFile hook. Expected Document, got object",
+      },
+    );
   });
 });

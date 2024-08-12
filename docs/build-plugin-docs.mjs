@@ -12,6 +12,7 @@ const tempDocsDir = "./.tempdocs";
 const referenceFile = "./docs/plugins/reference.mdx";
 const tempFiles = [
   { filename: path.join(tempDocsDir, "BasePlugin.mdx"), title: "BasePlugin" },
+  { filename: path.join(tempDocsDir, "Document.mdx"), title: "Document" },
   {
     filename: path.join(tempDocsDir, "ValidationResult.mdx"),
     title: "ValidationResult",
@@ -38,7 +39,10 @@ custom_edit_url: null
 
 # Plugin API Reference
 
-v8r plugins extend the [BasePlugin](#BasePlugin) class. Validating a document yields a [ValidationResult](#ValidationResult) object.
+v8r exports two classes: [BasePlugin](#BasePlugin) and [Document](#Document).
+v8r plugins extend the [BasePlugin](#BasePlugin) class.
+Parsing a file should return a [Document](#Document) object.
+Additionally, validating a document yields a [ValidationResult](#ValidationResult) object.
 
 `;
 tempFiles.forEach((file) => {
@@ -55,7 +59,8 @@ tempFiles.forEach((file) => {
       .replace(
         /\[ValidationResult\]\(ValidationResult\)/g,
         "[ValidationResult](#ValidationResult)",
-      );
+      )
+      .replace(/\[Document\]\(Document\)/g, "[Document](#Document)");
     combinedContent += content;
   }
 });

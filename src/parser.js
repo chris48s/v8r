@@ -1,11 +1,17 @@
 import path from "path";
 import yaml from "js-yaml";
+import { Document } from "./plugins.js";
 
 function parseFile(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
     const result = plugin.parseFile(contents, filename, parser);
     if (result != null) {
-      return result;
+      if (!(result instanceof Document)) {
+        throw new Error(
+          `Plugin ${plugin.constructor.name} returned an unexpcted type from parseFile hook. Expected Document, got ${typeof result}`,
+        );
+      }
+      return result.document;
     }
   }
 

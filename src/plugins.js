@@ -42,7 +42,7 @@ class BasePlugin {
    * @param {string | undefined} parser - If this filename matched a file parser
    *   the user has specified in a custom schema, this will be passed to
    *   `parseFile` in the `parser` param.
-   * @returns {object | undefined} Parsed file contents
+   * @returns {Document | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
   parseFile(contents, fileLocation, parser) {
@@ -108,6 +108,18 @@ class BasePlugin {
   // eslint-disable-next-line no-unused-vars
   getAllResultsLogMessage(results, format) {
     return undefined;
+  }
+}
+
+class Document {
+  /**
+   * Document is a thin wrapper class for a document we want to validate after
+   * parsing a file
+   *
+   * @param {any} document - The object to be wrapped
+   */
+  constructor(document) {
+    this.document = document;
   }
 }
 
@@ -203,4 +215,4 @@ async function loadAllPlugins(userPlugins) {
  * @see https://ajv.js.org/api.html#error-objects
  */
 
-export { BasePlugin, loadAllPlugins, resolveUserPlugins };
+export { BasePlugin, Document, loadAllPlugins, resolveUserPlugins };

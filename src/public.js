@@ -1,3 +1,3 @@
-import { BasePlugin } from "./plugins.js";
+import { BasePlugin, Document } from "./plugins.js";
 
-export { BasePlugin };
+export { BasePlugin, Document };

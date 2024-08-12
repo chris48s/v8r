@@ -1,5 +1,5 @@
 import { parse } from "smol-toml";
-import { BasePlugin } from "../plugins.js";
+import { BasePlugin, Document } from "../plugins.js";
 
 class TomlParser extends BasePlugin {
   static name = "v8r-plugin-toml-parser";
@@ -10,10 +10,10 @@ class TomlParser extends BasePlugin {
 
   parseFile(contents, fileLocation, parser) {
     if (parser === "toml") {
-      return parse(contents);
+      return new Document(parse(contents));
     } else if (parser == null) {
       if (fileLocation.endsWith(".toml")) {
-        return parse(contents);
+        return new Document(parse(contents));
       }
     }
   }
