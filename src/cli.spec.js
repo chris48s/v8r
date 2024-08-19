@@ -969,6 +969,24 @@ describe("CLI", function () {
         assert(logContainsError("Unsupported format txt"));
       });
     });
+
+    it("should de-duplicate and sort paths", async function () {
+      return cli({
+        patterns: [
+          "./testfiles/files/valid.json",
+          "./testfiles/files/valid.json",
+          "./testfiles/files/invalid.json",
+        ],
+        schema: "./testfiles/schemas/schema.json",
+        format: "json",
+      }).then(() => {
+        const json = JSON.parse(logger.stdout[0]);
+        const results = json.results;
+        assert.equal(results.length, 2);
+        assert.equal(results[0].fileLocation, "./testfiles/files/invalid.json");
+        assert.equal(results[1].fileLocation, "./testfiles/files/valid.json");
+      });
+    });
   });
 
   describe("output formats", function () {
