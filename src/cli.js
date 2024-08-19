@@ -113,6 +113,10 @@ function Validator() {
       filenames = filenames.concat(matches);
     }
 
+    // de-dupe and sort
+    filenames = [...new Set(filenames)];
+    filenames.sort((a, b) => a.localeCompare(b));
+
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(), ttl);
 
