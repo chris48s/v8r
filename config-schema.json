@@ -85,7 +85,7 @@
       "uniqueItems": true,
       "items": {
         "type": "string",
-        "pattern": "^(package:|local:)"
+        "pattern": "^(package:|file:)"
       }
     }
   }

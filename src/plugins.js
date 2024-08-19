@@ -158,8 +158,8 @@ function resolveUserPlugins(userPlugins) {
     if (plugin.startsWith("package:")) {
       plugins.push(plugin.slice(8));
     }
-    if (plugin.startsWith("local:")) {
-      plugins.push(path.resolve(process.cwd(), plugin.slice(6)));
+    if (plugin.startsWith("file:")) {
+      plugins.push(path.resolve(process.cwd(), plugin.slice(5)));
     }
   }
   return plugins;

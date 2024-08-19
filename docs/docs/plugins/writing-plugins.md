@@ -89,5 +89,5 @@ We can now register the plugin in our config file:
 
 ```yaml title=".v8rrc.yml"
 plugins:
-    - "local:./plugins/v8r-plugin-emoji-output.js"
+    - "file:./plugins/v8r-plugin-emoji-output.js"
 ```

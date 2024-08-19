@@ -14,8 +14,8 @@ Plugins must be specified in a [config file](../configuration.md). They can't be
 plugins:
     # Plugins installed from NPM (or JSR) must be prefixed by "package:"
     - "package:v8r-plugin-emoji-output"
-    # Local plugins must be prefixed by "local:"
-    - "local:./subdir/my-local-plugin.mjs"
+    # Plugins in the project dir must be prefixed by "file:"
+    - "file:./subdir/my-local-plugin.mjs"
 ```
 
 Plugins are invoked one at a time in the order they are specified in your config file.

@@ -70,10 +70,10 @@ describe("loadAllPlugins", function () {
 });
 
 describe("resolveUserPlugins", function () {
-  it("should resolve both local: and package: plugins", async function () {
+  it("should resolve both file: and package: plugins", async function () {
     const resolvedPlugins = resolveUserPlugins([
       "package:v8r-plugin-emoji-output",
-      "local:./testfiles/plugins/valid.js",
+      "file:./testfiles/plugins/valid.js",
     ]);
 
     assert.equal(resolvedPlugins.length, 2);

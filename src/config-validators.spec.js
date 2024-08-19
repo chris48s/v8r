@@ -20,7 +20,7 @@ const validConfigs = [
       format: "json",
       plugins: [
         "package:v8r-plugin-emoji-output",
-        "local:./testfiles/plugins/valid.js",
+        "file:./testfiles/plugins/valid.js",
       ],
       customCatalog: {
         schemas: [
