@@ -39,9 +39,9 @@ class BasePlugin {
    *   `dotRelative` option. This means relative paths in the current directory
    *   will be prefixed with `./` (or `.\` on Windows) even if this was not
    *   present in the input filename or pattern.
-   * @param {string | undefined} parser - If this filename matched a file parser
-   *   the user has specified in a custom schema, this will be passed to
-   *   `parseFile` in the `parser` param.
+   * @param {string | undefined} parser - If the user has specified a parser to
+   *   use for this file in a custom schema, this will be passed to `parseFile`
+   *   in the `parser` param.
    * @returns {Document | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
@@ -70,7 +70,7 @@ class BasePlugin {
    * `getSingleResultLogMessage` returns undefined, v8r will move on to the next
    * plugin in the stack.
    *
-   * Any mesage returned from this function will be written to stdout.
+   * Any message returned from this function will be written to stdout.
    *
    * @param {ValidationResult} result - Result of attempting to validate this
    *   document.
@@ -97,7 +97,7 @@ class BasePlugin {
    * `getAllResultsLogMessage` returns undefined, v8r will move on to the next
    * plugin in the stack.
    *
-   * Any mesage returned from this function will be written to stdout.
+   * Any message returned from this function will be written to stdout.
    *
    * @param {ValidationResult[]} results - Results of attempting to validate
    *   these documents.
@@ -198,8 +198,12 @@ async function loadAllPlugins(userPlugins) {
 
 /**
  * @typedef {object} ValidationResult
- * @property {string} fileLocation - Filename of the document that was
- *   validated.
+ * @property {string} fileLocation - Path of the document that was validated.
+ *   Filenames are resolved and normalised by
+ *   [glob](https://www.npmjs.com/package/glob) using the `dotRelative` option.
+ *   This means relative paths in the current directory will be prefixed with
+ *   `./` (or `.\` on Windows) even if this was not present in the input
+ *   filename or pattern.
  * @property {string | null} schemaLocation - Location of the schema used to
  *   validate this file if one could be found. `null` if no schema was found.
  * @property {boolean | null} valid - Result of the validation (true/false) if a

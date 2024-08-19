@@ -14,7 +14,7 @@ Plugins are invoked in the following sequence:
 
 Plugins that the user has specified in the config file are run first. These are executed in the order they are specified in the config file.
 
-v8r's core plugins run second. The order of execution or core plugins is non-configurable.
+v8r's core plugins run second. The order of execution for core plugins is non-configurable.
 
 ## Hook Types
 
