@@ -1,5 +1,9 @@
 # Changelog
 
+## 📦 [4.0.1](https://www.npmjs.com/package/v8r/v/4.0.1) - 2024-08-19
+
+* De-duplicate and sort files before validating
+
 ## 📦 [4.0.0](https://www.npmjs.com/package/v8r/v/4.0.0) - 2024-08-19
 
 * **Breaking:** Change to the JSON output format. The `results` key is now an array instead of an object.
