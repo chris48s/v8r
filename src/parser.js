@@ -4,11 +4,11 @@ import { Document } from "./plugins.js";
 
 function parseFile(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
-    const result = plugin.parseFile(contents, filename, parser);
+    const result = plugin.parseInputFile(contents, filename, parser);
     if (result != null) {
       if (!(result instanceof Document)) {
         throw new Error(
-          `Plugin ${plugin.constructor.name} returned an unexpcted type from parseFile hook. Expected Document, got ${typeof result}`,
+          `Plugin ${plugin.constructor.name} returned an unexpected type from parseInputFile hook. Expected Document, got ${typeof result}`,
         );
       }
       return result.document;

@@ -16,22 +16,23 @@ class BasePlugin {
   static name = "untitled plugin";
 
   /**
-   * Use the `registerFileParsers` hook to tell v8r about additional file
+   * Use the `registerInputFileParsers` hook to tell v8r about additional file
    * formats that can be parsed. Any parsers registered with this hook become
    * valid values for the `parser` property in custom schemas.
    *
    * @returns {string[]} File parsers to register
    */
-  registerFileParsers() {
+  registerInputFileParsers() {
     return [];
   }
 
   /**
-   * Use the `parseFile` hook to tell v8r how to parse files.
+   * Use the `parseInputFile` hook to tell v8r how to parse files.
    *
-   * If `parseFile` returns anything other than undefined, that return value
-   * will be used and no further plugins will be invoked. If `parseFile` returns
-   * undefined, v8r will move on to the next plugin in the stack.
+   * If `parseInputFile` returns anything other than undefined, that return
+   * value will be used and no further plugins will be invoked. If
+   * `parseInputFile` returns undefined, v8r will move on to the next plugin in
+   * the stack.
    *
    * @param {string} contents - The unparsed file content.
    * @param {string} fileLocation - The file path. Filenames are resolved and
@@ -40,12 +41,12 @@ class BasePlugin {
    *   will be prefixed with `./` (or `.\` on Windows) even if this was not
    *   present in the input filename or pattern.
    * @param {string | undefined} parser - If the user has specified a parser to
-   *   use for this file in a custom schema, this will be passed to `parseFile`
-   *   in the `parser` param.
+   *   use for this file in a custom schema, this will be passed to
+   *   `parseInputFile` in the `parser` param.
    * @returns {Document | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
-  parseFile(contents, fileLocation, parser) {
+  parseInputFile(contents, fileLocation, parser) {
     return undefined;
   }
 

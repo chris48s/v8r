@@ -4,11 +4,11 @@ import { BasePlugin, Document } from "../plugins.js";
 class TomlParser extends BasePlugin {
   static name = "v8r-plugin-toml-parser";
 
-  registerFileParsers() {
+  registerInputFileParsers() {
     return ["toml"];
   }
 
-  parseFile(contents, fileLocation, parser) {
+  parseInputFile(contents, fileLocation, parser) {
     if (parser === "toml") {
       return new Document(parse(contents));
     } else if (parser == null) {

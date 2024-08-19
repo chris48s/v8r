@@ -63,7 +63,7 @@ describe("loadAllPlugins", function () {
       {
         name: "Error",
         message:
-          "Error loading plugin v8r-plugin-test-invalid-params: registerFileParsers must take exactly 0 arguments",
+          "Error loading plugin v8r-plugin-test-invalid-params: registerInputFileParsers must take exactly 0 arguments",
       },
     );
   });
@@ -85,8 +85,8 @@ describe("resolveUserPlugins", function () {
   });
 });
 
-describe("parseFile", function () {
-  it("throws when parseFile returns unexpected type", async function () {
+describe("parseInputFile", function () {
+  it("throws when parseInputFile returns unexpected type", async function () {
     const plugins = await loadAllPlugins([
       "../testfiles/plugins/bad-parse-method.js",
     ]);
@@ -95,7 +95,7 @@ describe("parseFile", function () {
       {
         name: "Error",
         message:
-          "Plugin v8r-plugin-test-bad-parse-method returned an unexpcted type from parseFile hook. Expected Document, got object",
+          "Plugin v8r-plugin-test-bad-parse-method returned an unexpected type from parseInputFile hook. Expected Document, got object",
       },
     );
   });

@@ -4,11 +4,11 @@ import { BasePlugin, Document } from "../plugins.js";
 class Json5Parser extends BasePlugin {
   static name = "v8r-plugin-json5-parser";
 
-  registerFileParsers() {
+  registerInputFileParsers() {
     return ["json5"];
   }
 
-  parseFile(contents, fileLocation, parser) {
+  parseInputFile(contents, fileLocation, parser) {
     if (parser === "json5") {
       return new Document(JSON5.parse(contents));
     } else if (parser == null) {

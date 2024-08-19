@@ -22,14 +22,14 @@ There are two patterns used by v8r plugin hooks.
 
 ### Register Hooks
 
-- `registerFileParsers`
+- `registerInputFileParsers`
 - `registerOutputFormats`
 
 These hooks return an array of strings. Any values returned by these hooks are added to the list of formats v8r can work with.
 
 ### Early Return Hooks
 
-- `parseFile`
+- `parseInputFile`
 - `getSingleResultLogMessage`
 - `getAllResultsLogMessage`
 
