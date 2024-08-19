@@ -10,7 +10,7 @@ import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
-import { parseDocument } from "./parser.js";
+import { parseFile } from "./parser.js";
 
 const EXIT = {
   VALID: 0,
@@ -54,7 +54,7 @@ async function validateFile(filename, config, plugins, cache) {
       `Validating ${filename} against schema from ${schemaLocation} ...`,
     );
 
-    const data = parseDocument(
+    const data = parseFile(
       plugins,
       await fs.promises.readFile(filename, "utf8"),
       filename,
@@ -116,13 +116,14 @@ function Validator() {
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(), ttl);
 
-    const results = Object.fromEntries(filenames.map((key) => [key, null]));
-    for (const [filename] of Object.entries(results)) {
-      results[filename] = await validateFile(filename, config, plugins, cache);
+    let results = [];
+    for (const filename of filenames) {
+      const result = await validateFile(filename, config, plugins, cache);
+      results.push(result);
 
       for (const plugin of plugins) {
         const message = plugin.getSingleResultLogMessage(
-          results[filename],
+          result,
           filename,
           config.format,
         );

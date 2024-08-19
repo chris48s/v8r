@@ -1005,8 +1005,15 @@ describe("CLI", function () {
         format: "json",
       }).then(() => {
         const expected = {
-          results: {
-            "./testfiles/files/invalid.json": {
+          results: [
+            {
+              code: 0,
+              errors: [],
+              fileLocation: "./testfiles/files/valid.json",
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: true,
+            },
+            {
               code: 99,
               errors: [
                 {
@@ -1023,21 +1030,14 @@ describe("CLI", function () {
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: false,
             },
-            "./testfiles/files/not-supported.txt": {
+            {
               code: 1,
               errors: [],
               fileLocation: "./testfiles/files/not-supported.txt",
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: null,
             },
-            "./testfiles/files/valid.json": {
-              code: 0,
-              errors: [],
-              fileLocation: "./testfiles/files/valid.json",
-              schemaLocation: "./testfiles/schemas/schema.json",
-              valid: true,
-            },
-          },
+          ],
         };
         assert.deepStrictEqual(JSON.parse(logger.stdout[0]), expected);
       });

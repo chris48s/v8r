@@ -1,19 +1,19 @@
 import JSON5 from "json5";
-import { BasePlugin } from "../plugins.js";
+import { BasePlugin, Document } from "../plugins.js";
 
 class Json5Parser extends BasePlugin {
   static name = "v8r-plugin-json5-parser";
 
-  registerDocumentFormats() {
+  registerInputFileParsers() {
     return ["json5"];
   }
 
-  parseDocument(contents, filename, format) {
-    if (format === "json5") {
-      return JSON5.parse(contents);
-    } else if (format == null) {
-      if (filename.endsWith(".json5") || filename.endsWith(".jsonc")) {
-        return JSON5.parse(contents);
+  parseInputFile(contents, fileLocation, parser) {
+    if (parser === "json5") {
+      return new Document(JSON5.parse(contents));
+    } else if (parser == null) {
+      if (fileLocation.endsWith(".json5") || fileLocation.endsWith(".jsonc")) {
+        return new Document(JSON5.parse(contents));
       }
     }
   }

@@ -40,16 +40,17 @@ $ v8r feature.geojson --schema https://json.schemastore.org/geojson
 
 Using the `--schema` flag will validate all files matched by the glob pattern against that schema. You can also define a custom [schema catalog](https://json.schemastore.org/schema-catalog.json). v8r will search any custom catalogs before falling back to [Schema Store](https://www.schemastore.org/).
 
-```bash
-$ cat > my-catalog.json <<EOF
-{ "\$schema": "https://json.schemastore.org/schema-catalog.json",
+
+```js title="my-catalog.json"
+{ "$schema": "https://json.schemastore.org/schema-catalog.json",
   "version": 1,
   "schemas": [ { "name": "geojson",
                  "description": "geojson",
                  "url": "https://json.schemastore.org/geojson.json",
                  "fileMatch": ["*.geojson"] } ] }
-EOF
+```
 
+```bash
 $ v8r feature.geojson -c my-catalog.json
 ℹ Found schema in my-catalog.json ...
 ℹ Validating feature.geojson against schema from https://json.schemastore.org/geojson ...

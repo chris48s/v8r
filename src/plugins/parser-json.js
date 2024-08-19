@@ -1,22 +1,22 @@
-import { BasePlugin } from "../plugins.js";
+import { BasePlugin, Document } from "../plugins.js";
 
 class JsonParser extends BasePlugin {
   static name = "v8r-plugin-json-parser";
 
-  registerDocumentFormats() {
+  registerInputFileParsers() {
     return ["json"];
   }
 
-  parseDocument(contents, filename, format) {
-    if (format === "json") {
-      return JSON.parse(contents);
-    } else if (format == null) {
+  parseInputFile(contents, fileLocation, parser) {
+    if (parser === "json") {
+      return new Document(JSON.parse(contents));
+    } else if (parser == null) {
       if (
-        filename.endsWith(".json") ||
-        filename.endsWith(".geojson") ||
-        filename.endsWith(".jsonld")
+        fileLocation.endsWith(".json") ||
+        fileLocation.endsWith(".geojson") ||
+        fileLocation.endsWith(".jsonld")
       ) {
-        return JSON.parse(contents);
+        return new Document(JSON.parse(contents));
       }
     }
   }

@@ -1,16 +1,22 @@
 import path from "path";
 import yaml from "js-yaml";
+import { Document } from "./plugins.js";
 
-function parseDocument(plugins, contents, filename, format) {
+function parseFile(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
-    const result = plugin.parseDocument(contents, filename, format);
+    const result = plugin.parseInputFile(contents, filename, parser);
     if (result != null) {
-      return result;
+      if (!(result instanceof Document)) {
+        throw new Error(
+          `Plugin ${plugin.constructor.name} returned an unexpected type from parseInputFile hook. Expected Document, got ${typeof result}`,
+        );
+      }
+      return result.document;
     }
   }
 
-  const errorMessage = format
-    ? `Unsupported format ${format}`
+  const errorMessage = parser
+    ? `Unsupported format ${parser}`
     : `Unsupported format ${path.extname(filename).slice(1)}`;
   throw new Error(errorMessage);
 }
@@ -27,4 +33,4 @@ function parseSchema(contents, location) {
   return JSON.parse(contents);
 }
 
-export { parseDocument, parseSchema };
+export { parseFile, parseSchema };

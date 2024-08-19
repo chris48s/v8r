@@ -1,19 +1,19 @@
 import { parse } from "smol-toml";
-import { BasePlugin } from "../plugins.js";
+import { BasePlugin, Document } from "../plugins.js";
 
 class TomlParser extends BasePlugin {
   static name = "v8r-plugin-toml-parser";
 
-  registerDocumentFormats() {
+  registerInputFileParsers() {
     return ["toml"];
   }
 
-  parseDocument(contents, filename, format) {
-    if (format === "toml") {
-      return parse(contents);
-    } else if (format == null) {
-      if (filename.endsWith(".toml")) {
-        return parse(contents);
+  parseInputFile(contents, fileLocation, parser) {
+    if (parser === "toml") {
+      return new Document(parse(contents));
+    } else if (parser == null) {
+      if (fileLocation.endsWith(".toml")) {
+        return new Document(parse(contents));
       }
     }
   }

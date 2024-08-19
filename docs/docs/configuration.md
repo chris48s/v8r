@@ -20,7 +20,7 @@ v8r only searches for a config file in the current working directory.
 
 Example yaml config file:
 
-```yaml
+```yaml title=".v8rrc.yml"
 # - One or more filenames or glob patterns describing local file or files to validate
 # - overridden by passing one or more positional arguments
 patterns: ['*json']
@@ -72,6 +72,15 @@ customCatalog:
           # instead of trying to infer the correct parser from the filename (optional)
           # This property is specific to custom catalogs defined in v8r config files
           parser: json5
+
+# - An array of v8r plugins to load
+# - Plugins can only be specified in the config file.
+#   They can't be loaded using command line arguments
+plugins:
+    # Plugins installed from NPM (or JSR) must be prefixed by "package:"
+    - "package:v8r-plugin-emoji-output"
+    # Plugins in the project dir must be prefixed by "file:"
+    - "file:./subdir/my-local-plugin.mjs"
 ```
 
 The config file format is specified more formally in a JSON Schema:

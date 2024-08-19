@@ -1,5 +1,8 @@
 import assert from "assert";
-import { loadAllPlugins } from "./plugins.js";
+import path from "path";
+
+import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
+import { parseFile } from "./parser.js";
 
 describe("loadAllPlugins", function () {
   it("should load the core plugins", async function () {
@@ -60,7 +63,39 @@ describe("loadAllPlugins", function () {
       {
         name: "Error",
         message:
-          "Error loading plugin v8r-plugin-test-invalid-params: registerDocumentFormats must take exactly 1 arguments",
+          "Error loading plugin v8r-plugin-test-invalid-params: registerInputFileParsers must take exactly 0 arguments",
+      },
+    );
+  });
+});
+
+describe("resolveUserPlugins", function () {
+  it("should resolve both file: and package: plugins", async function () {
+    const resolvedPlugins = resolveUserPlugins([
+      "package:v8r-plugin-emoji-output",
+      "file:./testfiles/plugins/valid.js",
+    ]);
+
+    assert.equal(resolvedPlugins.length, 2);
+
+    assert.equal(resolvedPlugins[0], "v8r-plugin-emoji-output");
+
+    assert(path.isAbsolute(resolvedPlugins[1]));
+    assert(resolvedPlugins[1].endsWith("/testfiles/plugins/valid.js"));
+  });
+});
+
+describe("parseInputFile", function () {
+  it("throws when parseInputFile returns unexpected type", async function () {
+    const plugins = await loadAllPlugins([
+      "../testfiles/plugins/bad-parse-method.js",
+    ]);
+    assert.throws(
+      () => parseFile(plugins.allLoadedPlugins, "{}", "foo.json", null),
+      {
+        name: "Error",
+        message:
+          "Plugin v8r-plugin-test-bad-parse-method returned an unexpected type from parseInputFile hook. Expected Document, got object",
       },
     );
   });
