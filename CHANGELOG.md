@@ -1,5 +1,40 @@
 # Changelog
 
+## 📦 [4.0.0](https://www.npmjs.com/package/v8r/v/4.0.0) - 2024-08-19
+
+* **Breaking:** Change to the JSON output format. The `results` key is now an array instead of an object.
+  In v8r <4, `results` was an object mapping filename to result object. For example:
+  ```json
+  {
+    "results": {
+      "./package.json": {
+        "fileLocation": "./package.json",
+        "schemaLocation": "https://json.schemastore.org/package.json",
+        "valid": true,
+        "errors": [],
+        "code": 0
+      }
+    }
+  }
+  ```
+
+  In v8r >=4 `results` is now an array of result objects. For example:
+  ```json
+  {
+    "results": [
+      {
+        "fileLocation": "./package.json",
+        "schemaLocation": "https://json.schemastore.org/package.json",
+        "valid": true,
+        "errors": [],
+        "code": 0
+      }
+    ]
+  }
+  ```
+* Plugin system: It is now possible to extend the functionality of v8r by using or writing plugins. See https://chris48s.github.io/v8r/category/plugins/ for further information
+* Documentation improvements
+
 ## 📦 [3.1.1](https://www.npmjs.com/package/v8r/v/3.1.1) - 2024-08-03
 
 * Allow 'toml' as an allowed value for parser in custom catalog
@@ -10,7 +45,7 @@
 
 ## 📦 [3.0.0](https://www.npmjs.com/package/v8r/v/3.0.0) - 2024-01-25
 
-* Drop compatibility with node 16
+* **Breaking:** Drop compatibility with node 16
 * Add ability to validate Toml documents
 
 ## 📦 [2.1.0](https://www.npmjs.com/package/v8r/v/2.1.0) - 2023-10-23
@@ -19,7 +54,7 @@
 
 ## 📦 [2.0.0](https://www.npmjs.com/package/v8r/v/2.0.0) - 2023-05-02
 
-* Drop compatibility with node 14
+* **Breaking:** Drop compatibility with node 14
 * Upgrade glob and minimatch to latest versions
 * Tested on node 20
 
