@@ -1007,13 +1007,6 @@ describe("CLI", function () {
         const expected = {
           results: [
             {
-              code: 0,
-              errors: [],
-              fileLocation: "./testfiles/files/valid.json",
-              schemaLocation: "./testfiles/schemas/schema.json",
-              valid: true,
-            },
-            {
               code: 99,
               errors: [
                 {
@@ -1036,6 +1029,13 @@ describe("CLI", function () {
               fileLocation: "./testfiles/files/not-supported.txt",
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: null,
+            },
+            {
+              code: 0,
+              errors: [],
+              fileLocation: "./testfiles/files/valid.json",
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: true,
             },
           ],
         };

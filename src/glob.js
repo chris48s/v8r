@@ -3,7 +3,9 @@ import logger from "./logger.js";
 
 async function getFiles(pattern) {
   try {
-    return await glob(pattern, { dot: true, dotRelative: true });
+    let matches = await glob(pattern, { dot: true, dotRelative: true });
+    matches.sort((a, b) => a.localeCompare(b));
+    return matches;
   } catch (e) {
     logger.error(e.message);
     return [];
