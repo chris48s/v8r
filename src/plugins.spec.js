@@ -86,9 +86,9 @@ describe("resolveUserPlugins", function () {
 });
 
 describe("parseInputFile", function () {
-  it("throws when parseInputFile returns unexpected type", async function () {
+  it("throws when parseInputFile returns unexpected object", async function () {
     const plugins = await loadAllPlugins([
-      "../testfiles/plugins/bad-parse-method.js",
+      "../testfiles/plugins/bad-parse-method1.js",
     ]);
     assert.throws(
       () => parseFile(plugins.allLoadedPlugins, "{}", "foo.json", null),
@@ -96,6 +96,20 @@ describe("parseInputFile", function () {
         name: "Error",
         message:
           "Plugin v8r-plugin-test-bad-parse-method returned an unexpected type from parseInputFile hook. Expected Document, got object",
+      },
+    );
+  });
+
+  it("throws when parseInputFile returns unexpected array", async function () {
+    const plugins = await loadAllPlugins([
+      "../testfiles/plugins/bad-parse-method2.js",
+    ]);
+    assert.throws(
+      () => parseFile(plugins.allLoadedPlugins, "{}", "foo.json", null),
+      {
+        name: "Error",
+        message:
+          "Plugin v8r-plugin-test-bad-parse-method returned an unexpected type from parseInputFile hook. Expected Document, got string",
       },
     );
   });
