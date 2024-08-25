@@ -10,10 +10,10 @@ class YamlParser extends BasePlugin {
 
   parseInputFile(contents, fileLocation, parser) {
     if (parser === "yaml") {
-      return new Document(yaml.load(contents));
+      return yaml.loadAll(contents).map((doc) => new Document(doc));
     } else if (parser == null) {
       if (fileLocation.endsWith(".yaml") || fileLocation.endsWith(".yml")) {
-        return new Document(yaml.load(contents));
+        return yaml.loadAll(contents).map((doc) => new Document(doc));
       }
     }
   }

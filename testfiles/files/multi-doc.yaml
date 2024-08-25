@@ -1,0 +1,9 @@
+---
+num: 4
+---
+num: 200
+---
+num: foo
+
+# this yaml file contains 3 documents
+# the first two are valid, the third is not

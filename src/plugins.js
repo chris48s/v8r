@@ -32,7 +32,8 @@ class BasePlugin {
    * If `parseInputFile` returns anything other than undefined, that return
    * value will be used and no further plugins will be invoked. If
    * `parseInputFile` returns undefined, v8r will move on to the next plugin in
-   * the stack.
+   * the stack. The result of successfully parsing a file can either be a single
+   * Document object or an array of Document objects.
    *
    * @param {string} contents - The unparsed file content.
    * @param {string} fileLocation - The file path. Filenames are resolved and
@@ -43,7 +44,7 @@ class BasePlugin {
    * @param {string | undefined} parser - If the user has specified a parser to
    *   use for this file in a custom schema, this will be passed to
    *   `parseInputFile` in the `parser` param.
-   * @returns {Document | undefined} Parsed file contents
+   * @returns {Document | Document[] | undefined} Parsed file contents
    */
   // eslint-disable-next-line no-unused-vars
   parseInputFile(contents, fileLocation, parser) {
@@ -205,6 +206,12 @@ async function loadAllPlugins(userPlugins) {
  *   This means relative paths in the current directory will be prefixed with
  *   `./` (or `.\` on Windows) even if this was not present in the input
  *   filename or pattern.
+ * @property {number | null} documentIndex - Some file formats allow multiple
+ *   documents to be embedded in one file (e.g:
+ *   [yaml](https://www.yaml.info/learn/document.html)). In these cases,
+ *   `documentIndex` identifies is used to identify the sub document within the
+ *   file. `documentIndex` will be `null` when there is a one-to-one
+ *   relationship between file and document.
  * @property {string | null} schemaLocation - Location of the schema used to
  *   validate this file if one could be found. `null` if no schema was found.
  * @property {boolean | null} valid - Result of the validation (true/false) if a
