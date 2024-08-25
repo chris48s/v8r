@@ -124,18 +124,30 @@ async function validateFile(filename, config, plugins, cache) {
   let results = [];
   for (let i = 0; i < documents.length; i++) {
     const documentIndex = documents.length === 1 ? null : i;
-    results.push(
-      await validateDocument(
-        filename,
-        documentIndex,
-        documents[i],
-        schemaLocation,
-        schema,
-        strictMode,
-        cache,
-        resolver,
-      ),
+    const result = await validateDocument(
+      filename,
+      documentIndex,
+      documents[i],
+      schemaLocation,
+      schema,
+      strictMode,
+      cache,
+      resolver,
     );
+
+    results.push(result);
+
+    for (const plugin of plugins) {
+      const message = plugin.getSingleResultLogMessage(
+        result,
+        filename,
+        config.format,
+      );
+      if (message != null) {
+        logger.log(message);
+        break;
+      }
+    }
   }
   return results;
 }
@@ -174,21 +186,6 @@ function Validator() {
     for (const filename of filenames) {
       const fileResults = await validateFile(filename, config, plugins, cache);
       results = results.concat(fileResults);
-
-      for (const result of results) {
-        for (const plugin of plugins) {
-          const message = plugin.getSingleResultLogMessage(
-            result,
-            filename,
-            config.format,
-          );
-          if (message != null) {
-            logger.log(message);
-            break;
-          }
-        }
-      }
-
       cache.resetCounters();
     }
 
