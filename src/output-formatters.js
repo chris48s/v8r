@@ -1,13 +1,20 @@
 import Ajv from "ajv";
 
-function formatErrors(filename, errors) {
+function getDocumentLocation(result) {
+  if (result.documentIndex == null) {
+    return result.fileLocation;
+  }
+  return `${result.fileLocation}[${result.documentIndex}]`;
+}
+
+function formatErrors(location, errors) {
   const ajv = new Ajv();
   return (
     ajv.errorsText(errors, {
       separator: "\n",
-      dataVar: filename + "#",
+      dataVar: location + "#",
     }) + "\n"
   );
 }
 
-export { formatErrors };
+export { formatErrors, getDocumentLocation };

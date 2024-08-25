@@ -10,6 +10,7 @@ import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getFiles } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
+import { getDocumentLocation } from "./output-formatters.js";
 import { parseFile } from "./parser.js";
 
 const EXIT = {
@@ -33,41 +34,27 @@ function getFlatCache() {
   return flatCache.load("v8r", CACHE_DIR);
 }
 
-async function validateFile(filename, config, plugins, cache) {
-  logger.info(`Processing ${filename}`);
+async function validateDocument(
+  fileLocation,
+  documentIndex,
+  document,
+  schemaLocation,
+  schema,
+  strictMode,
+  cache,
+  resolver,
+) {
   let result = {
-    fileLocation: filename,
-    schemaLocation: null,
+    fileLocation,
+    documentIndex,
+    schemaLocation,
     valid: null,
     errors: [],
     code: null,
   };
   try {
-    const catalogs = getCatalogs(config);
-    const catalogMatch = config.schema
-      ? {}
-      : await getMatchForFilename(catalogs, filename, cache);
-    const schemaLocation = config.schema || catalogMatch.location;
-    result.schemaLocation = schemaLocation;
-    const schema = await getFromUrlOrFile(schemaLocation, cache);
-    logger.info(
-      `Validating ${filename} against schema from ${schemaLocation} ...`,
-    );
-
-    const data = parseFile(
-      plugins,
-      await fs.promises.readFile(filename, "utf8"),
-      filename,
-      catalogMatch.parser,
-    );
-
-    const strictMode = config.verbose >= 2 ? "log" : false;
-    const resolver = isUrl(schemaLocation)
-      ? (location) => getFromUrlOrFile(location, cache)
-      : (location) =>
-          getFromUrlOrFile(location, cache, path.dirname(schemaLocation));
     const { valid, errors } = await validate(
-      data,
+      document,
       schema,
       strictMode,
       cache,
@@ -75,10 +62,12 @@ async function validateFile(filename, config, plugins, cache) {
     );
     result.valid = valid;
     result.errors = errors;
+
+    const documentLocation = getDocumentLocation(result);
     if (valid) {
-      logger.success(`${filename} is valid\n`);
+      logger.success(`${documentLocation} is valid\n`);
     } else {
-      logger.error(`${filename} is invalid\n`);
+      logger.error(`${documentLocation} is invalid\n`);
     }
 
     result.code = valid ? EXIT.VALID : EXIT.INVALID;
@@ -88,6 +77,67 @@ async function validateFile(filename, config, plugins, cache) {
     result.code = EXIT.ERROR;
     return result;
   }
+}
+
+async function validateFile(filename, config, plugins, cache) {
+  logger.info(`Processing ${filename}`);
+
+  let schema, schemaLocation, documents, strictMode, resolver;
+
+  try {
+    const catalogs = getCatalogs(config);
+    const catalogMatch = config.schema
+      ? {}
+      : await getMatchForFilename(catalogs, filename, cache);
+    schemaLocation = config.schema || catalogMatch.location;
+    schema = await getFromUrlOrFile(schemaLocation, cache);
+    logger.info(
+      `Validating ${filename} against schema from ${schemaLocation} ...`,
+    );
+
+    documents = parseFile(
+      plugins,
+      await fs.promises.readFile(filename, "utf8"),
+      filename,
+      catalogMatch.parser,
+    );
+
+    strictMode = config.verbose >= 2 ? "log" : false;
+    resolver = isUrl(schemaLocation)
+      ? (location) => getFromUrlOrFile(location, cache)
+      : (location) =>
+          getFromUrlOrFile(location, cache, path.dirname(schemaLocation));
+  } catch (e) {
+    logger.error(`${e.message}\n`);
+    return [
+      {
+        fileLocation: filename,
+        documentIndex: null,
+        schemaLocation: schemaLocation || null,
+        valid: null,
+        errors: [],
+        code: EXIT.ERROR,
+      },
+    ];
+  }
+
+  let results = [];
+  for (let i = 0; i < documents.length; i++) {
+    const documentIndex = documents.length === 1 ? null : i;
+    results.push(
+      await validateDocument(
+        filename,
+        documentIndex,
+        documents[i],
+        schemaLocation,
+        schema,
+        strictMode,
+        cache,
+        resolver,
+      ),
+    );
+  }
+  return results;
 }
 
 function resultsToStatusCode(results, ignoreErrors) {
@@ -122,18 +172,20 @@ function Validator() {
 
     let results = [];
     for (const filename of filenames) {
-      const result = await validateFile(filename, config, plugins, cache);
-      results.push(result);
+      const fileResults = await validateFile(filename, config, plugins, cache);
+      results = results.concat(fileResults);
 
-      for (const plugin of plugins) {
-        const message = plugin.getSingleResultLogMessage(
-          result,
-          filename,
-          config.format,
-        );
-        if (message != null) {
-          logger.log(message);
-          break;
+      for (const result of results) {
+        for (const plugin of plugins) {
+          const message = plugin.getSingleResultLogMessage(
+            result,
+            filename,
+            config.format,
+          );
+          if (message != null) {
+            logger.log(message);
+            break;
+          }
         }
       }
 

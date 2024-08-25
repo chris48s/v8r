@@ -4,14 +4,20 @@ import { Document } from "./plugins.js";
 
 function parseFile(plugins, contents, filename, parser) {
   for (const plugin of plugins) {
-    const result = plugin.parseInputFile(contents, filename, parser);
-    if (result != null) {
-      if (!(result instanceof Document)) {
-        throw new Error(
-          `Plugin ${plugin.constructor.name} returned an unexpected type from parseInputFile hook. Expected Document, got ${typeof result}`,
-        );
+    const parsedFile = plugin.parseInputFile(contents, filename, parser);
+
+    if (parsedFile != null) {
+      const maybeDocuments = Array.isArray(parsedFile)
+        ? parsedFile
+        : [parsedFile];
+      for (const doc of maybeDocuments) {
+        if (!(doc instanceof Document)) {
+          throw new Error(
+            `Plugin ${plugin.constructor.name} returned an unexpected type from parseInputFile hook. Expected Document, got ${typeof doc}`,
+          );
+        }
       }
-      return result.document;
+      return maybeDocuments.map((md) => md.document);
     }
   }
 

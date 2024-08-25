@@ -1,5 +1,5 @@
 import { BasePlugin } from "../plugins.js";
-import { formatErrors } from "../output-formatters.js";
+import { formatErrors, getDocumentLocation } from "../output-formatters.js";
 
 class TextOutput extends BasePlugin {
   static name = "v8r-plugin-text-output";
@@ -10,7 +10,7 @@ class TextOutput extends BasePlugin {
 
   getSingleResultLogMessage(result, fileLocation, format) {
     if (result.valid === false && format === "text") {
-      return formatErrors(fileLocation, result.errors);
+      return formatErrors(getDocumentLocation(result), result.errors);
     }
   }
 }

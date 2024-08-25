@@ -414,6 +414,24 @@ describe("CLI", function () {
       });
     });
 
+    it("should validate yaml files containing multiple documents", function () {
+      return cli({
+        patterns: ["./testfiles/files/multi-doc.yaml"],
+        schema: "./testfiles/schemas/schema.json",
+      }).then((result) => {
+        assert.equal(result, 99);
+        assert(
+          logContainsSuccess("./testfiles/files/multi-doc.yaml[0] is valid"),
+        );
+        assert(
+          logContainsSuccess("./testfiles/files/multi-doc.yaml[1] is valid"),
+        );
+        assert(
+          logContainsError("./testfiles/files/multi-doc.yaml[2] is invalid"),
+        );
+      });
+    });
+
     it("should validate json5 files", function () {
       return cli({
         patterns: ["./testfiles/files/valid.json5"],
@@ -998,7 +1016,7 @@ describe("CLI", function () {
       tearDown();
     });
 
-    it("should log errors in text format when format is text", async function () {
+    it("should log errors in text format when format is text (single doc)", async function () {
       return cli({
         patterns: [
           "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
@@ -1014,7 +1032,21 @@ describe("CLI", function () {
       });
     });
 
-    it("should output json report when format is json", async function () {
+    it("should log errors in text format when format is text (multi doc)", async function () {
+      return cli({
+        patterns: ["./testfiles/files/multi-doc.yaml"],
+        schema: "./testfiles/schemas/schema.json",
+        format: "text",
+      }).then(() => {
+        assert(
+          logger.stdout.includes(
+            "./testfiles/files/multi-doc.yaml[2]#/num must be number\n",
+          ),
+        );
+      });
+    });
+
+    it("should output json report when format is json (single doc)", async function () {
       return cli({
         patterns: [
           "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
@@ -1038,6 +1070,7 @@ describe("CLI", function () {
                 },
               ],
               fileLocation: "./testfiles/files/invalid.json",
+              documentIndex: null,
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: false,
             },
@@ -1045,6 +1078,7 @@ describe("CLI", function () {
               code: 1,
               errors: [],
               fileLocation: "./testfiles/files/not-supported.txt",
+              documentIndex: null,
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: null,
             },
@@ -1052,8 +1086,57 @@ describe("CLI", function () {
               code: 0,
               errors: [],
               fileLocation: "./testfiles/files/valid.json",
+              documentIndex: null,
               schemaLocation: "./testfiles/schemas/schema.json",
               valid: true,
+            },
+          ],
+        };
+        assert.deepStrictEqual(JSON.parse(logger.stdout[0]), expected);
+      });
+    });
+
+    it("should output json report when format is json (multi doc)", async function () {
+      return cli({
+        patterns: ["./testfiles/files/multi-doc.yaml"],
+        schema: "./testfiles/schemas/schema.json",
+        format: "json",
+      }).then(() => {
+        const expected = {
+          results: [
+            {
+              code: 0,
+              errors: [],
+              fileLocation: "./testfiles/files/multi-doc.yaml",
+              documentIndex: 0,
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: true,
+            },
+            {
+              code: 0,
+              errors: [],
+              fileLocation: "./testfiles/files/multi-doc.yaml",
+              documentIndex: 1,
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: true,
+            },
+            {
+              code: 99,
+              errors: [
+                {
+                  instancePath: "/num",
+                  keyword: "type",
+                  message: "must be number",
+                  params: {
+                    type: "number",
+                  },
+                  schemaPath: "#/properties/num/type",
+                },
+              ],
+              fileLocation: "./testfiles/files/multi-doc.yaml",
+              documentIndex: 2,
+              schemaLocation: "./testfiles/schemas/schema.json",
+              valid: false,
             },
           ],
         };
