@@ -23,7 +23,7 @@ Example yaml config file:
 ```yaml title=".v8rrc.yml"
 # - One or more filenames or glob patterns describing local file or files to validate
 # - overridden by passing one or more positional arguments
-patterns: ['*json']
+patterns: ['*.json']
 
 # - Level of verbose logging. 0 is standard, higher numbers are more verbose
 # - overridden by passing --verbose / -v
