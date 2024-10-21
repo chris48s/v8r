@@ -1,11 +1,9 @@
 import assert from "assert";
-import path from "path";
 import {
   bootstrap,
   getDocumentFormats,
   getOutputFormats,
   parseArgs,
-  preProcessConfig,
 } from "./bootstrap.js";
 import { loadAllPlugins } from "./plugins.js";
 import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
@@ -149,57 +147,6 @@ describe("parseArgs", function () {
   });
 });
 
-describe("preProcessConfig", function () {
-  it("passes through absolute paths", function () {
-    const configFile = {
-      config: {
-        customCatalog: { schemas: [{ location: "/foo/bar/schema.json" }] },
-      },
-      filepath: "/home/fred/.v8rrc",
-    };
-    preProcessConfig(configFile);
-    assert.equal(
-      configFile.config.customCatalog.schemas[0].location,
-      "/foo/bar/schema.json",
-    );
-  });
-
-  it("passes through URLs", function () {
-    const configFile = {
-      config: {
-        customCatalog: {
-          schemas: [{ location: "https://example.com/schema.json" }],
-        },
-      },
-      filepath: "/home/fred/.v8rrc",
-    };
-    preProcessConfig(configFile);
-    assert.equal(
-      configFile.config.customCatalog.schemas[0].location,
-      "https://example.com/schema.json",
-    );
-  });
-
-  it("converts relative paths to absolute", function () {
-    const testCases = [
-      ["schema.json", "/home/fred/schema.json"],
-      ["../../schema.json", "/schema.json"],
-      ["foo/bar/schema.json", "/home/fred/foo/bar/schema.json"],
-    ];
-    for (const testCase of testCases) {
-      const configFile = {
-        config: { customCatalog: { schemas: [{ location: testCase[0] }] } },
-        filepath: "/home/fred/.v8rrc",
-      };
-      preProcessConfig(configFile);
-      assert.equal(
-        configFile.config.customCatalog.schemas[0].location,
-        testCase[1],
-      );
-    }
-  });
-});
-
 describe("getConfig", function () {
   beforeEach(function () {
     setUp();
@@ -246,7 +193,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: path.resolve("./testfiles/schemas/schema.json"),
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],
@@ -289,7 +236,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: path.resolve("./testfiles/schemas/schema.json"),
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],

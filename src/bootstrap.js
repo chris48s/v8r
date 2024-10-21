@@ -5,7 +5,7 @@ const require = createRequire(import.meta.url);
 
 import { cosmiconfig } from "cosmiconfig";
 import decamelize from "decamelize";
-import isUrl from "is-url";
+import fs from "fs";
 import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -17,27 +17,28 @@ import {
 import logger from "./logger.js";
 import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
 
-function preProcessConfig(configFile) {
-  if (!configFile?.config?.customCatalog?.schemas) {
-    return;
-  }
-  for (const schema of configFile.config.customCatalog.schemas) {
-    if (!path.isAbsolute(schema.location) && !isUrl(schema.location)) {
-      schema.location = path.join(
-        path.dirname(configFile.filepath),
-        schema.location,
-      );
-    }
-  }
-}
-
 async function getCosmiConfig(cosmiconfigOptions) {
-  cosmiconfigOptions.stopDir = process.cwd();
-  const configFile = (await cosmiconfig("v8r", cosmiconfigOptions).search(
-    process.cwd(),
-  )) || { config: {} };
+  let configFile;
+
+  if (process.env.V8R_CONFIG_FILE) {
+    if (!fs.existsSync(process.env.V8R_CONFIG_FILE)) {
+      throw new Error(`File ${process.env.V8R_CONFIG_FILE} does not exist.`);
+    }
+    configFile = await cosmiconfig("v8r", cosmiconfigOptions).load(
+      process.env.V8R_CONFIG_FILE,
+    );
+  } else {
+    cosmiconfigOptions.stopDir = process.cwd();
+    configFile = (await cosmiconfig("v8r", cosmiconfigOptions).search(
+      process.cwd(),
+    )) || { config: {} };
+  }
+
   if (configFile.filepath) {
     logger.info(`Loaded config file from ${getRelativeFilePath(configFile)}`);
+    logger.info(
+      `Patterns and relative paths will be resolved relative to current working directory: ${process.cwd()}`,
+    );
   } else {
     logger.info(`No config file found`);
   }
@@ -200,7 +201,6 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   // we can finish validating and processing the config
   validateConfigDocumentParsers(configFile, documentFormats);
   validateConfigOutputFormats(configFile, outputFormats);
-  preProcessConfig(configFile);
 
   // parse command line arguments
   const args = parseArgs(argv, configFile, documentFormats, outputFormats);
@@ -213,10 +213,4 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   };
 }
 
-export {
-  bootstrap,
-  getDocumentFormats,
-  getOutputFormats,
-  parseArgs,
-  preProcessConfig,
-};
+export { bootstrap, getDocumentFormats, getOutputFormats, parseArgs };

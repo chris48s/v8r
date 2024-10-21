@@ -16,12 +16,15 @@ v8r uses [CosmiConfig](https://www.npmjs.com/package/cosmiconfig) to search for 
 - `v8r.config.js`
 - `v8r.config.cjs`
 
-v8r only searches for a config file in the current working directory.
+By default, v8r searches for a config file in the current working directory.
+
+If you want to load a config file from another location, you can invoke v8r with the `V8R_CONFIG_FILE` environment variable. All patterns and relative paths in the config file will be resolved relative to the current working directory rather than the config file location, even if the config file is loaded from somewhere other than the current working directory.
 
 Example yaml config file:
 
 ```yaml title=".v8rrc.yml"
 # - One or more filenames or glob patterns describing local file or files to validate
+#   Patterns are resolved relative to the current working directory.
 # - overridden by passing one or more positional arguments
 patterns: ['*.json']
 
@@ -59,13 +62,14 @@ customCatalog:
           description: Custom Schema  # A description of the schema (optional)
 
           # A Minimatch glob expression for matching up file names with a schema (required)
+          # Expressions are resolved relative to the current working directory.
           fileMatch: ["*.geojson"]
 
           # A URL or local file path for the schema location (required)
           # Unlike the SchemaStore.org format, which has a `url` key,
           # custom catalogs defined in v8r config files have a `location` key
           # which can refer to either a URL or local file.
-          # Relative paths are interpreted as relative to the config file location.
+          # Relative paths are resolved relative to the current working directory.
           location: foo/bar/geojson-schema.json
 
           # A custom parser to use for files matching fileMatch
@@ -80,6 +84,7 @@ plugins:
     # Plugins installed from NPM (or JSR) must be prefixed by "package:"
     - "package:v8r-plugin-emoji-output"
     # Plugins in the project dir must be prefixed by "file:"
+    # Relative paths are resolved relative to the current working directory.
     - "file:./subdir/my-local-plugin.mjs"
 ```
 
