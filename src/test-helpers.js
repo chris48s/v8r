@@ -4,6 +4,7 @@ import logger from "./logger.js";
 const origWriteOut = logger.writeOut;
 const origWriteErr = logger.writeErr;
 const testCacheName = process.env.V8R_CACHE_NAME;
+const env = process.env;
 
 function setUp() {
   flatCache.clearCacheById(testCacheName);
@@ -11,6 +12,7 @@ function setUp() {
   logger.resetStderr();
   logger.writeOut = function () {};
   logger.writeErr = function () {};
+  process.env = { ...env };
 }
 
 function tearDown() {
@@ -19,6 +21,7 @@ function tearDown() {
   logger.resetStderr();
   logger.writeOut = origWriteOut;
   logger.writeErr = origWriteErr;
+  process.env = env;
 }
 
 function isString(el) {

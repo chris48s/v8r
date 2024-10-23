@@ -160,10 +160,7 @@ describe("getConfig", function () {
     const { config } = await bootstrap(
       ["node", "index.js", "infile.json"],
       undefined,
-      {
-        searchPlaces: ["./testfiles/does-not-exist.json"],
-        cache: false,
-      },
+      { cache: false },
     );
     assert.equal(config.ignoreErrors, false);
     assert.equal(config.cacheTtl, 600);
@@ -176,9 +173,22 @@ describe("getConfig", function () {
     assert(logContainsInfo("No config file found"));
   });
 
+  it("should throw if V8R_CONFIG_FILE does not exist", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/does-not-exist.json";
+    await assert.rejects(
+      bootstrap(["node", "index.js", "infile.json"], undefined, {
+        cache: false,
+      }),
+      {
+        name: "Error",
+        message: "File ./testfiles/does-not-exist.json does not exist.",
+      },
+    );
+  });
+
   it("should read options from config file if available", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/configs/config.json";
     const { config } = await bootstrap(["node", "index.js"], undefined, {
-      searchPlaces: ["./testfiles/configs/config.json"],
       cache: false,
     });
     assert.equal(config.ignoreErrors, true);
@@ -208,6 +218,7 @@ describe("getConfig", function () {
   });
 
   it("should override options from config file with args if specified", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/configs/config.json";
     const { config } = await bootstrap(
       [
         "node",
@@ -219,10 +230,7 @@ describe("getConfig", function () {
         "-vv",
       ],
       undefined,
-      {
-        searchPlaces: ["./testfiles/configs/config.json"],
-        cache: false,
-      },
+      { cache: false },
     );
     assert.deepStrictEqual(config.patterns, ["infile.json"]);
     assert.equal(config.ignoreErrors, true);
