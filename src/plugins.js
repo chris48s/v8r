@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 
 /**
  * Base class for all v8r plugins.

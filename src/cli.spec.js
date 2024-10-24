@@ -1,8 +1,9 @@
-import assert from "assert";
-import { randomUUID } from "crypto";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import assert from "node:assert";
+import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { dump as dumpToYaml } from "js-yaml";
 import { mockCwd } from "mock-cwd";
 import nock from "nock";
 import { cli } from "./cli.js";
@@ -14,7 +15,6 @@ import {
   logContainsInfo,
   logContainsError,
 } from "./test-helpers.js";
-import { dump as dumpToYaml } from "js-yaml";
 
 describe("CLI", function () {
   // Mock the catalog validation schema

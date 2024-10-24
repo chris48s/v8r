@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import yaml from "js-yaml";
 import { Document } from "./plugins.js";
 

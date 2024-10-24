@@ -1,7 +1,7 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import flatCache from "flat-cache";
-import fs from "fs";
-import os from "os";
-import path from "path";
 import isUrl from "is-url";
 import { validate } from "./ajv.js";
 import { bootstrap } from "./bootstrap.js";

@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert from "node:assert";
 
 import { getDocumentFormats, getOutputFormats } from "./bootstrap.js";
 import {

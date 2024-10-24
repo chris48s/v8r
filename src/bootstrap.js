@@ -1,12 +1,12 @@
-import { createRequire } from "module";
+import { createRequire } from "node:module";
 // TODO: once JSON modules is stable these requires could become imports
 // https://nodejs.org/api/esm.html#esm_experimental_json_modules
 const require = createRequire(import.meta.url);
 
+import fs from "node:fs";
+import path from "node:path";
 import { cosmiconfig } from "cosmiconfig";
 import decamelize from "decamelize";
-import fs from "fs";
-import path from "path";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import {

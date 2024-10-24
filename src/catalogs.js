@@ -1,5 +1,5 @@
+import path from "node:path";
 import { minimatch } from "minimatch";
-import path from "path";
 import { validate } from "./ajv.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";

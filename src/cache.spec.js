@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert from "node:assert";
 import flatCache from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";

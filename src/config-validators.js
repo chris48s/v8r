@@ -1,4 +1,4 @@
-import { createRequire } from "module";
+import { createRequire } from "node:module";
 // TODO: once JSON modules is stable these requires could become imports
 // https://nodejs.org/api/esm.html#esm_experimental_json_modules
 const require = createRequire(import.meta.url);
