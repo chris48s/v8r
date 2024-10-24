@@ -1,11 +1,9 @@
 import assert from "assert";
-import path from "path";
 import {
   bootstrap,
   getDocumentFormats,
   getOutputFormats,
   parseArgs,
-  preProcessConfig,
 } from "./bootstrap.js";
 import { loadAllPlugins } from "./plugins.js";
 import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
@@ -149,57 +147,6 @@ describe("parseArgs", function () {
   });
 });
 
-describe("preProcessConfig", function () {
-  it("passes through absolute paths", function () {
-    const configFile = {
-      config: {
-        customCatalog: { schemas: [{ location: "/foo/bar/schema.json" }] },
-      },
-      filepath: "/home/fred/.v8rrc",
-    };
-    preProcessConfig(configFile);
-    assert.equal(
-      configFile.config.customCatalog.schemas[0].location,
-      "/foo/bar/schema.json",
-    );
-  });
-
-  it("passes through URLs", function () {
-    const configFile = {
-      config: {
-        customCatalog: {
-          schemas: [{ location: "https://example.com/schema.json" }],
-        },
-      },
-      filepath: "/home/fred/.v8rrc",
-    };
-    preProcessConfig(configFile);
-    assert.equal(
-      configFile.config.customCatalog.schemas[0].location,
-      "https://example.com/schema.json",
-    );
-  });
-
-  it("converts relative paths to absolute", function () {
-    const testCases = [
-      ["schema.json", "/home/fred/schema.json"],
-      ["../../schema.json", "/schema.json"],
-      ["foo/bar/schema.json", "/home/fred/foo/bar/schema.json"],
-    ];
-    for (const testCase of testCases) {
-      const configFile = {
-        config: { customCatalog: { schemas: [{ location: testCase[0] }] } },
-        filepath: "/home/fred/.v8rrc",
-      };
-      preProcessConfig(configFile);
-      assert.equal(
-        configFile.config.customCatalog.schemas[0].location,
-        testCase[1],
-      );
-    }
-  });
-});
-
 describe("getConfig", function () {
   beforeEach(function () {
     setUp();
@@ -213,10 +160,7 @@ describe("getConfig", function () {
     const { config } = await bootstrap(
       ["node", "index.js", "infile.json"],
       undefined,
-      {
-        searchPlaces: ["./testfiles/does-not-exist.json"],
-        cache: false,
-      },
+      { cache: false },
     );
     assert.equal(config.ignoreErrors, false);
     assert.equal(config.cacheTtl, 600);
@@ -229,9 +173,22 @@ describe("getConfig", function () {
     assert(logContainsInfo("No config file found"));
   });
 
+  it("should throw if V8R_CONFIG_FILE does not exist", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/does-not-exist.json";
+    await assert.rejects(
+      bootstrap(["node", "index.js", "infile.json"], undefined, {
+        cache: false,
+      }),
+      {
+        name: "Error",
+        message: "File ./testfiles/does-not-exist.json does not exist.",
+      },
+    );
+  });
+
   it("should read options from config file if available", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/configs/config.json";
     const { config } = await bootstrap(["node", "index.js"], undefined, {
-      searchPlaces: ["./testfiles/configs/config.json"],
       cache: false,
     });
     assert.equal(config.ignoreErrors, true);
@@ -246,7 +203,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: path.resolve("./testfiles/schemas/schema.json"),
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],
@@ -261,6 +218,7 @@ describe("getConfig", function () {
   });
 
   it("should override options from config file with args if specified", async function () {
+    process.env.V8R_CONFIG_FILE = "./testfiles/configs/config.json";
     const { config } = await bootstrap(
       [
         "node",
@@ -272,10 +230,7 @@ describe("getConfig", function () {
         "-vv",
       ],
       undefined,
-      {
-        searchPlaces: ["./testfiles/configs/config.json"],
-        cache: false,
-      },
+      { cache: false },
     );
     assert.deepStrictEqual(config.patterns, ["infile.json"]);
     assert.equal(config.ignoreErrors, true);
@@ -289,7 +244,7 @@ describe("getConfig", function () {
         {
           name: "custom schema",
           fileMatch: ["valid.json", "invalid.json"],
-          location: path.resolve("./testfiles/schemas/schema.json"),
+          location: "./testfiles/schemas/schema.json",
           parser: "json5",
         },
       ],
