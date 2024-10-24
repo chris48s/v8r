@@ -10,7 +10,7 @@
 
 * v8r can now parse and validate files that contain multiple yaml documents
   More info: https://chris48s.github.io/v8r/usage-examples/#files-containing-multiple-documents
-* The `parseInputFile()` plugin hook may now tionally return an array of `Document` objects
+* The `parseInputFile()` plugin hook may now conditionally return an array of `Document` objects
 * The `ValidationResult` object now contains a `documentIndex` property.
   This identifies the document when a multi-doc file has been validated.
 
