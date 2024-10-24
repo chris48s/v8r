@@ -1,5 +1,11 @@
 # Changelog
 
+## 📦 [4.2.0](https://www.npmjs.com/package/v8r/v/4.2.0) - 2024-10-24
+
+* Add `V8R_CONFIG_FILE` environment variable.
+  This allows loading a config file from a location other than the directory v8r is invoked from.
+  More info: https://chris48s.github.io/v8r/configuration/
+
 ## 📦 [4.1.0](https://www.npmjs.com/package/v8r/v/4.1.0) - 2024-08-25
 
 * v8r can now parse and validate files that contain multiple yaml documents
