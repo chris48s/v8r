@@ -3,26 +3,11 @@ import logger from "./logger.js";
 import { parseSchema } from "./parser.js";
 
 class Cache {
-  constructor(flatCache, ttl) {
+  constructor(flatCache) {
     this.cache = flatCache;
-    this.ttl = ttl;
+    this.ttl = this.cache._cache.ttl || 0;
     this.callCounter = {};
     this.callLimit = 10;
-  }
-
-  expire() {
-    Object.entries(this.cache.all()).forEach(
-      function ([url, cachedResponse]) {
-        if (!("timestamp" in cachedResponse) || !("body" in cachedResponse)) {
-          logger.debug(`Cache error: deleting malformed response`);
-          this.cache.removeKey(url);
-        } else if (Date.now() > cachedResponse.timestamp + this.ttl) {
-          logger.debug(`Cache stale: deleting cached response from ${url}`);
-          this.cache.removeKey(url);
-        }
-        this.cache.save(true);
-      }.bind(this),
-    );
   }
 
   limitDepth(url) {
@@ -51,7 +36,6 @@ class Cache {
 
   async fetch(url) {
     this.limitDepth(url);
-    this.expire();
     const cachedResponse = this.cache.getKey(url);
     if (cachedResponse !== undefined) {
       logger.debug(`Cache hit: using cached response from ${url}`);
@@ -63,7 +47,7 @@ class Cache {
       const resp = await got(url);
       const parsedBody = parseSchema(resp.body, url);
       if (this.ttl > 0) {
-        this.cache.setKey(url, { timestamp: Date.now(), body: parsedBody });
+        this.cache.setKey(url, { body: parsedBody });
         this.cache.save(true);
       }
       return parsedBody;

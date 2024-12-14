@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import flatCache from "flat-cache";
+import { FlatCache } from "flat-cache";
 import { Cache } from "./cache.js";
 import {
   getMatchForFilename,
@@ -122,7 +122,10 @@ describe("getMatchForFilename", function () {
   let testCache;
 
   before(function () {
-    testCache = new Cache(flatCache.load(testCacheName), 3000);
+    const ttl = 3000;
+    const cache = new FlatCache({ cacheId: testCacheName, ttl: ttl });
+    cache.load();
+    testCache = new Cache(cache);
   });
 
   beforeEach(function () {

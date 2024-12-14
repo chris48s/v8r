@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import flatCache from "flat-cache";
+import { FlatCache } from "flat-cache";
 import isUrl from "is-url";
 import { validate } from "./ajv.js";
 import { bootstrap } from "./bootstrap.js";
@@ -27,11 +27,15 @@ function secondsToMilliseconds(seconds) {
   return seconds * 1000;
 }
 
-function getFlatCache() {
+function getFlatCache(ttl) {
+  let cache;
   if (process.env.V8R_CACHE_NAME) {
-    return flatCache.load(process.env.V8R_CACHE_NAME);
+    cache = new FlatCache({ cacheId: process.env.V8R_CACHE_NAME, ttl: ttl });
+  } else {
+    cache = new FlatCache({ cacheId: "v8rv2", cacheDir: CACHE_DIR, ttl: ttl });
   }
-  return flatCache.load("v8r", CACHE_DIR);
+  cache.load();
+  return cache;
 }
 
 async function validateDocument(
@@ -180,7 +184,7 @@ function Validator() {
     filenames.sort((a, b) => a.localeCompare(b));
 
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
-    const cache = new Cache(getFlatCache(), ttl);
+    const cache = new Cache(getFlatCache(ttl));
 
     let results = [];
     for (const filename of filenames) {
