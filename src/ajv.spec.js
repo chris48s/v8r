@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import flatCache from "flat-cache";
+import { FlatCache } from "flat-cache";
 import { Cache } from "./cache.js";
 import { _ajvFactory } from "./ajv.js";
 import { testCacheName, setUp, tearDown } from "./test-helpers.js";
@@ -9,7 +9,10 @@ describe("_ajvFactory", function () {
     let testCache;
 
     before(function () {
-      testCache = new Cache(flatCache.load(testCacheName), 3000);
+      const ttl = 3000;
+      const cache = new FlatCache({ cacheId: testCacheName, ttl: ttl });
+      cache.load();
+      testCache = new Cache(cache);
     });
 
     beforeEach(function () {

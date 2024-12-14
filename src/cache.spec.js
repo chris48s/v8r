@@ -1,15 +1,20 @@
 import assert from "node:assert";
-import flatCache from "flat-cache";
+import { FlatCache } from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
 import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+
+const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("Cache", function () {
   describe("fetch function", function () {
     let testCache;
 
     before(function () {
-      testCache = new Cache(flatCache.load(testCacheName), 3000);
+      const ttl = 500;
+      const cache = new FlatCache({ cacheId: testCacheName, ttl: ttl });
+      cache.load();
+      testCache = new Cache(cache);
     });
 
     beforeEach(function () {
@@ -24,7 +29,6 @@ describe("Cache", function () {
       nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
 
       testCache.cache.setKey("https://www.foobar.com/baz", {
-        timestamp: Date.now(),
         body: { cached: true },
       });
       const resp = await testCache.fetch("https://www.foobar.com/baz");
@@ -38,9 +42,11 @@ describe("Cache", function () {
         .reply(200, { cached: false });
 
       testCache.cache.setKey("https://www.foobar.com/baz", {
-        timestamp: Date.now() - 3001,
         body: { cached: true },
       });
+
+      await sleep(600);
+
       const resp = await testCache.fetch("https://www.foobar.com/baz");
       assert.deepEqual(resp, { cached: false });
       mock.done();
@@ -51,7 +57,10 @@ describe("Cache", function () {
     let testCache;
 
     before(function () {
-      testCache = new Cache(flatCache.load(testCacheName), 3000);
+      const ttl = 3000;
+      const cache = new FlatCache({ cacheId: testCacheName, ttl: ttl });
+      cache.load();
+      testCache = new Cache(cache);
     });
 
     beforeEach(function () {
@@ -79,43 +88,6 @@ describe("Cache", function () {
           "Called https://www.foobar.com/baz >2 times. Possible circular reference.",
       });
       mock.done();
-    });
-  });
-
-  describe("expire function", function () {
-    let testCache;
-
-    before(function () {
-      testCache = new Cache(flatCache.load(testCacheName), 3000);
-    });
-
-    beforeEach(function () {
-      setUp();
-    });
-
-    afterEach(function () {
-      tearDown();
-    });
-
-    it("should delete expired and malformed cache objects", async function () {
-      const now = Date.now();
-      testCache.cache.setKey("expired1", {
-        timestamp: now - 3001,
-        body: null,
-      });
-      testCache.cache.setKey("expired2", {
-        timestamp: now - 20000,
-        body: null,
-      });
-      testCache.cache.setKey("fresh", {
-        timestamp: now + 5000,
-        body: null,
-      });
-      testCache.cache.setKey("malformed", {
-        timestamp: now + 5000,
-      });
-      testCache.expire();
-      assert.deepEqual(Object.keys(testCache.cache.all()), ["fresh"]);
     });
   });
 });
