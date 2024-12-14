@@ -1,5 +1,11 @@
 # Changelog
 
+## 📦 [4.2.1](https://www.npmjs.com/package/v8r/v/4.2.1) - 2024-12-14
+
+* Upgrade to flat-cache 6.
+  This release revamps how cache is stored and invalidated internally
+  but should have no user-visible impact
+
 ## 📦 [4.2.0](https://www.npmjs.com/package/v8r/v/4.2.0) - 2024-10-24
 
 * Add `V8R_CONFIG_FILE` environment variable.
