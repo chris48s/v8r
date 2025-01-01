@@ -8,6 +8,9 @@ class Cache {
     this.ttl = this.cache._cache.ttl || 0;
     this.callCounter = {};
     this.callLimit = 10;
+    if (this.ttl === 0) {
+      this.cache.clear();
+    }
   }
 
   limitDepth(url) {
