@@ -21,6 +21,6 @@ npx v8r@latest <filename>
 Local install:
 
 ```bash
-npm install -g v8r
-v8r <filename>
+npm install --save-dev v8r
+npx v8r <filename>
 ```
