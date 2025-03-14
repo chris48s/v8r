@@ -9,8 +9,25 @@ function getDocumentLocation(result) {
 
 function formatErrors(location, errors) {
   const ajv = new Ajv();
+  let formattedErrors = [];
+
+  if (errors) {
+    formattedErrors = errors.map(function (error) {
+      if (
+        error.keyword === "additionalProperties" &&
+        typeof error.params.additionalProperty === "string"
+      ) {
+        return {
+          ...error,
+          message: `${error.message}, found additional property '${error.params.additionalProperty}'`,
+        };
+      }
+      return error;
+    });
+  }
+
   return (
-    ajv.errorsText(errors, {
+    ajv.errorsText(formattedErrors, {
       separator: "\n",
       dataVar: location + "#",
     }) + "\n"
