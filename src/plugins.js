@@ -37,10 +37,9 @@ class BasePlugin {
    *
    * @param {string} contents - The unparsed file content.
    * @param {string} fileLocation - The file path. Filenames are resolved and
-   *   normalised by [glob](https://www.npmjs.com/package/glob) using the
-   *   `dotRelative` option. This means relative paths in the current directory
-   *   will be prefixed with `./` (or `.\` on Windows) even if this was not
-   *   present in the input filename or pattern.
+   *   normalised using dot-relative notation. This means relative paths in the
+   *   current directory will be prefixed with `./` (or `.\` on Windows) even if
+   *   this was not present in the input filename or pattern.
    * @param {string | undefined} parser - If the user has specified a parser to
    *   use for this file in a custom schema, this will be passed to
    *   `parseInputFile` in the `parser` param.
@@ -77,10 +76,9 @@ class BasePlugin {
    * @param {ValidationResult} result - Result of attempting to validate this
    *   document.
    * @param {string} fileLocation - The document file path. Filenames are
-   *   resolved and normalised by [glob](https://www.npmjs.com/package/glob)
-   *   using the `dotRelative` option. This means relative paths in the current
-   *   directory will be prefixed with `./` (or `.\` on Windows) even if this
-   *   was not present in the input filename or pattern.
+   *   resolved and normalised using dot-relative notation. This means relative
+   *   paths in the current directory will be prefixed with `./` (or `.\` on
+   *   Windows) even if this was not present in the input filename or pattern.
    * @param {string} format - The user's requested output format as specified in
    *   the config file or via the `--format` command line argument.
    * @returns {string | undefined} Log message
@@ -201,11 +199,10 @@ async function loadAllPlugins(userPlugins) {
 /**
  * @typedef {object} ValidationResult
  * @property {string} fileLocation - Path of the document that was validated.
- *   Filenames are resolved and normalised by
- *   [glob](https://www.npmjs.com/package/glob) using the `dotRelative` option.
- *   This means relative paths in the current directory will be prefixed with
- *   `./` (or `.\` on Windows) even if this was not present in the input
- *   filename or pattern.
+ *   Filenames are resolved and normalised using dot-relative notation. This
+ *   means relative paths in the current directory will be prefixed with `./`
+ *   (or `.\` on Windows) even if this was not present in the input filename or
+ *   pattern.
  * @property {number | null} documentIndex - Some file formats allow multiple
  *   documents to be embedded in one file (e.g:
  *   [yaml](https://www.yaml.info/learn/document.html)). In these cases,

@@ -76,12 +76,50 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
     )} (from config file ${getRelativeFilePath(config)})`;
   }
 
+  const ignoreFilesOpts = {
+    describe: "A list of files containing glob patterns to ignore",
+  };
+  let ignoreFilesDefault = [".v8rignore"];
+  ignoreFilesOpts.defaultDescription = `${JSON.stringify(ignoreFilesDefault)}`;
+  if (Object.keys(config.config).includes("ignorePatternFiles")) {
+    ignoreFilesDefault = config.config.ignorePatternFiles;
+    ignoreFilesOpts.defaultDescription = `${JSON.stringify(
+      ignoreFilesDefault,
+    )} (from config file ${getRelativeFilePath(config)})`;
+  }
+
   parser
     .command(
+      // command
       command,
+
+      // description
       `Validate local ${documentFormats.join("/")} files against schema(s)`,
+
+      // builder
       (yargs) => {
         yargs.positional("patterns", patternsOpts);
+      },
+
+      // handler
+      (args) => {
+        /*
+        Yargs doesn't allow .conflicts() with an argument that has a default
+        value (it considers the arg "set" even if we just use the default)
+        so we need to apply the default values here.
+        */
+        if (args.ignorePatternFiles === undefined) {
+          args.ignorePatternFiles = args["ignore-pattern-files"] =
+            ignoreFilesDefault;
+        }
+
+        if (args.ignore === false) {
+          args.ignorePatternFiles = args["ignore-pattern-files"] = [];
+        }
+
+        if (args.ignore === undefined) {
+          args.ignore = true;
+        }
       },
     )
     .version(
@@ -110,7 +148,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
       alias: "c",
       array: true,
       describe:
-        "Local path or URL of custom catalogs to use prior to schemastore.org",
+        "A list of local paths or URLs of custom catalogs to use prior to schemastore.org",
     })
     .conflicts("schema", "catalogs")
     .option("ignore-errors", {
@@ -121,6 +159,17 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
         "means a non-zero exit code is only issued if validation could be " +
         "completed successfully and one or more files were invalid",
     })
+    .option("ignore-pattern-files", {
+      type: "string",
+      array: true,
+      describe: "A list of files containing glob patterns to ignore",
+      ...ignoreFilesOpts,
+    })
+    .option("no-ignore", {
+      type: "boolean",
+      describe: "Disable all ignore files",
+    })
+    .conflicts("ignore-pattern-files", "no-ignore")
     .option("cache-ttl", {
       type: "number",
       default: 600,

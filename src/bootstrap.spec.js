@@ -22,9 +22,12 @@ describe("parseArgs", function () {
     );
     assert.equal(args.ignoreErrors, false);
     assert.equal(args.cacheTtl, 600);
-    assert.equal(args.verbose, false);
+    assert.equal(args.format, "text");
+    assert.equal(args.verbose, 0);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);
+    assert.deepStrictEqual(args.ignorePatternFiles, [".v8rignore"]);
+    assert.equal(args.ignore, true);
   });
 
   it("should populate default values from base config when no args", function () {
@@ -36,6 +39,7 @@ describe("parseArgs", function () {
           ignoreErrors: true,
           cacheTtl: 300,
           verbose: 1,
+          ignorePatternFiles: [".v8rignore"],
         },
         filepath: "/foo/bar.yml",
       },
@@ -48,6 +52,8 @@ describe("parseArgs", function () {
     assert.equal(args.verbose, 1);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);
+    assert.deepStrictEqual(args.ignorePatternFiles, [".v8rignore"]);
+    assert.equal(args.ignore, true);
   });
 
   it("should override default values when args specified and no base config", function () {
@@ -60,6 +66,8 @@ describe("parseArgs", function () {
         "--cache-ttl",
         "86400",
         "-vv",
+        "--ignore-pattern-files",
+        ".gitignore",
       ],
       { config: {} },
       documentFormats,
@@ -71,6 +79,7 @@ describe("parseArgs", function () {
     assert.equal(args.verbose, 2);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);
+    assert.deepStrictEqual(args.ignorePatternFiles, [".gitignore"]);
   });
 
   it("should override default values from base config when args specified", function () {
@@ -83,6 +92,8 @@ describe("parseArgs", function () {
         "--cache-ttl",
         "86400",
         "-vv",
+        "--ignore-pattern-files",
+        ".gitignore",
       ],
       {
         config: {
@@ -90,6 +101,7 @@ describe("parseArgs", function () {
           ignoreErrors: false,
           cacheTtl: 300,
           verbose: 1,
+          ignorePatternFiles: [".v8rignore"],
         },
         filepath: "/foo/bar.yml",
       },
@@ -102,6 +114,7 @@ describe("parseArgs", function () {
     assert.equal(args.verbose, 2);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);
+    assert.deepStrictEqual(args.ignorePatternFiles, [".gitignore"]);
   });
 
   it("should accept schema param", function () {
@@ -145,6 +158,33 @@ describe("parseArgs", function () {
       "*.yaml",
     ]);
   });
+
+  it("should accept multiple ignore files", function () {
+    const args = parseArgs(
+      [
+        "node",
+        "index.js",
+        "infile.json",
+        "--ignore-pattern-files",
+        "ignore1",
+        "ignore2",
+      ],
+      { config: {} },
+      documentFormats,
+      outputFormats,
+    );
+    assert.deepStrictEqual(args.ignorePatternFiles, ["ignore1", "ignore2"]);
+  });
+
+  it("should accept no-ignore param", function () {
+    const args = parseArgs(
+      ["node", "index.js", "infile.json", "--no-ignore"],
+      { config: {} },
+      documentFormats,
+      outputFormats,
+    );
+    assert.deepStrictEqual(args.ignore, false);
+  });
 });
 
 describe("getConfig", function () {
@@ -163,6 +203,7 @@ describe("getConfig", function () {
       { cache: false },
     );
     assert.equal(config.ignoreErrors, false);
+    assert.deepStrictEqual(config.ignorePatternFiles, [".v8rignore"]);
     assert.equal(config.cacheTtl, 600);
     assert.equal(config.verbose, 0);
     assert.equal(config.catalogs, undefined);
@@ -192,6 +233,7 @@ describe("getConfig", function () {
       cache: false,
     });
     assert.equal(config.ignoreErrors, true);
+    assert.deepStrictEqual(config.ignorePatternFiles, [".v8rignore"]);
     assert.equal(config.cacheTtl, 300);
     assert.equal(config.verbose, 1);
     assert.deepStrictEqual(config.patterns, ["./foobar/*.json"]);
@@ -228,12 +270,15 @@ describe("getConfig", function () {
         "--cache-ttl",
         "86400",
         "-vv",
+        "--ignore-pattern-files",
+        ".gitignore",
       ],
       undefined,
       { cache: false },
     );
     assert.deepStrictEqual(config.patterns, ["infile.json"]);
     assert.equal(config.ignoreErrors, true);
+    assert.deepStrictEqual(config.ignorePatternFiles, [".gitignore"]);
     assert.equal(config.cacheTtl, 86400);
     assert.equal(config.verbose, 2);
     assert.equal(config.catalogs, undefined);

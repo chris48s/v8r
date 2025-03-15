@@ -51,6 +51,14 @@ cacheTtl: 86400
 # - default = text
 format: "json"
 
+# - A list of files containing glob patterns to ignore
+#   Set this to [] to disable all ignore files
+# - overridden by passing --ignore-pattern-files or --no-ignore
+# - default = [".v8rignore"]
+#   note: The default value of this param will change to
+#   [".gitignore", ".v8rignore"] in version 5
+ignorePatternFiles: []
+
 # - A custom schema catalog.
 #   This catalog will be searched ahead of any custom catalogs passed using
 #   --catalogs or SchemaStore.org
