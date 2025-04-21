@@ -65,6 +65,14 @@
       "description": "Exit with code 0 even if an error was encountered. True means a non-zero exit code is only issued if validation could be completed successfully and one or more files were invalid",
       "type": "boolean"
     },
+    "ignorePatternFiles": {
+      "description": "A list of files containing glob patterns to ignore",
+      "uniqueItems": true,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "patterns": {
       "type": "array",
       "description": "One or more filenames or glob patterns describing local file or files to validate",

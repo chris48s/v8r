@@ -7,7 +7,7 @@ import { validate } from "./ajv.js";
 import { bootstrap } from "./bootstrap.js";
 import { Cache } from "./cache.js";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
-import { getFiles } from "./glob.js";
+import { getFiles, NotFound } from "./glob.js";
 import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
 import { getDocumentLocation } from "./output-formatters.js";
@@ -170,18 +170,15 @@ function resultsToStatusCode(results, ignoreErrors) {
 function Validator() {
   return async function (config, plugins) {
     let filenames = [];
-    for (const pattern of config.patterns) {
-      const matches = await getFiles(pattern);
-      if (matches.length === 0) {
-        logger.error(`Pattern '${pattern}' did not match any files`);
+    try {
+      filenames = await getFiles(config.patterns, config.ignorePatternFiles);
+    } catch (e) {
+      if (e instanceof NotFound) {
+        logger.error(e.message);
         return EXIT.NOT_FOUND;
       }
-      filenames = filenames.concat(matches);
+      throw e;
     }
-
-    // de-dupe and sort
-    filenames = [...new Set(filenames)];
-    filenames.sort((a, b) => a.localeCompare(b));
 
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(ttl));

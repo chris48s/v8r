@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # Exit codes
@@ -29,6 +29,7 @@ v8r always exits with code `98` when:
 
 * An input glob pattern was invalid
 * An input glob pattern was valid but did not match any files
+* All files matching input glob patterns were ignored
 
 v8r always exits with code `99` when:
 
