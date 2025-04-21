@@ -1,5 +1,13 @@
 # Changelog
 
+## 📦 [4.3.0](https://www.npmjs.com/package/v8r/v/4.3.0) - 2025-04-21
+
+* Add ignore patern files. v8r now looks for ignore patterns in `.v8rignore` by default.
+  More info: https://chris48s.github.io/v8r/ignoring-files/
+* Include the prop name in `additionalProperty` log message.
+* Allow config file to contain `$schema` key.
+* Fix: Clear the cache on init if TTL is 0.
+
 ## 📦 [4.2.1](https://www.npmjs.com/package/v8r/v/4.2.1) - 2024-12-14
 
 * Upgrade to flat-cache 6.
