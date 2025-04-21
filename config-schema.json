@@ -95,6 +95,9 @@
         "type": "string",
         "pattern": "^(package:|file:)"
       }
+    },
+    "$schema": {
+      "type": "string"
     }
   }
 }
