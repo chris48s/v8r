@@ -3,6 +3,13 @@
   "$schema": "https://json-schema.org/draft/2019-09/schema",
   "type": "object",
   "additionalProperties": false,
+  "allOf": [
+    {
+      "not": {
+        "required": ["format", "outputFormat"]
+      }
+    }
+  ],
   "properties": {
     "cacheTtl": {
       "description": "Remove cached HTTP responses older than cacheTtl seconds old. Specifying 0 clears and disables cache completely",
@@ -57,9 +64,14 @@
         }
       }
     },
-    "format": {
+    "outputFormat": {
       "description": "Output format for validation results. 'text' and 'json' are always valid. Plugins may define additional values which are valid here.",
       "type": "string"
+    },
+    "format": {
+      "description": "Output format for validation results. 'text' and 'json' are always valid. Plugins may define additional values which are valid here.",
+      "type": "string",
+      "deprecated": true
     },
     "ignoreErrors": {
       "description": "Exit with code 0 even if an error was encountered. True means a non-zero exit code is only issued if validation could be completed successfully and one or more files were invalid",

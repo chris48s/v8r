@@ -1040,7 +1040,7 @@ describe("CLI", function () {
           "./testfiles/files/invalid.json",
         ],
         schema: "./testfiles/schemas/schema.json",
-        format: "json",
+        outputFormat: "json",
         ignorePatternFiles: [],
       }).then(() => {
         const json = JSON.parse(logger.stdout[0]);
@@ -1067,7 +1067,7 @@ describe("CLI", function () {
           "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
         ],
         schema: "./testfiles/schemas/schema.json",
-        format: "text",
+        outputFormat: "text",
         ignorePatternFiles: [],
       }).then(() => {
         assert(
@@ -1082,7 +1082,7 @@ describe("CLI", function () {
       return cli({
         patterns: ["./testfiles/files/multi-doc.yaml"],
         schema: "./testfiles/schemas/schema.json",
-        format: "text",
+        outputFormat: "text",
         ignorePatternFiles: [],
       }).then(() => {
         assert(
@@ -1099,7 +1099,7 @@ describe("CLI", function () {
           "{./testfiles/files/valid.json,./testfiles/files/invalid.json,./testfiles/files/not-supported.txt}",
         ],
         schema: "./testfiles/schemas/schema.json",
-        format: "json",
+        outputFormat: "json",
         ignorePatternFiles: [],
       }).then(() => {
         const expected = {
@@ -1148,7 +1148,7 @@ describe("CLI", function () {
       return cli({
         patterns: ["./testfiles/files/multi-doc.yaml"],
         schema: "./testfiles/schemas/schema.json",
-        format: "json",
+        outputFormat: "json",
         ignorePatternFiles: [],
       }).then(() => {
         const expected = {

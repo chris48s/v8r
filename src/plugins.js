@@ -54,8 +54,8 @@ class BasePlugin {
   /**
    * Use the `registerOutputFormats` hook to tell v8r about additional output
    * formats that can be generated. Any formats registered with this hook become
-   * valid values for the `format` property in the config file and the
-   * `--format` command line argument.
+   * valid values for the `outputFormat` property in the config file and the
+   * `--output-format` command line argument.
    *
    * @returns {string[]} Output formats to register
    */
@@ -81,7 +81,7 @@ class BasePlugin {
    *   paths in the current directory will be prefixed with `./` (or `.\` on
    *   Windows) even if this was not present in the input filename or pattern.
    * @param {string} format - The user's requested output format as specified in
-   *   the config file or via the `--format` command line argument.
+   *   the config file or via the `--output-format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
@@ -103,7 +103,7 @@ class BasePlugin {
    * @param {ValidationResult[]} results - Results of attempting to validate
    *   these documents.
    * @param {string} format - The user's requested output format as specified in
-   *   the config file or via the `--format` command line argument.
+   *   the config file or via the `--output-format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
