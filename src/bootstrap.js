@@ -81,7 +81,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
   const ignoreFilesOpts = {
     describe: "A list of files containing glob patterns to ignore",
   };
-  let ignoreFilesDefault = [".v8rignore"];
+  let ignoreFilesDefault = [".v8rignore", ".gitignore"];
   ignoreFilesOpts.defaultDescription = `${JSON.stringify(ignoreFilesDefault)}`;
   if (Object.keys(config.config).includes("ignorePatternFiles")) {
     ignoreFilesDefault = config.config.ignorePatternFiles;
@@ -273,11 +273,6 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
 
   // parse command line arguments
   const args = parseArgs(argv, configFile, documentFormats, outputFormats);
-
-  // https://github.com/chris48s/v8r/issues/599
-  logger.warning(
-    "Starting from v8r version 5, v8r will ignore patterns in .gitignore by default.",
-  );
 
   return {
     config: mergeConfigs(args, configFile),
