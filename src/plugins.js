@@ -1,4 +1,5 @@
 import path from "node:path";
+import logger from "./logger.js";
 
 /**
  * Base class for all v8r plugins.
@@ -123,7 +124,11 @@ class Document {
   }
 }
 
-function validatePlugin(plugin) {
+function hasProperty(plugin, prop) {
+  return Object.prototype.hasOwnProperty.call(plugin.prototype, prop);
+}
+
+function validatePlugin(plugin, warnings) {
   if (
     typeof plugin.name !== "string" ||
     !plugin.name.startsWith("v8r-plugin-")
@@ -150,6 +155,29 @@ function validatePlugin(plugin) {
       );
     }
   }
+
+  if (warnings === true) {
+    // https://github.com/chris48s/v8r/issues/500
+    if (hasProperty(plugin, "getSingleResultLogMessage")) {
+      logger.warning(
+        "In v8r version 5 the fileLocation argument of getSingleResultLogMessage will be removed.\n" +
+          "  The signature will become getSingleResultLogMessage(result, format).\n" +
+          `  ${plugin.name} will need to be updated`,
+      );
+    }
+
+    // https://github.com/chris48s/v8r/issues/600
+    if (
+      hasProperty(plugin, "getSingleResultLogMessage") ||
+      hasProperty(plugin, "getAllResultsLogMessage") ||
+      hasProperty(plugin, "parseInputFile")
+    ) {
+      logger.warning(
+        "Starting from v8r version 5 file paths will no longer be passed to plugins in dot-relative notation.\n" +
+          `  ${plugin.name} may need to be updated`,
+      );
+    }
+  }
 }
 
 function resolveUserPlugins(userPlugins) {
@@ -165,19 +193,19 @@ function resolveUserPlugins(userPlugins) {
   return plugins;
 }
 
-async function loadPlugins(plugins) {
+async function loadPlugins(plugins, warnings) {
   let loadedPlugins = [];
   for (const plugin of plugins) {
     loadedPlugins.push(await import(plugin));
   }
   loadedPlugins = loadedPlugins.map((plugin) => plugin.default);
-  loadedPlugins.forEach((plugin) => validatePlugin(plugin));
+  loadedPlugins.forEach((plugin) => validatePlugin(plugin, warnings));
   loadedPlugins = loadedPlugins.map((plugin) => new plugin());
   return loadedPlugins;
 }
 
 async function loadAllPlugins(userPlugins) {
-  const loadedUserPlugins = await loadPlugins(userPlugins);
+  const loadedUserPlugins = await loadPlugins(userPlugins, true);
 
   const corePlugins = [
     "./plugins/parser-json.js",
@@ -187,7 +215,7 @@ async function loadAllPlugins(userPlugins) {
     "./plugins/output-text.js",
     "./plugins/output-json.js",
   ];
-  const loadedCorePlugins = await loadPlugins(corePlugins);
+  const loadedCorePlugins = await loadPlugins(corePlugins, false);
 
   return {
     allLoadedPlugins: loadedUserPlugins.concat(loadedCorePlugins),

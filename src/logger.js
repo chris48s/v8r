@@ -47,6 +47,12 @@ class Logger {
     this.writeErr(formatedMessage);
   }
 
+  warning(message) {
+    const formatedMessage = chalk.yellow.bold("▲ ") + message;
+    this.stderr.push(formatedMessage);
+    this.writeErr(formatedMessage);
+  }
+
   error(message) {
     const formatedMessage = chalk.red.bold("✖ ") + message;
     this.stderr.push(formatedMessage);
