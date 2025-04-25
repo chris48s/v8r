@@ -76,16 +76,12 @@ class BasePlugin {
    *
    * @param {ValidationResult} result - Result of attempting to validate this
    *   document.
-   * @param {string} fileLocation - The document file path. Filenames are
-   *   resolved and normalised using dot-relative notation. This means relative
-   *   paths in the current directory will be prefixed with `./` (or `.\` on
-   *   Windows) even if this was not present in the input filename or pattern.
    * @param {string} format - The user's requested output format as specified in
    *   the config file or via the `--output-format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
-  getSingleResultLogMessage(result, fileLocation, format) {
+  getSingleResultLogMessage(result, format) {
     return undefined;
   }
 
@@ -157,15 +153,6 @@ function validatePlugin(plugin, warnings) {
   }
 
   if (warnings === true) {
-    // https://github.com/chris48s/v8r/issues/500
-    if (hasProperty(plugin, "getSingleResultLogMessage")) {
-      logger.warning(
-        "In v8r version 5 the fileLocation argument of getSingleResultLogMessage will be removed.\n" +
-          "  The signature will become getSingleResultLogMessage(result, format).\n" +
-          `  ${plugin.name} will need to be updated`,
-      );
-    }
-
     // https://github.com/chris48s/v8r/issues/600
     if (
       hasProperty(plugin, "getSingleResultLogMessage") ||

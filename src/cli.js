@@ -144,7 +144,6 @@ async function validateFile(filename, config, plugins, cache) {
     for (const plugin of plugins) {
       const message = plugin.getSingleResultLogMessage(
         result,
-        filename,
         config.outputFormat,
       );
       if (message != null) {

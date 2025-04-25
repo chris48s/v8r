@@ -63,7 +63,7 @@ class EmojiOutput extends BasePlugin {
   allows us to optionally return a log message to be written to stdout
   after each file is validated.
   */
-  getSingleResultLogMessage(result, filename, format) {
+  getSingleResultLogMessage(result, format) {
     /*
     Check if the user has requested "emoji" output.
     If the user hasn't requested emoji output, we don't want to return a value.
