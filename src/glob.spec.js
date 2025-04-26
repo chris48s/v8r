@@ -15,7 +15,7 @@ describe("getFiles", function () {
   it("matches single filename", async function () {
     const patterns = ["testfiles/files/valid.json"];
     const ignorePatternFiles = [];
-    const expected = ["./testfiles/files/valid.json"];
+    const expected = ["testfiles/files/valid.json"];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
       expected,
@@ -29,8 +29,8 @@ describe("getFiles", function () {
     ];
     const ignorePatternFiles = [];
     const expected = [
-      "./testfiles/files/valid.json",
-      "./testfiles/files/valid.yaml",
+      "testfiles/files/valid.json",
+      "testfiles/files/valid.yaml",
     ];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
@@ -42,8 +42,8 @@ describe("getFiles", function () {
     const patterns = ["testfiles/files/*.yaml"];
     const ignorePatternFiles = [];
     const expected = [
-      "./testfiles/files/multi-doc.yaml",
-      "./testfiles/files/valid.yaml",
+      "testfiles/files/multi-doc.yaml",
+      "testfiles/files/valid.yaml",
     ];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
@@ -55,11 +55,11 @@ describe("getFiles", function () {
     const patterns = ["testfiles/files/*.yaml", "testfiles/files/*.json"];
     const ignorePatternFiles = [];
     const expected = [
-      "./testfiles/files/invalid.json",
-      "./testfiles/files/multi-doc.yaml",
-      "./testfiles/files/valid.json",
-      "./testfiles/files/valid.yaml",
-      "./testfiles/files/with-comments.json",
+      "testfiles/files/invalid.json",
+      "testfiles/files/multi-doc.yaml",
+      "testfiles/files/valid.json",
+      "testfiles/files/valid.yaml",
+      "testfiles/files/with-comments.json",
     ];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
@@ -90,8 +90,8 @@ describe("getFiles", function () {
     const patterns = ["testfiles/files/*.json", "testfiles/files/*.yaml"];
     const ignorePatternFiles = ["testfiles/ignorefiles/ignore-json"];
     const expected = [
-      "./testfiles/files/multi-doc.yaml",
-      "./testfiles/files/valid.yaml",
+      "testfiles/files/multi-doc.yaml",
+      "testfiles/files/valid.yaml",
     ];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
@@ -109,7 +109,7 @@ describe("getFiles", function () {
       "testfiles/ignorefiles/ignore-json",
       "testfiles/ignorefiles/ignore-yaml",
     ];
-    const expected = ["./testfiles/files/valid.toml"];
+    const expected = ["testfiles/files/valid.toml"];
     assert.deepStrictEqual(
       await getFiles(patterns, ignorePatternFiles),
       expected,

@@ -1,5 +1,4 @@
 import path from "node:path";
-import logger from "./logger.js";
 
 /**
  * Base class for all v8r plugins.
@@ -37,10 +36,7 @@ class BasePlugin {
    * Document object or an array of Document objects.
    *
    * @param {string} contents - The unparsed file content.
-   * @param {string} fileLocation - The file path. Filenames are resolved and
-   *   normalised using dot-relative notation. This means relative paths in the
-   *   current directory will be prefixed with `./` (or `.\` on Windows) even if
-   *   this was not present in the input filename or pattern.
+   * @param {string} fileLocation - The file path.
    * @param {string | undefined} parser - If the user has specified a parser to
    *   use for this file in a custom schema, this will be passed to
    *   `parseInputFile` in the `parser` param.
@@ -120,11 +116,7 @@ class Document {
   }
 }
 
-function hasProperty(plugin, prop) {
-  return Object.prototype.hasOwnProperty.call(plugin.prototype, prop);
-}
-
-function validatePlugin(plugin, warnings) {
+function validatePlugin(plugin) {
   if (
     typeof plugin.name !== "string" ||
     !plugin.name.startsWith("v8r-plugin-")
@@ -151,20 +143,6 @@ function validatePlugin(plugin, warnings) {
       );
     }
   }
-
-  if (warnings === true) {
-    // https://github.com/chris48s/v8r/issues/600
-    if (
-      hasProperty(plugin, "getSingleResultLogMessage") ||
-      hasProperty(plugin, "getAllResultsLogMessage") ||
-      hasProperty(plugin, "parseInputFile")
-    ) {
-      logger.warning(
-        "Starting from v8r version 5 file paths will no longer be passed to plugins in dot-relative notation.\n" +
-          `  ${plugin.name} may need to be updated`,
-      );
-    }
-  }
 }
 
 function resolveUserPlugins(userPlugins) {
@@ -180,19 +158,19 @@ function resolveUserPlugins(userPlugins) {
   return plugins;
 }
 
-async function loadPlugins(plugins, warnings) {
+async function loadPlugins(plugins) {
   let loadedPlugins = [];
   for (const plugin of plugins) {
     loadedPlugins.push(await import(plugin));
   }
   loadedPlugins = loadedPlugins.map((plugin) => plugin.default);
-  loadedPlugins.forEach((plugin) => validatePlugin(plugin, warnings));
+  loadedPlugins.forEach((plugin) => validatePlugin(plugin));
   loadedPlugins = loadedPlugins.map((plugin) => new plugin());
   return loadedPlugins;
 }
 
 async function loadAllPlugins(userPlugins) {
-  const loadedUserPlugins = await loadPlugins(userPlugins, true);
+  const loadedUserPlugins = await loadPlugins(userPlugins);
 
   const corePlugins = [
     "./plugins/parser-json.js",
@@ -202,7 +180,7 @@ async function loadAllPlugins(userPlugins) {
     "./plugins/output-text.js",
     "./plugins/output-json.js",
   ];
-  const loadedCorePlugins = await loadPlugins(corePlugins, false);
+  const loadedCorePlugins = await loadPlugins(corePlugins);
 
   return {
     allLoadedPlugins: loadedUserPlugins.concat(loadedCorePlugins),
@@ -214,10 +192,6 @@ async function loadAllPlugins(userPlugins) {
 /**
  * @typedef {object} ValidationResult
  * @property {string} fileLocation - Path of the document that was validated.
- *   Filenames are resolved and normalised using dot-relative notation. This
- *   means relative paths in the current directory will be prefixed with `./`
- *   (or `.\` on Windows) even if this was not present in the input filename or
- *   pattern.
  * @property {number | null} documentIndex - Some file formats allow multiple
  *   documents to be embedded in one file (e.g:
  *   [yaml](https://www.yaml.info/learn/document.html)). In these cases,
