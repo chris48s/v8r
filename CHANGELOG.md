@@ -1,5 +1,25 @@
 # Changelog
 
+## 📦 [4.4.0](https://www.npmjs.com/package/v8r/v/4.4.0) - 2025-04-26
+
+Version 4.4.0 is a deprecation release. This release adds deprecation warnings for
+upcoming breaking changes that will be made in version 5.0
+
+* This release adds the `--output-format` CLI argument and `outputFormat` config file key.
+  In v8r 4.4.0 `--format` and `format` can still be used as aliases.
+  In version 5 `--format` and `format` will be removed.
+  It is recommended to switch to using `--output-format` and `outputFormat` now.
+* Starting from v8r version 5, v8r will ignore patterns in `.gitignore` by default.
+* In v8r version 5 the `fileLocation` argument of `getSingleResultLogMessage` will be removed.
+  The signature will become `getSingleResultLogMessage(result, format)`.
+  Plugins implementing the `getSingleResultLogMessage` plugin hook will need to to update
+  the signature to be compatible with version 5.
+  If you are using `fileLocation` in the `getSingleResultLogMessage` function body,
+  switch to using `result.fileLocation`.
+* Starting from v8r version 5 file paths will no longer be passed to plugins in dot-relative notation.
+  Plugins implementing the `getSingleResultLogMessage`, `getAllResultsLogMessage` and `parseInputFile`
+  plugin hooks may need to be updated.
+
 ## 📦 [4.3.0](https://www.npmjs.com/package/v8r/v/4.3.0) - 2025-04-21
 
 * Add ignore patern files. v8r now looks for ignore patterns in `.v8rignore` by default.

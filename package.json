@@ -1,6 +1,6 @@
 {
   "name": "v8r",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "A command-line JSON, YAML and TOML validator that's on your wavelength",
   "scripts": {
     "test": "V8R_CACHE_NAME=v8r-test c8 --reporter=text mocha \"src/**/*.spec.js\"",
