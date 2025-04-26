@@ -14,6 +14,7 @@ const validConfigs = [
   {
     config: {
       ignoreErrors: true,
+      ignorePatternFiles: [".v8rignore", ".gitignore"],
       verbose: 0,
       patterns: ["foobar.js"],
       cacheTtl: 600,
