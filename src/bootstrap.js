@@ -53,8 +53,6 @@ function mergeConfigs(args, config) {
   if (config.filepath) {
     mergedConfig.configFileRelativePath = getRelativeFilePath(config);
   }
-  // https://github.com/chris48s/v8r/issues/494
-  delete mergedConfig.format;
   return mergedConfig;
 }
 
@@ -122,13 +120,6 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
         if (args.ignore === undefined) {
           args.ignore = true;
         }
-
-        // https://github.com/chris48s/v8r/issues/494
-        if (process.argv.includes("--format")) {
-          logger.warning(
-            "In v8r version 5 the --format argument will be removed. Switch to using --output-format",
-          );
-        }
       },
     )
     .version(
@@ -190,10 +181,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
       type: "string",
       choices: outputFormats,
       default: "text",
-      // https://github.com/chris48s/v8r/issues/494
-      describe:
-        "Output format for validation results. The '--format' alias is deprecated.",
-      alias: "format",
+      describe: "Output format for validation results",
     })
     .example([
       ["$0 file.json", "Validate a single file"],
@@ -250,14 +238,6 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   // load the config file and validate it against the schema
   const configFile = await getCosmiConfig(cosmiconfigOptions);
   validateConfigAgainstSchema(configFile);
-
-  // https://github.com/chris48s/v8r/issues/494
-  if (configFile.config.format) {
-    logger.warning(
-      "In v8r version 5 the 'format' config file key will be removed. Switch to using 'outputFormat'",
-    );
-    configFile.config.outputFormat = configFile.config.format;
-  }
 
   // load both core and user plugins
   let plugins = resolveUserPlugins(configFile.config.plugins || []);
