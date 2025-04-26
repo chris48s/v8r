@@ -1,4 +1,5 @@
 import path from "node:path";
+import logger from "./logger.js";
 
 /**
  * Base class for all v8r plugins.
@@ -53,8 +54,8 @@ class BasePlugin {
   /**
    * Use the `registerOutputFormats` hook to tell v8r about additional output
    * formats that can be generated. Any formats registered with this hook become
-   * valid values for the `format` property in the config file and the
-   * `--format` command line argument.
+   * valid values for the `outputFormat` property in the config file and the
+   * `--output-format` command line argument.
    *
    * @returns {string[]} Output formats to register
    */
@@ -80,7 +81,7 @@ class BasePlugin {
    *   paths in the current directory will be prefixed with `./` (or `.\` on
    *   Windows) even if this was not present in the input filename or pattern.
    * @param {string} format - The user's requested output format as specified in
-   *   the config file or via the `--format` command line argument.
+   *   the config file or via the `--output-format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
@@ -102,7 +103,7 @@ class BasePlugin {
    * @param {ValidationResult[]} results - Results of attempting to validate
    *   these documents.
    * @param {string} format - The user's requested output format as specified in
-   *   the config file or via the `--format` command line argument.
+   *   the config file or via the `--output-format` command line argument.
    * @returns {string | undefined} Log message
    */
   // eslint-disable-next-line no-unused-vars
@@ -123,7 +124,11 @@ class Document {
   }
 }
 
-function validatePlugin(plugin) {
+function hasProperty(plugin, prop) {
+  return Object.prototype.hasOwnProperty.call(plugin.prototype, prop);
+}
+
+function validatePlugin(plugin, warnings) {
   if (
     typeof plugin.name !== "string" ||
     !plugin.name.startsWith("v8r-plugin-")
@@ -150,6 +155,29 @@ function validatePlugin(plugin) {
       );
     }
   }
+
+  if (warnings === true) {
+    // https://github.com/chris48s/v8r/issues/500
+    if (hasProperty(plugin, "getSingleResultLogMessage")) {
+      logger.warning(
+        "In v8r version 5 the fileLocation argument of getSingleResultLogMessage will be removed.\n" +
+          "  The signature will become getSingleResultLogMessage(result, format).\n" +
+          `  ${plugin.name} will need to be updated`,
+      );
+    }
+
+    // https://github.com/chris48s/v8r/issues/600
+    if (
+      hasProperty(plugin, "getSingleResultLogMessage") ||
+      hasProperty(plugin, "getAllResultsLogMessage") ||
+      hasProperty(plugin, "parseInputFile")
+    ) {
+      logger.warning(
+        "Starting from v8r version 5 file paths will no longer be passed to plugins in dot-relative notation.\n" +
+          `  ${plugin.name} may need to be updated`,
+      );
+    }
+  }
 }
 
 function resolveUserPlugins(userPlugins) {
@@ -165,19 +193,19 @@ function resolveUserPlugins(userPlugins) {
   return plugins;
 }
 
-async function loadPlugins(plugins) {
+async function loadPlugins(plugins, warnings) {
   let loadedPlugins = [];
   for (const plugin of plugins) {
     loadedPlugins.push(await import(plugin));
   }
   loadedPlugins = loadedPlugins.map((plugin) => plugin.default);
-  loadedPlugins.forEach((plugin) => validatePlugin(plugin));
+  loadedPlugins.forEach((plugin) => validatePlugin(plugin, warnings));
   loadedPlugins = loadedPlugins.map((plugin) => new plugin());
   return loadedPlugins;
 }
 
 async function loadAllPlugins(userPlugins) {
-  const loadedUserPlugins = await loadPlugins(userPlugins);
+  const loadedUserPlugins = await loadPlugins(userPlugins, true);
 
   const corePlugins = [
     "./plugins/parser-json.js",
@@ -187,7 +215,7 @@ async function loadAllPlugins(userPlugins) {
     "./plugins/output-text.js",
     "./plugins/output-json.js",
   ];
-  const loadedCorePlugins = await loadPlugins(corePlugins);
+  const loadedCorePlugins = await loadPlugins(corePlugins, false);
 
   return {
     allLoadedPlugins: loadedUserPlugins.concat(loadedCorePlugins),

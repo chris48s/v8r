@@ -22,7 +22,7 @@ describe("parseArgs", function () {
     );
     assert.equal(args.ignoreErrors, false);
     assert.equal(args.cacheTtl, 600);
-    assert.equal(args.format, "text");
+    assert.equal(args.outputFormat, "text");
     assert.equal(args.verbose, 0);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);

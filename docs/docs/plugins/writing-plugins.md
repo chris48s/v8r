@@ -37,7 +37,7 @@ These hooks may optionally return or not return a value. Each plugin is run in s
 
 ## Worked Example
 
-Lets build a simple example plugin. Our plugin is going to register an output format called "emoji". If the user passes `--format emoji` (or sets `format: emoji` in their config file) the plugin will output a 👍 when the file is valid and a 👎 when the file is invalid instead of the default text log message.
+Lets build a simple example plugin. Our plugin is going to register an output format called "emoji". If the user passes `--output-format emoji` (or sets `outputFormat: emoji` in their config file) the plugin will output a 👍 when the file is valid and a 👎 when the file is invalid instead of the default text log message.
 
 ```js title="./plugins/v8r-plugin-emoji-output.js"
 // Our plugin extends the BasePlugin class
@@ -51,7 +51,7 @@ class EmojiOutput extends BasePlugin {
   registerOutputFormats() {
     /*
     Registering "emoji" as an output format here adds "emoji" to the list
-    of values the user may pass to the --format argument.
+    of values the user may pass to the --output-format argument.
     We could register multiple output formats here if we want,
     but we're just going to register one.
     */

@@ -145,7 +145,7 @@ async function validateFile(filename, config, plugins, cache) {
       const message = plugin.getSingleResultLogMessage(
         result,
         filename,
-        config.format,
+        config.outputFormat,
       );
       if (message != null) {
         logger.log(message);
@@ -191,7 +191,10 @@ function Validator() {
     }
 
     for (const plugin of plugins) {
-      const message = plugin.getAllResultsLogMessage(results, config.format);
+      const message = plugin.getAllResultsLogMessage(
+        results,
+        config.outputFormat,
+      );
       if (message != null) {
         logger.log(message);
         break;

@@ -47,9 +47,9 @@ ignoreErrors: true
 cacheTtl: 86400
 
 # - Output format for validation results
-# - overridden by passing --format
+# - overridden by passing --output-format
 # - default = text
-format: "json"
+outputFormat: "json"
 
 # - A list of files containing glob patterns to ignore
 #   Set this to [] to disable all ignore files

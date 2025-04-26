@@ -53,6 +53,8 @@ function mergeConfigs(args, config) {
   if (config.filepath) {
     mergedConfig.configFileRelativePath = getRelativeFilePath(config);
   }
+  // https://github.com/chris48s/v8r/issues/494
+  delete mergedConfig.format;
   return mergedConfig;
 }
 
@@ -120,6 +122,13 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
         if (args.ignore === undefined) {
           args.ignore = true;
         }
+
+        // https://github.com/chris48s/v8r/issues/494
+        if (process.argv.includes("--format")) {
+          logger.warning(
+            "In v8r version 5 the --format argument will be removed. Switch to using --output-format",
+          );
+        }
       },
     )
     .version(
@@ -177,11 +186,14 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
         "Remove cached HTTP responses older than <cache-ttl> seconds old. " +
         "Passing 0 clears and disables cache completely",
     })
-    .option("format", {
+    .option("output-format", {
       type: "string",
       choices: outputFormats,
       default: "text",
-      describe: "Output format for validation results",
+      // https://github.com/chris48s/v8r/issues/494
+      describe:
+        "Output format for validation results. The '--format' alias is deprecated.",
+      alias: "format",
     })
     .example([
       ["$0 file.json", "Validate a single file"],
@@ -193,7 +205,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
     ]);
 
   for (const [key, value] of Object.entries(config.config)) {
-    if (["cacheTtl", "format", "ignoreErrors", "verbose"].includes(key)) {
+    if (["cacheTtl", "outputFormat", "ignoreErrors", "verbose"].includes(key)) {
       parser.default(
         decamelize(key, { separator: "-" }),
         value,
@@ -239,6 +251,14 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   const configFile = await getCosmiConfig(cosmiconfigOptions);
   validateConfigAgainstSchema(configFile);
 
+  // https://github.com/chris48s/v8r/issues/494
+  if (configFile.config.format) {
+    logger.warning(
+      "In v8r version 5 the 'format' config file key will be removed. Switch to using 'outputFormat'",
+    );
+    configFile.config.outputFormat = configFile.config.format;
+  }
+
   // load both core and user plugins
   let plugins = resolveUserPlugins(configFile.config.plugins || []);
   const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
@@ -253,6 +273,11 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
 
   // parse command line arguments
   const args = parseArgs(argv, configFile, documentFormats, outputFormats);
+
+  // https://github.com/chris48s/v8r/issues/599
+  logger.warning(
+    "Starting from v8r version 5, v8r will ignore patterns in .gitignore by default.",
+  );
 
   return {
     config: mergeConfigs(args, configFile),
