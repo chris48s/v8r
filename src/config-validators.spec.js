@@ -17,7 +17,7 @@ const validConfigs = [
       verbose: 0,
       patterns: ["foobar.js"],
       cacheTtl: 600,
-      format: "json",
+      outputFormat: "json",
       plugins: [
         "package:v8r-plugin-emoji-output",
         "file:./testfiles/plugins/valid.js",
