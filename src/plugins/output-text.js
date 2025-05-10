@@ -8,7 +8,7 @@ class TextOutput extends BasePlugin {
     return ["text"];
   }
 
-  getSingleResultLogMessage(result, fileLocation, format) {
+  getSingleResultLogMessage(result, format) {
     if (result.valid === false && format === "text") {
       return formatErrors(getDocumentLocation(result), result.errors);
     }

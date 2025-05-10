@@ -26,7 +26,10 @@ describe("parseArgs", function () {
     assert.equal(args.verbose, 0);
     assert.equal(args.catalogs, undefined);
     assert.equal(args.schema, undefined);
-    assert.deepStrictEqual(args.ignorePatternFiles, [".v8rignore"]);
+    assert.deepStrictEqual(args.ignorePatternFiles, [
+      ".v8rignore",
+      ".gitignore",
+    ]);
     assert.equal(args.ignore, true);
   });
 
@@ -203,7 +206,10 @@ describe("getConfig", function () {
       { cache: false },
     );
     assert.equal(config.ignoreErrors, false);
-    assert.deepStrictEqual(config.ignorePatternFiles, [".v8rignore"]);
+    assert.deepStrictEqual(config.ignorePatternFiles, [
+      ".v8rignore",
+      ".gitignore",
+    ]);
     assert.equal(config.cacheTtl, 600);
     assert.equal(config.verbose, 0);
     assert.equal(config.catalogs, undefined);

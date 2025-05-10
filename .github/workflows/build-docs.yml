@@ -8,6 +8,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # build docs on node 22 because
+      # https://github.com/naver/jsdoc-to-mdx/issues/20
       - name: Install Node JS 22
         uses: actions/setup-node@v4
         with:

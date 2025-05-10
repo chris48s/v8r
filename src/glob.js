@@ -43,10 +43,6 @@ async function readIgnoreFiles(filenames) {
   return content;
 }
 
-function getSeparator() {
-  return process.platform == "win32" ? "\\" : "/";
-}
-
 async function getFiles(patterns, ignorePatternFiles) {
   let filenames = [];
 
@@ -80,10 +76,6 @@ async function getFiles(patterns, ignorePatternFiles) {
     throw new NotFound(`Could not find any files to validate`);
   }
 
-  const sep = getSeparator();
-  filteredFilenames = filteredFilenames.map((fn) =>
-    !fn.startsWith(".." + sep) ? "." + sep + fn : fn,
-  );
   return filteredFilenames;
 }
 

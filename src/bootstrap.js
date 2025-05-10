@@ -53,8 +53,6 @@ function mergeConfigs(args, config) {
   if (config.filepath) {
     mergedConfig.configFileRelativePath = getRelativeFilePath(config);
   }
-  // https://github.com/chris48s/v8r/issues/494
-  delete mergedConfig.format;
   return mergedConfig;
 }
 
@@ -81,7 +79,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
   const ignoreFilesOpts = {
     describe: "A list of files containing glob patterns to ignore",
   };
-  let ignoreFilesDefault = [".v8rignore"];
+  let ignoreFilesDefault = [".v8rignore", ".gitignore"];
   ignoreFilesOpts.defaultDescription = `${JSON.stringify(ignoreFilesDefault)}`;
   if (Object.keys(config.config).includes("ignorePatternFiles")) {
     ignoreFilesDefault = config.config.ignorePatternFiles;
@@ -121,13 +119,6 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
 
         if (args.ignore === undefined) {
           args.ignore = true;
-        }
-
-        // https://github.com/chris48s/v8r/issues/494
-        if (process.argv.includes("--format")) {
-          logger.warning(
-            "In v8r version 5 the --format argument will be removed. Switch to using --output-format",
-          );
         }
       },
     )
@@ -190,10 +181,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
       type: "string",
       choices: outputFormats,
       default: "text",
-      // https://github.com/chris48s/v8r/issues/494
-      describe:
-        "Output format for validation results. The '--format' alias is deprecated.",
-      alias: "format",
+      describe: "Output format for validation results",
     })
     .example([
       ["$0 file.json", "Validate a single file"],
@@ -251,14 +239,6 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
   const configFile = await getCosmiConfig(cosmiconfigOptions);
   validateConfigAgainstSchema(configFile);
 
-  // https://github.com/chris48s/v8r/issues/494
-  if (configFile.config.format) {
-    logger.warning(
-      "In v8r version 5 the 'format' config file key will be removed. Switch to using 'outputFormat'",
-    );
-    configFile.config.outputFormat = configFile.config.format;
-  }
-
   // load both core and user plugins
   let plugins = resolveUserPlugins(configFile.config.plugins || []);
   const { allLoadedPlugins, loadedCorePlugins, loadedUserPlugins } =
@@ -273,11 +253,6 @@ async function bootstrap(argv, config, cosmiconfigOptions = {}) {
 
   // parse command line arguments
   const args = parseArgs(argv, configFile, documentFormats, outputFormats);
-
-  // https://github.com/chris48s/v8r/issues/599
-  logger.warning(
-    "Starting from v8r version 5, v8r will ignore patterns in .gitignore by default.",
-  );
 
   return {
     config: mergeConfigs(args, configFile),
