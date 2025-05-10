@@ -3,7 +3,7 @@
 ## 📦 [5.0.0](https://www.npmjs.com/package/v8r/v/5.0.0) - 2025-05-10
 
 Following on from the deprecations in version 4.4.0,
-version 5 contains a number of non-backwards-compatible changes:
+version 5.0.0 contains a number of breaking changes:
 
 * The `--format` CLI argument and `format` config file key have been removed.
   Switch to using `--output-format` and `outputFormat`.
@@ -18,6 +18,11 @@ version 5 contains a number of non-backwards-compatible changes:
   Plugins implementing the `getSingleResultLogMessage`, `getAllResultsLogMessage` and `parseInputFile`
   plugin hooks may need to be updated.
 * The minimum compatible node version is now Node 20.
+
+Other changes in this release:
+
+* v8r is now tested on node 24
+* Upgrade to latest major versions of core packages (got, glob, minimatch, etc)
 
 ## 📦 [4.4.0](https://www.npmjs.com/package/v8r/v/4.4.0) - 2025-04-26
 
