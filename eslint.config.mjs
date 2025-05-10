@@ -1,16 +1,16 @@
-const globals = require("globals");
-const js = require("@eslint/js");
-const jsdocPlugin = require("eslint-plugin-jsdoc");
-const prettierConfig = require("eslint-config-prettier");
-const prettierPlugin = require("eslint-plugin-prettier");
-const mochaPlugin = require("eslint-plugin-mocha");
+import globals from "globals";
+import js from "@eslint/js";
+import jsdocPlugin from "eslint-plugin-jsdoc";
+import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
+import mochaPlugin from "eslint-plugin-mocha";
 
-module.exports = [
+const config = [
   {
     ignores: ["docs/.docusaurus/**/*", "docs/build/**/*"],
   },
   js.configs.recommended,
-  mochaPlugin.configs.flat.recommended,
+  mochaPlugin.configs.recommended,
   prettierConfig,
   jsdocPlugin.configs["flat/recommended-error"],
   {
@@ -29,7 +29,7 @@ module.exports = [
     },
     rules: {
       "prettier/prettier": ["error"],
-      "mocha/no-skipped-tests": ["error"],
+      "mocha/no-pending-tests": ["error"],
       "mocha/no-exclusive-tests": ["error"],
       "mocha/max-top-level-suites": ["off"],
       "jsdoc/require-jsdoc": ["off"],
@@ -37,3 +37,5 @@ module.exports = [
     },
   },
 ];
+
+export default config;
