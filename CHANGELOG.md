@@ -1,5 +1,24 @@
 # Changelog
 
+## 📦 [5.0.0](https://www.npmjs.com/package/v8r/v/5.0.0) - 2025-05-10
+
+Following on from the deprecations in version 4.4.0,
+version 5 contains a number of non-backwards-compatible changes:
+
+* The `--format` CLI argument and `format` config file key have been removed.
+  Switch to using `--output-format` and `outputFormat`.
+* v8r now ignores patterns in `.gitignore` by default.
+* The `fileLocation` argument of `getSingleResultLogMessage` has been removed.
+  The signature is now `getSingleResultLogMessage(result, format)`.
+  Plugins implementing the `getSingleResultLogMessage` hook will need to to update
+  the signature.
+  If you are using `fileLocation` in the `getSingleResultLogMessage` function body,
+  switch to using `result.fileLocation`.
+* File paths are no longer passed to plugins in dot-relative notation.
+  Plugins implementing the `getSingleResultLogMessage`, `getAllResultsLogMessage` and `parseInputFile`
+  plugin hooks may need to be updated.
+* The minimum compatible node version is now Node 20.
+
 ## 📦 [4.4.0](https://www.npmjs.com/package/v8r/v/4.4.0) - 2025-04-26
 
 Version 4.4.0 is a deprecation release. This release adds deprecation warnings for
