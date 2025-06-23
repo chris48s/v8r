@@ -49,7 +49,7 @@
     "c8": "^10.1.2",
     "eslint": "^9.9.0",
     "eslint-config-prettier": "^10.1.2",
-    "eslint-plugin-jsdoc": "^50.2.2",
+    "eslint-plugin-jsdoc": "^51.2.1",
     "eslint-plugin-mocha": "^11.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "mocha": "^11.0.1",
