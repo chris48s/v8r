@@ -1,6 +1,13 @@
 import isUrl from "is-url";
+import pLimit from "p-limit";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
 import { getFromUrlOrFile } from "./io.js";
+
+const limit = pLimit(10);
+
+function getFromUrlOrFileWithLimit(url, cache) {
+  return limit(() => getFromUrlOrFile(url, cache));
+}
 
 function resolveUrl(base, ref) {
   try {
@@ -37,7 +44,7 @@ function getRemoteRefs(node, baseUrl) {
 }
 
 async function fetchAndRecurse(url, cache) {
-  const schema = await getFromUrlOrFile(url, cache);
+  const schema = await getFromUrlOrFileWithLimit(url, cache);
   const baseUrl = url;
   const refs = getRemoteRefs(schema, baseUrl);
   await Promise.all(refs.map((ref) => fetchAndRecurse(ref, cache)));
