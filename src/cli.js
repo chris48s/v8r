@@ -12,6 +12,7 @@ import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
 import { getDocumentLocation } from "./output-formatters.js";
 import { parseFile } from "./parser.js";
+import { prewarmSchemaCache } from "./cache-prewarm.js";
 
 const EXIT = {
   VALID: 0,
@@ -181,6 +182,10 @@ function Validator() {
 
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(ttl));
+
+    if (config.cachePrewarm) {
+      await prewarmSchemaCache(filenames, config, cache);
+    }
 
     let results = [];
     for (const filename of filenames) {
