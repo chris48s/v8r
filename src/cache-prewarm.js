@@ -52,7 +52,7 @@ async function prewarmSchemaCache(filenames, config, cache) {
     try {
       catalogMatch = config.schema
         ? {}
-        : await getMatchForFilename(catalogs, filename, cache);
+        : await getMatchForFilename(catalogs, filename, "debug", cache);
     } catch {
       catalogMatch = {};
     }

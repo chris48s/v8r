@@ -138,7 +138,7 @@ describe("getMatchForFilename", function () {
 
   it("returns a schema when one match found", async function () {
     assert.deepStrictEqual(
-      await getMatchForFilename(catalogs, "file1.json", testCache),
+      await getMatchForFilename(catalogs, "file1.json", "info", testCache),
       {
         location: "https://example.com/files-schema-schema.json",
         fileMatch: ["file1.json", "file2.json"],
@@ -148,7 +148,12 @@ describe("getMatchForFilename", function () {
 
   it("returns a schema when match has only one version", async function () {
     assert.deepStrictEqual(
-      await getMatchForFilename(catalogs, "one-version.json", testCache),
+      await getMatchForFilename(
+        catalogs,
+        "one-version.json",
+        "info",
+        testCache,
+      ),
       {
         location: "https://example.com/v1.json",
         fileMatch: ["one-version.json"],
@@ -161,7 +166,12 @@ describe("getMatchForFilename", function () {
 
   it("throws an exception when no matches found", async function () {
     await assert.rejects(
-      getMatchForFilename(catalogs, "doesnt-match-anything.json", testCache),
+      getMatchForFilename(
+        catalogs,
+        "doesnt-match-anything.json",
+        "info",
+        testCache,
+      ),
       {
         name: "Error",
         message:
@@ -172,7 +182,7 @@ describe("getMatchForFilename", function () {
 
   it("throws an exception when multiple matches found", async function () {
     await assert.rejects(
-      getMatchForFilename(catalogs, "file2.json", testCache),
+      getMatchForFilename(catalogs, "file2.json", "info", testCache),
       {
         name: "Error",
         message: "Found multiple possible schemas to validate file2.json",
@@ -186,7 +196,7 @@ describe("getMatchForFilename", function () {
 
   it("throws an exception when match has multiple versions", async function () {
     await assert.rejects(
-      getMatchForFilename(catalogs, "versions.json", testCache),
+      getMatchForFilename(catalogs, "versions.json", "info", testCache),
       {
         name: "Error",
         message: "Found multiple possible schemas to validate versions.json",

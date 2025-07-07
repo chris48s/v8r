@@ -74,7 +74,7 @@ function getMultipleMatchesLogMessage(matches) {
     .join("\n");
 }
 
-async function getMatchForFilename(catalogs, filename, cache) {
+async function getMatchForFilename(catalogs, filename, logLevel, cache) {
   for (const [i, rec] of catalogs.entries()) {
     const catalogLocation = rec.location;
     const catalog =
@@ -107,7 +107,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
       (matches.length === 1 && matches[0].versions == null) ||
       (matches.length === 1 && Object.keys(matches[0].versions).length === 1)
     ) {
-      logger.info(`Found schema in ${catalogLocation} ...`);
+      logger[logLevel](`Found schema in ${catalogLocation} ...`);
       return coerceMatch(matches[0]); // Exactly one match found. We're done.
     }
 
@@ -122,7 +122,7 @@ async function getMatchForFilename(catalogs, filename, cache) {
     ) {
       // We found >1 matches in the same catalog. This is always a hard error.
       const matchesLog = getMultipleMatchesLogMessage(matches);
-      logger.info(
+      logger[logLevel](
         `Found multiple possible matches for ${filename}. Possible matches:\n\n${matchesLog}`,
       );
       throw new Error(
