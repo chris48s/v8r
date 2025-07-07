@@ -48,9 +48,14 @@ async function prewarmSchemaCache(filenames, config, cache) {
   const schemaLocations = new Set();
 
   for (const filename of filenames) {
-    const catalogMatch = config.schema
-      ? {}
-      : await getMatchForFilename(catalogs, filename, cache);
+    let catalogMatch;
+    try {
+      catalogMatch = config.schema
+        ? {}
+        : await getMatchForFilename(catalogs, filename, cache);
+    } catch {
+      catalogMatch = {};
+    }
     const schemaLocation = config.schema || catalogMatch.location;
 
     if (schemaLocation) {
