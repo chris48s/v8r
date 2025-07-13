@@ -51,7 +51,7 @@ describe("resolveUrl", function () {
       [
         "https://example.com/foo/bar.json",
         "#section",
-        "https://example.com/foo/bar.json#section",
+        "https://example.com/foo/bar.json",
       ],
       [
         "https://example.com/foo/bar.json",

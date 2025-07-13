@@ -11,7 +11,9 @@ function getFromUrlOrFileWithLimit(url, cache) {
 
 function resolveUrl(base, ref) {
   try {
-    return new URL(ref, base).toString();
+    const url = new URL(ref, base);
+    url.hash = "";
+    return url.toString();
   } catch {
     return null;
   }
