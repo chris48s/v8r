@@ -30,11 +30,9 @@ function getRemoteRefs(node) {
   } else if (typeof node === "object" && node !== null) {
     for (const [k, v] of Object.entries(node)) {
       if (k === "$ref" && typeof v === "string") {
-        if (!v.startsWith("#") && !v.startsWith("/")) {
-          const resolved = normalizeUrl(v);
-          if (resolved && isUrl(resolved)) {
-            refs.push(resolved);
-          }
+        const resolved = normalizeUrl(v);
+        if (resolved && isUrl(resolved)) {
+          refs.push(resolved);
         }
       }
       if (typeof v === "object" && v !== null) {
