@@ -62,7 +62,7 @@ describe("normalizeUrl", function () {
 describe("getRemoteRefs", function () {
   it("extracts expected refs from input schema", function () {
     const refs = getRemoteRefs(schemaWithRefs, "https://example.com");
-    assert.equal(refs.length, 1);
+    assert.strictEqual(refs.length, 1);
     assert(refs.includes("https://foo.bar/absolute.json"));
   });
 
