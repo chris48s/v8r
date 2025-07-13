@@ -152,7 +152,7 @@ describe("prewarmSchemaCache", function () {
 
     await prewarmSchemaCache(["document.json"], {}, testCache);
 
-    assert(testCache.cache.keys(), 4);
+    assert.strictEqual(testCache.cache.keys().length, 4);
     assert(
       testCache.cache.get("https://json.schemastore.org/schema-catalog.json"),
     );
