@@ -9,9 +9,9 @@ function getFromUrlOrFileWithLimit(url, cache) {
   return limit(() => getFromUrlOrFile(url, cache));
 }
 
-function resolveUrl(base, ref) {
+function normalizeUrl(ref) {
   try {
-    const url = new URL(ref, base);
+    const url = new URL(ref);
     url.hash = "";
     return url.toString();
   } catch {
@@ -19,26 +19,26 @@ function resolveUrl(base, ref) {
   }
 }
 
-function getRemoteRefs(node, baseUrl) {
+function getRemoteRefs(node) {
   let refs = [];
   if (Array.isArray(node)) {
     for (const v of node) {
       if (typeof v === "object" && v !== null) {
-        refs = refs.concat(getRemoteRefs(v, baseUrl));
+        refs = refs.concat(getRemoteRefs(v));
       }
     }
   } else if (typeof node === "object" && node !== null) {
     for (const [k, v] of Object.entries(node)) {
       if (k === "$ref" && typeof v === "string") {
         if (!v.startsWith("#") && !v.startsWith("/")) {
-          const resolved = resolveUrl(baseUrl, v);
+          const resolved = normalizeUrl(v);
           if (resolved && isUrl(resolved)) {
             refs.push(resolved);
           }
         }
       }
       if (typeof v === "object" && v !== null) {
-        refs = refs.concat(getRemoteRefs(v, baseUrl));
+        refs = refs.concat(getRemoteRefs(v));
       }
     }
   }
@@ -47,8 +47,7 @@ function getRemoteRefs(node, baseUrl) {
 
 async function fetchAndRecurse(url, cache) {
   const schema = await getFromUrlOrFileWithLimit(url, cache);
-  const baseUrl = url;
-  const refs = getRemoteRefs(schema, baseUrl);
+  const refs = getRemoteRefs(schema);
   await Promise.all(refs.map((ref) => fetchAndRecurse(ref, cache)));
 }
 
@@ -79,4 +78,4 @@ async function prewarmSchemaCache(filenames, config, cache) {
   );
 }
 
-export { getRemoteRefs, prewarmSchemaCache, resolveUrl };
+export { getRemoteRefs, prewarmSchemaCache, normalizeUrl };

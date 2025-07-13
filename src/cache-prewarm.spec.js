@@ -5,7 +5,7 @@ import { Cache } from "./cache.js";
 import {
   getRemoteRefs,
   prewarmSchemaCache,
-  resolveUrl,
+  normalizeUrl,
 } from "./cache-prewarm.js";
 import { testCacheName, setUp, tearDown } from "./test-helpers.js";
 
@@ -17,90 +17,53 @@ const schemaWithRefs = {
     absolute: {
       $ref: "https://foo.bar/absolute.json",
     },
-    relative: {
-      $ref: "relative.json",
-    },
     list: {
       type: "array",
       items: {
-        $ref: "relative.json",
+        $ref: "https://foo.bar/absolute.json#anchor",
       },
     },
   },
 };
 
-describe("resolveUrl", function () {
-  it("resolves relative references against base URLs", function () {
+describe("normalizeUrl", function () {
+  it("normalizes valid URLs", function () {
     const testCases = [
-      // [base, ref, expected]
       [
-        "https://example.com/foo/bar.json",
-        "baz.json",
-        "https://example.com/foo/baz.json",
-      ],
-      [
-        "https://example.com/foo/bar.json",
-        "./baz.json",
-        "https://example.com/foo/baz.json",
-      ],
-      [
-        "https://example.com/foo/bar.json",
-        "../baz.json",
-        "https://example.com/baz.json",
-      ],
-      [
-        "https://example.com/foo/bar.json",
-        "#section",
+        "https://example.com/foo/bar.json", //
         "https://example.com/foo/bar.json",
       ],
       [
-        "https://example.com/foo/bar.json",
-        "/baz.json",
-        "https://example.com/baz.json",
-      ],
-      [
-        "https://example.com/foo/bar.json",
-        "https://other.com/x.json",
-        "https://other.com/x.json",
-      ],
-      [
-        "https://example.com/foo/bar.json#frag",
-        "baz.json",
-        "https://example.com/foo/baz.json",
-      ],
-      [
-        "https://example.com/foo/",
-        "baz.json",
-        "https://example.com/foo/baz.json",
-      ],
-      [
-        "https://example.com/foo", //
-        "baz.json",
-        "https://example.com/baz.json",
-      ],
-      [
-        "https://example.com/foo/bar.json",
-        "",
+        "https://example.com/foo/bar.json#section",
         "https://example.com/foo/bar.json",
       ],
     ];
-    for (const [base, ref, expected] of testCases) {
-      assert.equal(resolveUrl(base, ref), expected);
+    for (const [ref, expected] of testCases) {
+      assert.equal(normalizeUrl(ref), expected);
     }
   });
 
   it("returns null for invalid URLs", function () {
-    assert.equal(resolveUrl("not a url", "baz.json"), null);
-    assert.equal(resolveUrl(null, "baz.json"), null);
+    const testCases = [
+      "./baz.json",
+      "../baz.json",
+      "#section",
+      "/baz.json",
+      "baz.json",
+      "",
+      null,
+    ];
+    for (const ref of testCases) {
+      assert.equal(normalizeUrl(ref), null);
+    }
   });
 });
 
 describe("getRemoteRefs", function () {
   it("extracts expected refs from input schema", function () {
     const refs = getRemoteRefs(schemaWithRefs, "https://example.com");
-    assert.equal(refs.length, 2);
+    assert.equal(refs.length, 1);
     assert(refs.includes("https://foo.bar/absolute.json"));
-    assert(refs.includes("https://example.com/relative.json"));
   });
 
   it("extracts nothing from schemas with no refs", function () {
@@ -185,14 +148,11 @@ describe("prewarmSchemaCache", function () {
       nock("https://foo.bar")
         .get("/absolute.json")
         .reply(200, { "doesn't": "matter" }),
-      nock("https://example.com")
-        .get("/relative.json")
-        .reply(200, { "doesn't": "matter" }),
     ];
 
     await prewarmSchemaCache(["document.json"], {}, testCache);
 
-    assert(testCache.cache.keys(), 5);
+    assert(testCache.cache.keys(), 4);
     assert(
       testCache.cache.get("https://json.schemastore.org/schema-catalog.json"),
     );
@@ -200,7 +160,6 @@ describe("prewarmSchemaCache", function () {
       testCache.cache.get("https://www.schemastore.org/api/json/catalog.json"),
     );
     assert(testCache.cache.get("https://example.com/schema.json"));
-    assert(testCache.cache.get("https://example.com/relative.json"));
     assert(testCache.cache.get("https://foo.bar/absolute.json"));
 
     for (const mock of mocks) {
