@@ -14,14 +14,20 @@ const schemaWithRefs = {
   $schema: "http://json-schema.org/draft-06/schema#",
   type: "object",
   properties: {
-    absolute: {
-      $ref: "https://foo.bar/absolute.json",
+    p1: {
+      $ref: "https://foo.bar/one.json",
     },
-    list: {
+    p2: {
       type: "array",
       items: {
-        $ref: "https://foo.bar/absolute.json#anchor",
+        $ref: "https://foo.bar/one.json#anchor",
       },
+    },
+    p3: {
+      oneOf: [
+        { $ref: "https://foo.bar/two.json" },
+        { $ref: "https://foo.bar/three.json" },
+      ],
     },
   },
 };
@@ -62,8 +68,10 @@ describe("normalizeUrl", function () {
 describe("getRemoteRefs", function () {
   it("extracts expected refs from input schema", function () {
     const refs = getRemoteRefs(schemaWithRefs, "https://example.com");
-    assert.strictEqual(refs.length, 1);
-    assert(refs.includes("https://foo.bar/absolute.json"));
+    assert.strictEqual(refs.length, 3);
+    assert(refs.includes("https://foo.bar/one.json"));
+    assert(refs.includes("https://foo.bar/two.json"));
+    assert(refs.includes("https://foo.bar/three.json"));
   });
 
   it("extracts nothing from schemas with no refs", function () {
@@ -146,13 +154,19 @@ describe("prewarmSchemaCache", function () {
         .get("/schema.json")
         .reply(200, schemaWithRefs),
       nock("https://foo.bar")
-        .get("/absolute.json")
+        .get("/one.json")
+        .reply(200, { "doesn't": "matter" }),
+      nock("https://foo.bar")
+        .get("/two.json")
+        .reply(200, { "doesn't": "matter" }),
+      nock("https://foo.bar")
+        .get("/three.json")
         .reply(200, { "doesn't": "matter" }),
     ];
 
     await prewarmSchemaCache(["document.json"], {}, testCache);
 
-    assert.strictEqual(testCache.cache.keys().length, 4);
+    assert.strictEqual(testCache.cache.keys().length, 6);
     assert(
       testCache.cache.get("https://json.schemastore.org/schema-catalog.json"),
     );
@@ -160,7 +174,9 @@ describe("prewarmSchemaCache", function () {
       testCache.cache.get("https://www.schemastore.org/api/json/catalog.json"),
     );
     assert(testCache.cache.get("https://example.com/schema.json"));
-    assert(testCache.cache.get("https://foo.bar/absolute.json"));
+    assert(testCache.cache.get("https://foo.bar/one.json"));
+    assert(testCache.cache.get("https://foo.bar/two.json"));
+    assert(testCache.cache.get("https://foo.bar/three.json"));
 
     for (const mock of mocks) {
       mock.done();
