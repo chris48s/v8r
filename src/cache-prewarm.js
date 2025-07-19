@@ -67,6 +67,7 @@ async function prewarmSchemaCache(filenames, config, cache) {
     if (schemaLocation) {
       schemaLocations.add(schemaLocation);
     }
+    cache.resetCounters();
   }
 
   await Promise.all(
@@ -74,6 +75,7 @@ async function prewarmSchemaCache(filenames, config, cache) {
       .filter((schemaLocation) => isUrl(schemaLocation))
       .map((url) => fetchAndRecurse(url, cache)),
   );
+  cache.resetCounters();
 }
 
 export { getRemoteRefs, prewarmSchemaCache, normalizeUrl };
