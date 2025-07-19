@@ -37,7 +37,7 @@ class Cache {
     this.callCounter = {};
   }
 
-  async fetch(url) {
+  async fetch(url, persist = true) {
     this.limitDepth(url);
     const cachedResponse = this.cache.getKey(url);
     if (cachedResponse !== undefined) {
@@ -51,7 +51,9 @@ class Cache {
       const parsedBody = parseSchema(resp.body, url);
       if (this.ttl > 0) {
         this.cache.setKey(url, { body: parsedBody });
-        this.cache.save(true);
+        if (persist) {
+          this.cache.save(true);
+        }
       }
       return parsedBody;
     } catch (error) {
@@ -60,6 +62,10 @@ class Cache {
       }
       throw new Error(`Failed fetching ${url}`);
     }
+  }
+
+  persist() {
+    this.cache.save(true);
   }
 }
 

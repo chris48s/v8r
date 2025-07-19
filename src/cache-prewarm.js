@@ -1,12 +1,15 @@
 import isUrl from "is-url";
 import pLimit from "p-limit";
 import { getCatalogs, getMatchForFilename } from "./catalogs.js";
-import { getFromUrlOrFile } from "./io.js";
 
 const limit = pLimit(10);
 
-function getFromUrlOrFileWithLimit(url, cache) {
-  return limit(() => getFromUrlOrFile(url, cache));
+async function fetch(location, cache) {
+  return await cache.fetch(location, false);
+}
+
+function fetchWithLimit(url, cache) {
+  return limit(() => fetch(url, cache));
 }
 
 function normalizeUrl(ref) {
@@ -44,7 +47,7 @@ function getRemoteRefs(node) {
 }
 
 async function fetchAndRecurse(url, cache) {
-  const schema = await getFromUrlOrFileWithLimit(url, cache);
+  const schema = await fetchWithLimit(url, cache);
   const refs = getRemoteRefs(schema);
   await Promise.all(refs.map((ref) => fetchAndRecurse(ref, cache)));
 }
@@ -75,6 +78,7 @@ async function prewarmSchemaCache(filenames, config, cache) {
       .filter((schemaLocation) => isUrl(schemaLocation))
       .map((url) => fetchAndRecurse(url, cache)),
   );
+  cache.persist();
   cache.resetCounters();
 }
 
