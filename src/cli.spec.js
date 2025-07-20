@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { clearCacheById } from "flat-cache";
 import { dump as dumpToYaml } from "js-yaml";
 import { mockCwd } from "mock-cwd";
 import nock from "nock";
@@ -14,6 +15,7 @@ import {
   logContainsSuccess,
   logContainsInfo,
   logContainsError,
+  testCacheName,
 } from "./test-helpers.js";
 
 describe("CLI", function () {
@@ -43,6 +45,10 @@ describe("CLI", function () {
           },
         },
       });
+  });
+
+  after(function () {
+    clearCacheById(testCacheName);
   });
 
   describe("success behaviour, single file with JSON schema", function () {

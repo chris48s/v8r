@@ -53,6 +53,8 @@ function mergeConfigs(args, config) {
   if (config.filepath) {
     mergedConfig.configFileRelativePath = getRelativeFilePath(config);
   }
+  // hard-coded - this can't be set via CLI or config file
+  mergedConfig.cachePrewarm = true;
   return mergedConfig;
 }
 

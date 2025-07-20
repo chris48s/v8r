@@ -1,4 +1,3 @@
-import { clearCacheById } from "flat-cache";
 import logger from "./logger.js";
 
 const origWriteOut = logger.writeOut;
@@ -7,7 +6,6 @@ const testCacheName = process.env.V8R_CACHE_NAME;
 const env = process.env;
 
 function setUp() {
-  clearCacheById(testCacheName);
   logger.resetStdout();
   logger.resetStderr();
   logger.writeOut = function () {};
@@ -16,7 +14,6 @@ function setUp() {
 }
 
 function tearDown() {
-  clearCacheById(testCacheName);
   logger.resetStdout();
   logger.resetStderr();
   logger.writeOut = origWriteOut;

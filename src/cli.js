@@ -12,6 +12,7 @@ import { getFromUrlOrFile } from "./io.js";
 import logger from "./logger.js";
 import { getDocumentLocation } from "./output-formatters.js";
 import { parseFile } from "./parser.js";
+import { prewarmSchemaCache } from "./cache-prewarm.js";
 
 const EXIT = {
   VALID: 0,
@@ -92,7 +93,7 @@ async function validateFile(filename, config, plugins, cache) {
     const catalogs = getCatalogs(config);
     const catalogMatch = config.schema
       ? {}
-      : await getMatchForFilename(catalogs, filename, cache);
+      : await getMatchForFilename(catalogs, filename, "info", cache);
     schemaLocation = config.schema || catalogMatch.location;
     schema = await getFromUrlOrFile(schemaLocation, cache);
     logger.info(
@@ -181,6 +182,12 @@ function Validator() {
 
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(ttl));
+
+    if (config.cachePrewarm) {
+      logger.info("Pre-warming the cache");
+      await prewarmSchemaCache(filenames, config, cache);
+      logger.debug("Cache pre-warming complete");
+    }
 
     let results = [];
     for (const filename of filenames) {
