@@ -45,7 +45,7 @@
     "p-limit": "^6.2.0",
     "p-mutex": "^1.0.0",
     "smol-toml": "^1.0.1",
-    "yargs": "^17.0.1"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "c8": "^10.1.2",
