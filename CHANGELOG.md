@@ -1,5 +1,12 @@
 # Changelog
 
+## 📦 [5.1.0](https://www.npmjs.com/package/v8r/v/5.1.0) - 2025-07-20
+
+* v8r now pre-warms the cache and fetches schemas in parallel.
+  This will improve decrease total run time for any run that involves fetching
+  more than one remote schema, or involves a schema with remote `$ref`s.
+* Improve handling of empty yaml files.
+
 ## 📦 [5.0.0](https://www.npmjs.com/package/v8r/v/5.0.0) - 2025-05-10
 
 Following on from the deprecations in version 4.4.0,
