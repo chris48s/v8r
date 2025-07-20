@@ -82,6 +82,10 @@ class Cache {
   persist() {
     this.cache.save(true);
   }
+
+  get(key) {
+    return this.cache.get(key);
+  }
 }
 
 export { Cache };

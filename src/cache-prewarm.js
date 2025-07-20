@@ -49,7 +49,7 @@ function getRemoteRefs(node) {
 async function fetchAndRecurse(url, cache) {
   const schema = await fetchWithLimit(url, cache);
   const refs = getRemoteRefs(schema).filter(
-    (ref) => cache.cache.get(ref) === undefined,
+    (ref) => cache.get(ref) === undefined,
   );
   await Promise.all(refs.map((ref) => fetchAndRecurse(ref, cache)));
 }
