@@ -54,7 +54,7 @@ class Cache {
 
   async fetch(url, persist = true) {
     await this.limitDepth(url);
-    const cachedResponse = this.cache.getKey(url);
+    const cachedResponse = this.cache.get(url);
     if (cachedResponse !== undefined) {
       logger.debug(`Cache hit: using cached response from ${url}`);
       return cachedResponse.body;
@@ -65,7 +65,7 @@ class Cache {
       const resp = await got(url);
       const parsedBody = parseSchema(resp.body, url);
       if (this.ttl > 0) {
-        this.cache.setKey(url, { body: parsedBody });
+        this.cache.set(url, { body: parsedBody });
         if (persist) {
           this.cache.save(true);
         }

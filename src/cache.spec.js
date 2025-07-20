@@ -32,7 +32,7 @@ describe("Cache", function () {
     it("should use cached response if valid", async function () {
       nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
 
-      testCache.cache.setKey("https://www.foobar.com/baz", {
+      testCache.cache.set("https://www.foobar.com/baz", {
         body: { cached: true },
       });
       const resp = await testCache.fetch("https://www.foobar.com/baz");
@@ -45,7 +45,7 @@ describe("Cache", function () {
         .get("/baz")
         .reply(200, { cached: false });
 
-      testCache.cache.setKey("https://www.foobar.com/baz", {
+      testCache.cache.set("https://www.foobar.com/baz", {
         body: { cached: true },
       });
 
