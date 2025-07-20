@@ -188,4 +188,67 @@ describe("prewarmSchemaCache", function () {
       mock.done();
     }
   });
+
+  it("mitigates circular references", async function () {
+    nock.disableNetConnect();
+
+    const schemaMock = nock("https://example.com")
+      .get("/schema.json")
+      .times(1) // expect this URL to be called only once
+      .reply(200, {
+        $id: "example.json#",
+        $schema: "http://json-schema.org/draft-06/schema#",
+        type: "object",
+        properties: {
+          p1: {
+            $ref: "https://example.com/schema.json",
+          },
+        },
+      });
+
+    const mocks = [
+      nock("https://json.schemastore.org")
+        .persist()
+        .get("/schema-catalog.json")
+        .reply(200, {
+          $schema: "http://json-schema.org/draft-07/schema#",
+          type: "object",
+          properties: {
+            schemas: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["url"],
+                properties: {
+                  url: {
+                    type: "string",
+                    format: "uri",
+                    pattern: "^https://",
+                  },
+                },
+              },
+            },
+          },
+        }),
+      nock("https://www.schemastore.org")
+        .get("/api/json/catalog.json")
+        .reply(200, {
+          schemas: [
+            {
+              url: "https://example.com/schema.json",
+              fileMatch: ["document.json"],
+            },
+          ],
+        }),
+      schemaMock,
+    ];
+
+    await prewarmSchemaCache(["document.json"], {}, testCache);
+
+    assert.strictEqual(testCache.cache.keys().length, 3);
+
+    for (const mock of mocks) {
+      mock.done();
+    }
+  });
 });
