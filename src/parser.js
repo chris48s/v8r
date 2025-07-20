@@ -10,6 +10,9 @@ function parseFile(plugins, contents, filename, parser) {
       const maybeDocuments = Array.isArray(parsedFile)
         ? parsedFile
         : [parsedFile];
+      if (maybeDocuments.length === 0) {
+        throw new Error(`No documents to validate found in ${filename}`);
+      }
       for (const doc of maybeDocuments) {
         if (!(doc instanceof Document)) {
           throw new Error(

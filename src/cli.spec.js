@@ -928,6 +928,21 @@ describe("CLI", function () {
       });
     });
 
+    it("should return 1 if no documents to validate", function () {
+      return cli({
+        patterns: ["testfiles/files/empty.yml"],
+        schema: "testfiles/schemas/schema.json",
+        ignorePatternFiles: [],
+      }).then((result) => {
+        assert.equal(result, 1);
+        assert(
+          logContainsError(
+            "No documents to validate found in testfiles/files/empty.yml",
+          ),
+        );
+      });
+    });
+
     it("should return 0 if ignore-errors flag is passed", async function () {
       return cli({
         patterns: ["testfiles/files/not-supported.txt"],
@@ -942,7 +957,7 @@ describe("CLI", function () {
 
     it("should return 1 on multi-document as schema", function () {
       // In principle, it is possible to serialize multiple yaml documents
-      // into a single file, but js-yaml does not support this.
+      // into a single file, but for a schema, we only allow one
       return cli({
         patterns: ["testfiles/files/valid.json"],
         schema: "testfiles/schemas/schema.multi-doc.yaml",
