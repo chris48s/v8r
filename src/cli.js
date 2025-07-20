@@ -183,7 +183,7 @@ function Validator() {
     const ttl = secondsToMilliseconds(config.cacheTtl || 0);
     const cache = new Cache(getFlatCache(ttl));
 
-    if (config.cachePrewarm) {
+    if (config.cachePrewarm && ttl > 5000) {
       logger.info("Pre-warming the cache");
       await prewarmSchemaCache(filenames, config, cache);
       logger.debug("Cache pre-warming complete");
