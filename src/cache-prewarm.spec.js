@@ -107,11 +107,17 @@ describe("prewarmSchemaCache", function () {
 
   beforeEach(function () {
     setUp();
+    testCache.cache.clear();
   });
 
   afterEach(function () {
     tearDown();
+    testCache.cache.clear();
     nock.cleanAll();
+  });
+
+  after(function () {
+    testCache.cache.destroy();
   });
 
   it("populates cache with all expected URLs", async function () {

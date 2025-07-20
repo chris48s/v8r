@@ -130,10 +130,16 @@ describe("getMatchForFilename", function () {
 
   beforeEach(function () {
     setUp();
+    testCache.cache.clear();
   });
 
   afterEach(function () {
     tearDown();
+    testCache.cache.clear();
+  });
+
+  after(function () {
+    testCache.cache.destroy();
   });
 
   it("returns a schema when one match found", async function () {

@@ -25,6 +25,10 @@ describe("Cache", function () {
       tearDown();
     });
 
+    after(function () {
+      testCache.cache.destroy();
+    });
+
     it("should use cached response if valid", async function () {
       nock("https://www.foobar.com").get("/baz").reply(200, { cached: false });
 
@@ -65,10 +69,12 @@ describe("Cache", function () {
 
     beforeEach(function () {
       setUp();
+      testCache.cache.clear();
     });
 
     afterEach(function () {
       tearDown();
+      testCache.cache.clear();
     });
 
     it("throws if callLimit is exceeded", async function () {

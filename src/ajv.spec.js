@@ -17,10 +17,16 @@ describe("_ajvFactory", function () {
 
     beforeEach(function () {
       setUp();
+      testCache.cache.clear();
     });
 
     afterEach(function () {
       tearDown();
+      testCache.cache.clear();
+    });
+
+    after(function () {
+      testCache.cache.destroy();
     });
 
     it("should support draft-04", function () {
