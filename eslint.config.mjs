@@ -7,7 +7,7 @@ import mochaPlugin from "eslint-plugin-mocha";
 
 const config = [
   {
-    ignores: ["docs/.docusaurus/**/*", "docs/build/**/*"],
+    ignores: ["docs/.docusaurus/**/*", "docs/build/**/*", "build/**/*"],
   },
   js.configs.recommended,
   mochaPlugin.configs.recommended,

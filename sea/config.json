@@ -1,0 +1,4 @@
+{
+  "main": "./build/sea-bundle.cjs",
+  "output": "./build/v8r"
+}
