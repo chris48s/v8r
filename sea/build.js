@@ -28,7 +28,7 @@ const seaCompatibilityPlugin = {
 };
 
 await esbuild.build({
-  entryPoints: ["sea/entry.js"],
+  entryPoints: ["src/index.js"],
   bundle: true,
   platform: "node",
   format: "cjs",
