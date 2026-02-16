@@ -20,7 +20,7 @@ const config = [
       jsdoc: jsdocPlugin,
     },
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2026,
       sourceType: "module",
       globals: {
         mocha: true,

@@ -5,19 +5,6 @@ import ParserYaml from "../src/plugins/parser-yaml.js";
 import OutputText from "../src/plugins/output-text.js";
 import OutputJson from "../src/plugins/output-json.js";
 
-// Static imports of JSON files that would otherwise be loaded at runtime
-// via createRequire(). esbuild can't trace createRequire() calls, so we
-// import them here and stash on globalThis for the bundle to pick up.
-import configSchema from "../config-schema.json";
-import packageJson from "../package.json";
-import ajvDraft06Schema from "ajv/lib/refs/json-schema-draft-06.json";
-
-globalThis.__seaJsonModules = {
-  "../config-schema.json": configSchema,
-  "../package.json": packageJson,
-  "ajv/lib/refs/json-schema-draft-06.json": ajvDraft06Schema,
-};
-
 // Pre-register core plugins so they can be resolved without dynamic import()
 // in the SEA context where filesystem-based imports don't work
 globalThis.__seaCorePlugins = {
