@@ -6,7 +6,7 @@ import {
   validateConfigDocumentParsers,
   validateConfigOutputFormats,
 } from "./config-validators.js";
-import { loadAllPlugins } from "./plugins.js";
+import { loadAllPlugins } from "./plugin-loader.js";
 import { setUp, tearDown } from "./test-helpers.js";
 
 const validConfigs = [

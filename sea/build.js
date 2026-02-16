@@ -22,17 +22,6 @@ const seaCompatibilityPlugin = {
         modified = true;
       }
 
-      // In plugins.js, replace dynamic import() of core plugins with
-      // a lookup in the global plugin registry set by sea-entry.js
-      if (args.path.endsWith("src/plugins.js")) {
-        // Replace the dynamic import() in loadPlugins with a lookup
-        contents = contents.replace(
-          "loadedPlugins.push(await import(plugin));",
-          "loadedPlugins.push((globalThis.__seaCorePlugins && globalThis.__seaCorePlugins[plugin]) || await import(plugin));",
-        );
-        modified = true;
-      }
-
       return modified ? { contents, loader: "js" } : undefined;
     });
   },

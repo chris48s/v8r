@@ -10,7 +10,7 @@ import {
   validateConfigOutputFormats,
 } from "./config-validators.js";
 import logger from "./logger.js";
-import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
+import { loadAllPlugins, resolveUserPlugins } from "./plugin-loader.js";
 import manifest from "../package.json" with { type: "json" };
 
 async function getCosmiConfig(cosmiconfigOptions) {
