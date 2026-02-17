@@ -65,20 +65,17 @@ jobs:
           message: "${{ env.build_status_message }}"
           message-color: "${{ env.build_status_color }}"
 
-  standalone-binary:
-    runs-on: ubuntu-latest
+  standalone-binary-win:
+    runs-on: windows-latest
     needs: build
-    strategy:
-      matrix:
-        node: ['25']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node JS ${{ matrix.node }}
+      - name: Install Node JS 25
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: '25'
 
       - name: Show Node/NPM versions
         run: |
@@ -86,10 +83,46 @@ jobs:
           npm --version
 
       - name: Install
-        run: npm ci --engine-strict --strict-peer-deps
+        run: npm ci
 
       - name: Build standalone binary
-        run: npm run build:sea
+        run: npm run build:exe
+
+      - name: Smoke test standalone binary
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:TEMP\dc5bc756
+          Copy-Item build\v8r.exe $env:TEMP\dc5bc756\v8r.exe
+          Copy-Item package.json $env:TEMP\dc5bc756\package.json
+          Set-Location $env:TEMP\dc5bc756
+          .\v8r.exe --help
+          .\v8r.exe package.json --output-format json
+        shell: pwsh
+
+  standalone-binary-unix:
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node JS 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+
+      - name: Show Node/NPM versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install
+        run: npm ci
+
+      - name: Build standalone binary
+        run: npm run build:bin
 
       - name: Smoke test standalone binary
         run: |

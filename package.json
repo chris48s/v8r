@@ -9,7 +9,8 @@
     "prettier": "prettier --write \"**/*.{js,cjs,mjs}\"",
     "prettier:check": "prettier --check \"**/*.{js,cjs,mjs}\"",
     "v8r": "src/index.js",
-    "build:sea": "node sea/build.js && $(command -v node) --build-sea sea/config.json"
+    "build:bin": "node sea/build.js && $npm_node_execpath --build-sea sea/config.json",
+    "build:exe": "node sea/build.js && %npm_node_execpath% --build-sea sea/config-win.json"
   },
   "bin": {
     "v8r": "src/index.js"
