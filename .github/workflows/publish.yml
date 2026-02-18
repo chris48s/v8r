@@ -1,0 +1,105 @@
+name: Publish
+on: create
+
+jobs:
+
+  standalone-binary-win:
+    runs-on: windows-latest
+    if: github.event.ref_type == 'tag'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: 25
+
+      - name: Build standalone binary
+        run: npm run build:exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v8r-windows
+          path: build/v8r.exe
+
+  standalone-binary-unix:
+    runs-on: ${{ matrix.os }}
+    if: github.event.ref_type == 'tag'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: 25
+
+      - name: Build standalone binary
+        run: npm run build:bin
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v8r-${{ matrix.os }}
+          path: build/v8r
+
+
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.ref_type == 'tag'
+    needs: [standalone-binary-win, standalone-binary-unix]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Install gh
+        run: sudo apt update && sudo apt install -y gh
+
+      - name: Create release assets
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          mkdir assets
+          chmod 755 artifacts/v8r-ubuntu-latest/v8r
+          chmod 755 artifacts/v8r-macos-latest/v8r
+          zip -j "assets/v8r-windows-$TAG.zip" artifacts/v8r-windows/v8r.exe
+          zip -j "assets/v8r-linux-$TAG.zip" artifacts/v8r-ubuntu-latest/v8r
+          zip -j "assets/v8r-macos-$TAG.zip" artifacts/v8r-macos-latest/v8r
+
+      - name: Create release + upload assets
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          awk '/^## /{if(found) exit; found=1} found' CHANGELOG.md | \
+          gh release create "$TAG" \
+          assets/*.zip \
+          --title "$TAG" \
+          -F -
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  npm-publish:
+    runs-on: ubuntu-latest
+    if: github.event.ref_type == 'tag'
+    permissions:
+      contents: read
+      id-token: write # required for trusted publishing
+    needs: release
+    environment: publish
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: 24
+
+      - run: npm publish
