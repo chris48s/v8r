@@ -18,7 +18,7 @@ jobs:
       - name: Install
         run: |
           cd docs
-          npm ci --engine-strict --strict-peer-deps
+          npm ci
 
       - name: Build
         run: |

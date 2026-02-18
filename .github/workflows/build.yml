@@ -25,7 +25,7 @@ jobs:
           npm --version
 
       - name: Install
-        run: npm ci --engine-strict --strict-peer-deps
+        run: npm ci
 
       - name: Lint
         run: |
