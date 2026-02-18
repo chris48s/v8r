@@ -14,18 +14,10 @@ jobs:
       - run: echo "build_status_message=failing" >> $GITHUB_ENV
       - run: echo "build_status_color=red" >> $GITHUB_ENV
 
-      - name: Install Node JS ${{ matrix.node }}
-        uses: actions/setup-node@v4
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node }}
-
-      - name: Show Node/NPM versions
-        run: |
-          node --version
-          npm --version
-
-      - name: Install
-        run: npm ci
 
       - name: Lint
         run: |
@@ -72,18 +64,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node JS 25
-        uses: actions/setup-node@v4
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          node-version: '25'
-
-      - name: Show Node/NPM versions
-        run: |
-          node --version
-          npm --version
-
-      - name: Install
-        run: npm ci
+          node-version: 25
 
       - name: Build standalone binary
         run: npm run build:exe
@@ -108,18 +92,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node JS 25
-        uses: actions/setup-node@v4
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          node-version: '25'
-
-      - name: Show Node/NPM versions
-        run: |
-          node --version
-          npm --version
-
-      - name: Install
-        run: npm ci
+          node-version: 25
 
       - name: Build standalone binary
         run: npm run build:bin
