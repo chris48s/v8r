@@ -18,7 +18,10 @@ const seaCompatibilityPlugin = {
         // Replace import.meta.url with our banner-defined variable
         // which holds the file:// URL equivalent of __filename
         // this is needed for some third-party packages
-        contents = contents.replace(/import\.meta\.url/g, "__importMetaUrl");
+        contents = contents.replace(
+          /import\.meta\.url/g,
+          "globalThis[Symbol.for('__v8r_importMetaUrl')]",
+        );
         modified = true;
       }
 
@@ -36,7 +39,7 @@ await esbuild.build({
   external: ["typescript"],
   plugins: [seaCompatibilityPlugin],
   banner: {
-    js: "var __importMetaUrl = require('url').pathToFileURL(__filename).href;",
+    js: "globalThis[Symbol.for('__v8r_importMetaUrl')] = require('url').pathToFileURL(__filename).href;",
   },
   logLevel: "info",
 });
