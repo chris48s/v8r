@@ -1,4 +1,6 @@
 import path from "node:path";
+import { isSea } from "node:sea";
+import logger from "./logger.js";
 import { BasePlugin } from "./plugins.js";
 import ParserJson from "./plugins/parser-json.js";
 import ParserJson5 from "./plugins/parser-json5.js";
@@ -68,7 +70,14 @@ async function loadUserPlugins(plugins) {
 }
 
 async function loadAllPlugins(userPlugins) {
-  const loadedUserPlugins = await loadUserPlugins(userPlugins);
+  let loadedUserPlugins = [];
+  if (isSea() && userPlugins.length > 0) {
+    logger.warning(
+      "loading plugins is not supported when running as a standalone binary",
+    );
+  } else {
+    loadedUserPlugins = await loadUserPlugins(userPlugins);
+  }
 
   const corePlugins = [
     ParserJson,
