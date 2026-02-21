@@ -103,12 +103,14 @@ class BasePlugin {
 }
 
 class Document {
+  /* eslint-disable jsdoc/reject-any-type */
   /**
    * Document is a thin wrapper class for a document we want to validate after
    * parsing a file
    *
    * @param {any} document - The object to be wrapped
    */
+  /* eslint-enable jsdoc/reject-any-type */
   constructor(document) {
     this.document = document;
   }
