@@ -36,7 +36,7 @@
     "cosmiconfig": "^9.0.0",
     "decamelize": "^6.0.0",
     "flat-cache": "^6.1.4",
-    "glob": "^11.0.0",
+    "glob": "^13.0.6",
     "global-agent": "^3.0.0",
     "got": "^14.0.0",
     "ignore": "^7.0.0",
