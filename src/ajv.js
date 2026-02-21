@@ -1,13 +1,9 @@
-import { createRequire } from "node:module";
-// TODO: once JSON modules is stable these requires could become imports
-// https://nodejs.org/api/esm.html#esm_experimental_json_modules
-const require = createRequire(import.meta.url);
-
 import AjvDraft4 from "ajv-draft-04";
 import Ajv from "ajv";
 import Ajv2019 from "ajv/dist/2019.js";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import draft06 from "ajv/lib/refs/json-schema-draft-06.json" with { type: "json" };
 
 function _ajvFactory(
   schema,
@@ -26,9 +22,7 @@ function _ajvFactory(
       return new AjvDraft4(opts);
     } else if (schema["$schema"].includes("json-schema.org/draft-06/schema")) {
       const ajvDraft06 = new Ajv(opts);
-      ajvDraft06.addMetaSchema(
-        require("ajv/lib/refs/json-schema-draft-06.json"),
-      );
+      ajvDraft06.addMetaSchema(draft06);
       return ajvDraft06;
     } else if (schema["$schema"].includes("json-schema.org/draft-07/schema")) {
       return new Ajv(opts);
@@ -45,7 +39,7 @@ function _ajvFactory(
 
   // hedge our bets as best we can
   const ajv = new Ajv(opts);
-  ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
+  ajv.addMetaSchema(draft06);
   return ajv;
 
   /* TODO:

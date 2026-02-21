@@ -12,3 +12,6 @@ docs/.docusaurus/
 docs/.cache-loader/
 docs/docs/plugins/reference.mdx
 docs/.tempdocs/
+
+# SEA build output
+build/

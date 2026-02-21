@@ -1,0 +1,23 @@
+name: 'Set up project'
+description: 'Set up project'
+inputs:
+  node-version:
+    description: 'Version Spec of the node version to use. Examples: 12.x, 10.15.1, >=10.15.0.'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Node JS ${{ inputs.node-version }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Show Node/NPM versions
+      run: |
+        node --version
+        npm --version
+      shell: bash
+
+    - name: Install
+      run: npm ci
+      shell: bash

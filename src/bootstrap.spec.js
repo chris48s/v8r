@@ -5,7 +5,7 @@ import {
   getOutputFormats,
   parseArgs,
 } from "./bootstrap.js";
-import { loadAllPlugins } from "./plugins.js";
+import { loadAllPlugins } from "./plugin-loader.js";
 import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
 
 const { allLoadedPlugins } = await loadAllPlugins([]);

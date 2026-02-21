@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['20', '22', '24']
+        node: ['22', '24']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -14,18 +14,10 @@ jobs:
       - run: echo "build_status_message=failing" >> $GITHUB_ENV
       - run: echo "build_status_color=red" >> $GITHUB_ENV
 
-      - name: Install Node JS ${{ matrix.node }}
-        uses: actions/setup-node@v4
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node }}
-
-      - name: Show Node/NPM versions
-        run: |
-          node --version
-          npm --version
-
-      - name: Install
-        run: npm ci
 
       - name: Lint
         run: |
@@ -64,6 +56,58 @@ jobs:
           label: build
           message: "${{ env.build_status_message }}"
           message-color: "${{ env.build_status_color }}"
+
+  standalone-binary-win:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: 25
+
+      - name: Build standalone binary
+        run: npm run build:exe
+
+      - name: Smoke test standalone binary
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:TEMP\dc5bc756
+          Copy-Item build\v8r.exe $env:TEMP\dc5bc756\v8r.exe
+          Copy-Item package.json $env:TEMP\dc5bc756\package.json
+          Set-Location $env:TEMP\dc5bc756
+          .\v8r.exe --help
+          .\v8r.exe package.json --output-format json
+        shell: pwsh
+
+  standalone-binary-unix:
+    runs-on: ${{ matrix.os }}
+    needs: build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          node-version: 25
+
+      - name: Build standalone binary
+        run: npm run build:bin
+
+      - name: Smoke test standalone binary
+        run: |
+          mkdir -p /tmp/dc5bc756  # arbitrary dir outside repo
+          cp build/v8r /tmp/dc5bc756/v8r
+          cp package.json /tmp/dc5bc756/package.json
+          cd /tmp/dc5bc756
+          ./v8r --help
+          ./v8r package.json --output-format json
 
   package-json-badges:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

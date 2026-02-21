@@ -7,7 +7,7 @@ import mochaPlugin from "eslint-plugin-mocha";
 
 const config = [
   {
-    ignores: ["docs/.docusaurus/**/*", "docs/build/**/*"],
+    ignores: ["docs/.docusaurus/**/*", "docs/build/**/*", "build/**/*"],
   },
   js.configs.recommended,
   mochaPlugin.configs.recommended,
@@ -20,7 +20,7 @@ const config = [
       jsdoc: jsdocPlugin,
     },
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 2026,
       sourceType: "module",
       globals: {
         mocha: true,

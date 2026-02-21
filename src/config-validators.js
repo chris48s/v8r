@@ -1,16 +1,11 @@
-import { createRequire } from "node:module";
-// TODO: once JSON modules is stable these requires could become imports
-// https://nodejs.org/api/esm.html#esm_experimental_json_modules
-const require = createRequire(import.meta.url);
-
 import Ajv2019 from "ajv/dist/2019.js";
 import logger from "./logger.js";
 import { formatErrors } from "./output-formatters.js";
+import configSchema from "../config-schema.json" with { type: "json" };
 
 function validateConfigAgainstSchema(configFile) {
   const ajv = new Ajv2019({ allErrors: true, strict: false });
-  const schema = require("../config-schema.json");
-  const validateFn = ajv.compile(schema);
+  const validateFn = ajv.compile(configSchema);
   const valid = validateFn(configFile.config);
   if (!valid) {
     logger.log(

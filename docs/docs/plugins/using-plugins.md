@@ -20,11 +20,12 @@ plugins:
 
 Plugins are invoked one at a time in the order they are specified in your config file.
 
-In general, there are four ways that users invoke v8r:
+In general, there are five ways that users invoke v8r:
 
 - Local install (recommended)
 - Global install (`npm install -g v8r`)
 - Ad-hoc invocation (`npx v8r@latest`)
+- Standalone binary (from https://github.com/chris48s/v8r/releases)
 - via [MegaLinter](https://megalinter.io/)
 
 Each of these methods has slightly different considerations when working with plugins.
@@ -48,6 +49,10 @@ npx --package v8r-plugin-ndjson@latest --package v8r@latest -- v8r *.json
 ```
 
 For local file plugins, you will need an installation of some description.
+
+## Standalone Binary
+
+If you install `v8r` as a standalone binary, plugins are not currently available. Plugin compatibility may be added in a future release.
 
 ## MegaLinter
 

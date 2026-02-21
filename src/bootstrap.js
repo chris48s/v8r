@@ -1,8 +1,3 @@
-import { createRequire } from "node:module";
-// TODO: once JSON modules is stable these requires could become imports
-// https://nodejs.org/api/esm.html#esm_experimental_json_modules
-const require = createRequire(import.meta.url);
-
 import fs from "node:fs";
 import path from "node:path";
 import { cosmiconfig } from "cosmiconfig";
@@ -15,7 +10,8 @@ import {
   validateConfigOutputFormats,
 } from "./config-validators.js";
 import logger from "./logger.js";
-import { loadAllPlugins, resolveUserPlugins } from "./plugins.js";
+import { loadAllPlugins, resolveUserPlugins } from "./plugin-loader.js";
+import manifest from "../package.json" with { type: "json" };
 
 async function getCosmiConfig(cosmiconfigOptions) {
   let configFile;
@@ -127,7 +123,7 @@ function parseArgs(argv, config, documentFormats, outputFormats) {
     .version(
       // Workaround for https://github.com/yargs/yargs/issues/1934
       // TODO: remove once fixed
-      require("../package.json").version,
+      manifest.version,
     )
     .option("verbose", {
       alias: "v",
