@@ -169,7 +169,7 @@ function resultsToStatusCode(results, ignoreErrors) {
 
 function Validator() {
   return async function (config, plugins) {
-    let filenames = [];
+    let filenames;
     try {
       filenames = await getFiles(config.patterns, config.ignorePatternFiles);
     } catch (e) {
