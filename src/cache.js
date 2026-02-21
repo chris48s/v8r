@@ -73,9 +73,11 @@ class Cache {
       return parsedBody;
     } catch (error) {
       if (error.response) {
-        throw new Error(`Failed fetching ${url}\n${error.response.body}`);
+        throw new Error(`Failed fetching ${url}\n${error.response.body}`, {
+          cause: error,
+        });
       }
-      throw new Error(`Failed fetching ${url}`);
+      throw new Error(`Failed fetching ${url}`, { cause: error });
     }
   }
 
