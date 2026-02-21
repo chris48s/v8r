@@ -1,5 +1,13 @@
 # Changelog
 
+## 📦 [6.0.0](https://www.npmjs.com/package/v8r/v/6.0.0) - 2026-02-21
+
+* **Breaking:** Drop compatibility with node 20
+* This release adds a new installation option: standalone binaries.
+  Moving forwards, standalone binaries for Linux, Windows and MacOS available
+  for download from https://github.com/chris48s/v8r/releases/latest .
+* Upgrade to latest major versions of core packages (glob, minimatch, p-limit)
+
 ## 📦 [5.1.0](https://www.npmjs.com/package/v8r/v/5.1.0) - 2025-07-20
 
 * v8r now pre-warms the cache and fetches schemas in parallel.
