@@ -18,7 +18,7 @@ jobs:
         run: npm run build:exe
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: v8r-windows
           path: build/v8r.exe
@@ -41,7 +41,7 @@ jobs:
         run: npm run build:bin
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: v8r-${{ matrix.os }}
           path: build/v8r
