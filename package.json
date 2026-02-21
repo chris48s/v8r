@@ -36,7 +36,7 @@
     "cosmiconfig": "^9.0.0",
     "decamelize": "^6.0.0",
     "flat-cache": "^6.1.4",
-    "glob": "^11.0.0",
+    "glob": "^13.0.0",
     "global-agent": "^3.0.0",
     "got": "^14.0.0",
     "ignore": "^7.0.0",
@@ -44,7 +44,7 @@
     "js-yaml": "^4.0.0",
     "json5": "^2.2.0",
     "minimatch": "^10.0.0",
-    "p-limit": "^6.2.0",
+    "p-limit": "^7.0.0",
     "p-mutex": "^1.0.0",
     "smol-toml": "^1.0.1",
     "yargs": "^18.0.0"
