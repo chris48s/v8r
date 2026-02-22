@@ -4,9 +4,16 @@ sidebar_position: 8
 
 # FAQ
 
-### ❓ How does `v8r` decide what schema to validate against if I don't supply one?
+### ❓ How does `v8r` decide what schema to validate against?
 
-💡 `v8r` queries the [Schema Store catalog](https://www.schemastore.org/) to try and find a suitable schema based on the name of the input file.
+💡 `v8r` can query the [Schema Store catalog](https://www.schemastore.org/) to try and find a suitable schema based on the name of the input file. You can also tell `v8r` to look at other schema catalogs, write a custom catalog in the [config file](./configuration.md) or use the `--schema` flag.
+
+The order of precedence is:
+
+* `--schema` flag (highest priority)
+* custom catalog in config file
+* standalone custom catalogs
+* Schema Store catalog (lowest priority)
 
 ### ❓ My file is valid, but it doesn't validate against one of the suggested schemas.
 
