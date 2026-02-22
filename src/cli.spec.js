@@ -1066,6 +1066,44 @@ describe("CLI", function () {
         assert.equal(results[1].fileLocation, "testfiles/files/valid.json");
       });
     });
+
+    it("should reset call counters between files", async function () {
+      // Regression test: without cache.resetCounters() being called between
+      // file validations, the circular-reference call limit (10) would be
+      // exceeded when validating more than 10 files that each trigger a
+      // catalog lookup.
+      const schema = {
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        properties: { num: { type: "number" } },
+      };
+
+      const catalogMock = nock("https://www.schemastore.org")
+        .get("/api/json/catalog.json")
+        .times(11)
+        .reply(200, {
+          schemas: [
+            {
+              url: "https://example.com/schema.json",
+              fileMatch: ["testfiles/files/reset-counters/*.json"],
+            },
+          ],
+        });
+      const schemaMock = nock("https://example.com")
+        .get("/schema.json")
+        .times(11)
+        .reply(200, schema);
+
+      return cli({
+        patterns: ["testfiles/files/reset-counters/*.json"],
+        ignorePatternFiles: [],
+      }).then((result) => {
+        nock.cleanAll();
+        assert.equal(result, 0);
+        catalogMock.done();
+        schemaMock.done();
+      });
+    });
   });
 
   describe("output formats", function () {
