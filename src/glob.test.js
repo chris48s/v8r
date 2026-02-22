@@ -1,7 +1,8 @@
 import assert from "node:assert";
+import { describe, it, beforeEach, afterEach } from "node:test";
 
 import { getFiles } from "./glob.js";
-import { setUp, tearDown } from "./test-helpers.js";
+import { setUp, tearDown } from "./testhelpers.js";
 
 describe("getFiles", function () {
   beforeEach(function () {

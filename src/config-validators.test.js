@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { describe, it, beforeEach, afterEach } from "node:test";
 
 import { getDocumentFormats, getOutputFormats } from "./bootstrap.js";
 import {
@@ -7,7 +8,7 @@ import {
   validateConfigOutputFormats,
 } from "./config-validators.js";
 import { loadAllPlugins } from "./plugin-loader.js";
-import { setUp, tearDown } from "./test-helpers.js";
+import { setUp, tearDown } from "./testhelpers.js";
 
 const validConfigs = [
   { config: {} },

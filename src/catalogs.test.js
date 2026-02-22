@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { describe, it, after, before, beforeEach, afterEach } from "node:test";
 import { FlatCache } from "flat-cache";
 import { Cache } from "./cache.js";
 import {
@@ -10,7 +11,7 @@ import {
   setUp,
   tearDown,
   logContainsInfo,
-} from "./test-helpers.js";
+} from "./testhelpers.js";
 
 describe("getSchemaMatchesForFilename", function () {
   const schemas = [
