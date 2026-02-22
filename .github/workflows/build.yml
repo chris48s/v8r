@@ -32,7 +32,7 @@ jobs:
       - run: echo "build_status_color=brightgreen" >> $GITHUB_ENV
 
       - name: Upload coverage report to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./cobertura.xml
 
