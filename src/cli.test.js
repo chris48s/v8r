@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { describe, it, after, before, beforeEach, afterEach } from "node:test";
 import { clearCacheById } from "flat-cache";
 import { dump as dumpToYaml } from "js-yaml";
 import { mockCwd } from "mock-cwd";
@@ -16,7 +17,7 @@ import {
   logContainsInfo,
   logContainsError,
   testCacheName,
-} from "./test-helpers.js";
+} from "./testhelpers.js";
 
 describe("CLI", function () {
   // Mock the catalog validation schema

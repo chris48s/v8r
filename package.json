@@ -3,9 +3,9 @@
   "version": "6.0.0",
   "description": "A command-line JSON, YAML and TOML validator that's on your wavelength",
   "scripts": {
-    "test": "V8R_CACHE_NAME=v8r-test c8 --reporter=text mocha \"src/**/*.spec.js\"",
+    "test": "V8R_CACHE_NAME=v8r-test node --test --experimental-test-coverage",
     "lint": "eslint \"**/*.{js,cjs,mjs}\"",
-    "coverage": "c8 report --reporter=cobertura",
+    "coverage": "./coverage.sh",
     "prettier": "prettier --write \"**/*.{js,cjs,mjs}\"",
     "prettier:check": "prettier --check \"**/*.{js,cjs,mjs}\"",
     "v8r": "src/index.js",
@@ -17,7 +17,7 @@
   },
   "exports": "./src/public.js",
   "files": [
-    "src/**/!(*.spec).js",
+    "src/**/!(*.test).js",
     "config-schema.json",
     "CHANGELOG.md"
   ],
@@ -51,14 +51,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "c8": "^10.1.2",
+    "cobertura": "^1.0.3",
     "esbuild": "^0.27.3",
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-jsdoc": "^62.7.0",
     "eslint-plugin-mocha": "^11.0.0",
     "eslint-plugin-prettier": "^5.0.0",
-    "mocha": "^11.0.1",
     "mock-cwd": "^1.0.0",
     "nock": "^14.0.4",
     "prettier": "^3.0.0",

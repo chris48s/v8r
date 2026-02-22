@@ -1,8 +1,9 @@
 import assert from "node:assert";
+import { describe, it, after, before, beforeEach, afterEach } from "node:test";
 import { FlatCache } from "flat-cache";
 import { Cache } from "./cache.js";
 import { _ajvFactory } from "./ajv.js";
-import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+import { testCacheName, setUp, tearDown } from "./testhelpers.js";
 
 describe("_ajvFactory", function () {
   describe("schema drafts compatibility", function () {

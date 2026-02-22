@@ -26,7 +26,6 @@ jobs:
 
       - name: Run tests
         run: |
-          npm test
           npm run coverage
 
       - run: echo "build_status_message=passing" >> $GITHUB_ENV
@@ -35,7 +34,7 @@ jobs:
       - name: Upload coverage report to codecov
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage/cobertura-coverage.xml
+          file: ./cobertura.xml
 
       - name: Write Coverage badge
         uses: action-badges/cobertura-coverage-xml-badges@main
@@ -44,7 +43,7 @@ jobs:
           badge-branch: badges
           file-name: coverage.svg
           github-token: '${{ secrets.GITHUB_TOKEN }}'
-          coverage-file-name: ./coverage/cobertura-coverage.xml
+          coverage-file-name: ./cobertura.xml
 
       - name: Write Build Status badge
         if: ${{ always() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}

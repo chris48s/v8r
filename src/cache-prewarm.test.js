@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { describe, it, after, before, beforeEach, afterEach } from "node:test";
 import { FlatCache } from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
@@ -7,7 +8,7 @@ import {
   prewarmSchemaCache,
   normalizeUrl,
 } from "./cache-prewarm.js";
-import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+import { testCacheName, setUp, tearDown } from "./testhelpers.js";
 
 const schemaWithRefs = {
   $id: "example.json#",

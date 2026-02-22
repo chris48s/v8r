@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import {
   bootstrap,
   getDocumentFormats,
@@ -6,7 +7,7 @@ import {
   parseArgs,
 } from "./bootstrap.js";
 import { loadAllPlugins } from "./plugin-loader.js";
-import { setUp, tearDown, logContainsInfo } from "./test-helpers.js";
+import { setUp, tearDown, logContainsInfo } from "./testhelpers.js";
 
 const { allLoadedPlugins } = await loadAllPlugins([]);
 const documentFormats = getDocumentFormats(allLoadedPlugins);

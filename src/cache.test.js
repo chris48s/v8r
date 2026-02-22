@@ -1,8 +1,9 @@
 import assert from "node:assert";
+import { describe, it, after, before, beforeEach, afterEach } from "node:test";
 import { FlatCache } from "flat-cache";
 import nock from "nock";
 import { Cache } from "./cache.js";
-import { testCacheName, setUp, tearDown } from "./test-helpers.js";
+import { testCacheName, setUp, tearDown } from "./testhelpers.js";
 
 const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

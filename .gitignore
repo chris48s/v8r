@@ -3,7 +3,7 @@ node_modules/
 docs/node_modules/
 
 # coverage
-coverage/
+cobertura.xml
 
 # docs: build
 docs/build/
