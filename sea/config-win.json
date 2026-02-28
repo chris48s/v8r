@@ -1,4 +1,5 @@
 {
   "main": "./build/sea-bundle.cjs",
-  "output": "./build/v8r.exe"
+  "output": "./build/v8r.exe",
+  "disableExperimentalSEAWarning": true
 }
