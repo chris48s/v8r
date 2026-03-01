@@ -1,6 +1,7 @@
 import globals from "globals";
 import js from "@eslint/js";
 import jsdocPlugin from "eslint-plugin-jsdoc";
+import nodeCoreTestPlugin from "eslint-plugin-node-core-test";
 import noOnlyTestsPlugin from "eslint-plugin-no-only-tests";
 import prettierConfig from "eslint-config-prettier";
 import prettierPlugin from "eslint-plugin-prettier";
@@ -12,10 +13,12 @@ const config = [
   js.configs.recommended,
   prettierConfig,
   jsdocPlugin.configs["flat/recommended-error"],
+  nodeCoreTestPlugin.configs.recommended,
   {
     plugins: {
-      prettier: prettierPlugin,
       jsdoc: jsdocPlugin,
+      prettier: prettierPlugin,
+      "node-core-test": nodeCoreTestPlugin,
       "no-only-tests": noOnlyTestsPlugin,
     },
     languageOptions: {
