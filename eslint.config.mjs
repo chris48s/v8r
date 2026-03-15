@@ -2,7 +2,6 @@ import globals from "globals";
 import js from "@eslint/js";
 import jsdocPlugin from "eslint-plugin-jsdoc";
 import nodeCoreTestPlugin from "eslint-plugin-node-core-test";
-import noOnlyTestsPlugin from "eslint-plugin-no-only-tests";
 import prettierConfig from "eslint-config-prettier";
 import prettierPlugin from "eslint-plugin-prettier";
 
@@ -19,7 +18,6 @@ const config = [
       jsdoc: jsdocPlugin,
       prettier: prettierPlugin,
       "node-core-test": nodeCoreTestPlugin,
-      "no-only-tests": noOnlyTestsPlugin,
     },
     languageOptions: {
       ecmaVersion: 2026,
@@ -30,7 +28,9 @@ const config = [
     },
     rules: {
       "prettier/prettier": ["error"],
-      "no-only-tests/no-only-tests": ["error"],
+      "node-core-test/no-exclusive-tests": ["error"],
+      "node-core-test/no-incomplete-tests": ["error"],
+      "node-core-test/no-skipped-tests": ["error"],
       "jsdoc/require-jsdoc": ["off"],
       "jsdoc/tag-lines": ["off"], // let prettier-plugin-jsdoc take care of this
     },
