@@ -124,7 +124,7 @@ describe("prewarmSchemaCache", function () {
   it("populates cache with all expected URLs", async function () {
     nock.disableNetConnect();
     const mocks = [
-      nock("https://json.schemastore.org")
+      nock("https://www.schemastore.org")
         .persist()
         .get("/schema-catalog.json")
         .reply(200, {
@@ -175,7 +175,7 @@ describe("prewarmSchemaCache", function () {
 
     assert.strictEqual(testCache.cache.keys().length, 6);
     assert(
-      testCache.cache.get("https://json.schemastore.org/schema-catalog.json"),
+      testCache.cache.get("https://www.schemastore.org/schema-catalog.json"),
     );
     assert(
       testCache.cache.get("https://www.schemastore.org/api/json/catalog.json"),
@@ -208,7 +208,7 @@ describe("prewarmSchemaCache", function () {
       });
 
     const mocks = [
-      nock("https://json.schemastore.org")
+      nock("https://www.schemastore.org")
         .persist()
         .get("/schema-catalog.json")
         .reply(200, {

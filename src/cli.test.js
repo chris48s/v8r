@@ -23,7 +23,7 @@ describe("CLI", function () {
   // Mock the catalog validation schema
   beforeEach(function () {
     nock.disableNetConnect();
-    nock("https://json.schemastore.org")
+    nock("https://www.schemastore.org")
       .persist()
       .get("/schema-catalog.json")
       .reply(200, {

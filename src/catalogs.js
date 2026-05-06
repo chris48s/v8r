@@ -7,7 +7,7 @@ import logger from "./logger.js";
 const SCHEMASTORE_CATALOG_URL =
   "https://www.schemastore.org/api/json/catalog.json";
 const SCHEMASTORE_CATALOG_SCHEMA_URL =
-  "https://json.schemastore.org/schema-catalog.json";
+  "https://www.schemastore.org/schema-catalog.json";
 
 function coerceMatch(inMatch) {
   const outMatch = {};
