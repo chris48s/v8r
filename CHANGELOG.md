@@ -1,5 +1,12 @@
 # Changelog
 
+## 📦 [6.1.0](https://www.npmjs.com/package/v8r/v/6.1.0) - 2026-05-17
+
+* v8r is now tested on node 26.
+* Improve caching of redirect responses.
+* Call www.schemastore.org instead of json.schemastore.org.
+* Testing and documentation improvements.
+
 ## 📦 [6.0.0](https://www.npmjs.com/package/v8r/v/6.0.0) - 2026-02-21
 
 * **Breaking:** Drop compatibility with node 20
