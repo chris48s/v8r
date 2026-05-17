@@ -12,7 +12,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          node-version: 25
+          node-version: 26
 
       - name: Build standalone binary
         run: npm run build:exe
@@ -35,7 +35,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          node-version: 25
+          node-version: 26
 
       - name: Build standalone binary
         run: npm run build:bin
