@@ -52,7 +52,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "cobertura": "^1.0.3",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.0",
     "eslint": "^10.0.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-jsdoc": "^62.7.0",
