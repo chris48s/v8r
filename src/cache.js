@@ -66,6 +66,10 @@ class Cache {
       const parsedBody = parseSchema(resp.body, url);
       if (this.ttl > 0) {
         this.cache.set(url, { body: parsedBody });
+        const finalUrl = resp.url;
+        if (finalUrl !== url) {
+          this.cache.set(finalUrl, { body: parsedBody });
+        }
         if (persist) {
           this.cache.save(true);
         }

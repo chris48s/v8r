@@ -41,6 +41,24 @@ describe("Cache", function () {
       nock.cleanAll();
     });
 
+    it("should cache response under both requested URL and final URL when redirect occurs", async function () {
+      const mock = nock("https://www.foobar.com")
+        .get("/original")
+        .reply(301, "", { Location: "https://www.foobar.com/final" })
+        .get("/final")
+        .reply(200, JSON.stringify({ redirected: true }));
+
+      await testCache.fetch("https://www.foobar.com/original");
+
+      assert.deepEqual(testCache.cache.get("https://www.foobar.com/original"), {
+        body: { redirected: true },
+      });
+      assert.deepEqual(testCache.cache.get("https://www.foobar.com/final"), {
+        body: { redirected: true },
+      });
+      mock.done();
+    });
+
     it("should not use cached response if expired", async function () {
       const mock = nock("https://www.foobar.com")
         .get("/baz")
