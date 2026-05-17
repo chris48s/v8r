@@ -1,6 +1,6 @@
 {
   "name": "v8r",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "A command-line JSON, YAML and TOML validator that's on your wavelength",
   "scripts": {
     "test": "V8R_CACHE_NAME=v8r-test node --test --experimental-test-coverage",
