@@ -77,5 +77,8 @@
     "jsonschema",
     "json-schema",
     "command-line"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.28.0": true
+  }
 }
