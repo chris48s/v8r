@@ -9,7 +9,7 @@ jobs:
         node: ['22', '24', '26']
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - run: echo "build_status_message=failing" >> $GITHUB_ENV
       - run: echo "build_status_color=red" >> $GITHUB_ENV
@@ -61,7 +61,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -89,7 +89,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Write License badge
         uses: action-badges/package-json-badges@main
