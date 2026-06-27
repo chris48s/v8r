@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     if: github.event.ref_type == 'tag'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -30,7 +30,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -54,7 +54,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download artifacts
         uses: actions/download-artifact@v8
@@ -95,7 +95,7 @@ jobs:
     needs: release
     environment: publish
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
