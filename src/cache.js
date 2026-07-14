@@ -1,4 +1,3 @@
-import got from "got";
 import Mutex from "p-mutex";
 import logger from "./logger.js";
 import { parseSchema } from "./parser.js";
@@ -60,29 +59,31 @@ class Cache {
       return cachedResponse.body;
     }
 
+    logger.debug(`Cache miss: calling ${url}`);
+    let resp;
     try {
-      logger.debug(`Cache miss: calling ${url}`);
-      const resp = await got(url);
-      const parsedBody = parseSchema(resp.body, url);
-      if (this.ttl > 0) {
-        this.cache.set(url, { body: parsedBody });
-        const finalUrl = resp.url;
-        if (finalUrl !== url) {
-          this.cache.set(finalUrl, { body: parsedBody });
-        }
-        if (persist) {
-          this.cache.save(true);
-        }
-      }
-      return parsedBody;
+      resp = await fetch(url);
     } catch (error) {
-      if (error.response) {
-        throw new Error(`Failed fetching ${url}\n${error.response.body}`, {
-          cause: error,
-        });
-      }
       throw new Error(`Failed fetching ${url}`, { cause: error });
     }
+
+    const responseBody = await resp.text();
+    if (!resp.ok) {
+      throw new Error(`Failed fetching ${url}\n${responseBody}`);
+    }
+
+    const parsedBody = parseSchema(responseBody, url);
+    if (this.ttl > 0) {
+      this.cache.set(url, { body: parsedBody });
+      const finalUrl = resp.url;
+      if (finalUrl !== url) {
+        this.cache.set(finalUrl, { body: parsedBody });
+      }
+      if (persist) {
+        this.cache.save(true);
+      }
+    }
+    return parsedBody;
   }
 
   persist() {
