@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
+import { bootstrap } from "global-agent";
 import { cli } from "./cli.js";
 
-import { bootstrap } from "global-agent";
-bootstrap();
+export async function main(config) {
+  bootstrap();
+  return cli(config);
+}
 
-cli().then((exitCode) => process.exit(exitCode));
+if (import.meta.filename === process.argv[1]) {
+  main().then((exitCode) => process.exit(exitCode));
+}
