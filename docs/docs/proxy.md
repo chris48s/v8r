@@ -4,8 +4,11 @@ sidebar_position: 5
 
 # Configuring a Proxy
 
-It is possible to configure a proxy via [global-agent](https://www.npmjs.com/package/global-agent) using the `GLOBAL_AGENT_HTTP_PROXY` environment variable:
+It is possible to configure a proxy using node's [standard proxy env vars](https://nodejs.org/learn/http/enterprise-network-configuration#proxy-configuration) e.g:
 
 ```bash
-export GLOBAL_AGENT_HTTP_PROXY=http://myproxy:8888
+export NODE_USE_ENV_PROXY=1
+export HTTPS_PROXY=https://myproxy:8888
 ```
+
+Proxy configuration requires node v22.21.0+ or v24.5.0+.
