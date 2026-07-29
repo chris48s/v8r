@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-import { bootstrap } from "global-agent";
 import { cli } from "./cli.js";
 
 export async function main(config) {
-  bootstrap();
   return cli(config);
 }
 

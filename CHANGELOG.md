@@ -1,5 +1,12 @@
 # Changelog
 
+## TODO Next Major
+
+* **Breaking:** Proxy configuration via `GLOBAL_AGENT_HTTP_PROXY` has been removed.
+  v8r now uses standard node proxy vars for proxy configuration.
+  This is necessary because v8r now uses native `fetch()` internally.
+  For more info on configuring a proxy, see https://chris48s.github.io/v8r/proxy/
+
 ## 📦 [6.1.0](https://www.npmjs.com/package/v8r/v/6.1.0) - 2026-05-17
 
 * v8r is now tested on node 26.
