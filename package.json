@@ -33,7 +33,7 @@
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
     "chalk": "^5.0.0",
-    "cosmiconfig": "^9.0.0",
+    "cosmiconfig": "^10.0.0",
     "decamelize": "^6.0.0",
     "flat-cache": "^6.1.4",
     "glob": "^13.0.0",
