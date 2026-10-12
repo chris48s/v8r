@@ -114,6 +114,7 @@ class Document {
     this.document = document;
   }
 }
+/* eslint-enable jsdoc/reject-any-type */
 
 /**
  * @typedef {object} ValidationResult
