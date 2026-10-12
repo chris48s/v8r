@@ -100,6 +100,6 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          node-version: 24
+          node-version: 26
 
       - run: npm publish
