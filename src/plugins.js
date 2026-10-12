@@ -110,7 +110,6 @@ class Document {
    *
    * @param {any} document - The object to be wrapped
    */
-  /* eslint-enable jsdoc/reject-any-type */
   constructor(document) {
     this.document = document;
   }

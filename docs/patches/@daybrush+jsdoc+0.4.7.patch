@@ -1,0 +1,21 @@
+diff --git a/node_modules/@daybrush/jsdoc/lib/jsdoc/util/dumper.js b/node_modules/@daybrush/jsdoc/lib/jsdoc/util/dumper.js
+index ad2cf55..7e061d5 100644
+--- a/node_modules/@daybrush/jsdoc/lib/jsdoc/util/dumper.js
++++ b/node_modules/@daybrush/jsdoc/lib/jsdoc/util/dumper.js
+@@ -95,13 +95,13 @@ ObjectWalker.prototype.walk = function(o) {
+             return newArray;
+         });
+     }
+-    else if ( util.isRegExp(o) ) {
++    else if (  o instanceof RegExp ) {
+         result = '<RegExp ' + o + '>';
+     }
+-    else if ( util.isDate(o) ) {
++    else if (  o instanceof Date ) {
+         result = '<Date ' + o.toUTCString() + '>';
+     }
+-    else if ( util.isError(o) ) {
++    else if (  o instanceof Error ) {
+         result = { message: o.message };
+     }
+     else if ( this.isFunction(o) ) {
