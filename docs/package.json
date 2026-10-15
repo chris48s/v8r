@@ -22,8 +22,8 @@
     "jsdoc-to-mdx": "^1.2.1",
     "patch-package": "^8.0.1",
     "prism-react-renderer": "^2.4.1",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "browserslist": {
     "production": [
