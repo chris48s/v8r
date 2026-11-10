@@ -43,7 +43,7 @@
     "is-url": "^1.2.4",
     "js-yaml": "^4.0.0",
     "json5": "^2.2.0",
-    "minimatch": "^10.0.0",
+    "minimatch": "^11.0.1",
     "p-limit": "^7.0.0",
     "p-mutex": "^1.0.0",
     "smol-toml": "^1.0.1",
