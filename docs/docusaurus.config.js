@@ -27,6 +27,14 @@ const config = {
 
   onBrokenLinks: "throw",
 
+  scripts: [
+    {
+      src: "//gc.zgo.at/count.js",
+      async: true,
+      "data-goatcounter": "https://chris48s.goatcounter.com/count",
+    },
+  ],
+
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
